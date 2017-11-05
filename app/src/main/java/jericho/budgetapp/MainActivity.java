@@ -7,6 +7,8 @@ import android.widget.ListView;
 
 import com.budget_app.expenses.*;
 
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -14,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Expense expenses[] = new Expense[10];
+        Purchase purchases[] = new Purchase[10];
 
         Expense mcdonalds = new Expense("Mcdonalds", 1000, "Food", "Yummy Mcdonalds");
         Expense burgerKing = new Expense("Burger King", 1100, "Food", "Delicious Burger King");
@@ -27,18 +29,18 @@ public class MainActivity extends AppCompatActivity {
         Expense tuition = new Expense("Tuition", 2353003, "Education", "Expensive");
         Expense fruit = new Expense("Apple", 54, "Food", "Nice");
 
-        expenses[0] = mcdonalds;
-        expenses[1] = burgerKing;
-        expenses[2] = wendys;
-        expenses[3] = thanhVi;
-        expenses[4] = gangnamSushi;
-        expenses[5] = alcohol;
-        expenses[6] = water;
-        expenses[7] = montreal;
-        expenses[8] = tuition;
-        expenses[9] = fruit;
+        purchases[0] = new Purchase(mcdonalds, 0, new Date());
+        purchases[1] = new Purchase(burgerKing, 0, new Date());
+        purchases[2] = new Purchase(wendys, 0, new Date());
+        purchases[3] = new Purchase(thanhVi, 0, new Date());
+        purchases[4] = new Purchase(gangnamSushi, 0, new Date());
+        purchases[5] = new Purchase(alcohol, 0, new Date());
+        purchases[6] = new Purchase(water, 0, new Date());
+        purchases[7] = new Purchase(montreal, 0, new Date());
+        purchases[8] = new Purchase(tuition, 0, new Date());
+        purchases[9] = new Purchase(fruit, 0, new Date());
 
-        ListAdapter listAdapter = new ExpenseRowAdapter(this, expenses);
+        ListAdapter listAdapter = new ExpenseRowAdapter(this, purchases);
         ListView lvExpenses = (ListView) findViewById(R.id.lvExpenses);
         lvExpenses.setAdapter(listAdapter);
 

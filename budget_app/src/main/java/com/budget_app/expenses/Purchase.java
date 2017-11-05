@@ -3,13 +3,13 @@ package com.budget_app.expenses;
 import com.budget_app.jt_interfaces.*;
 import com.budget_app.jt_linked_list.NodeItem;
 import com.budget_app.error_handler.ErrorHandler;
-import java.time.*;
+import java.util.Date;
 
 public class Purchase extends NodeItem
 {
 
 	private Priceable item;
-	private  LocalDateTime dateTime;
+	private Date date;
 	private int quantity;
 	
 	//--------------------//
@@ -19,21 +19,21 @@ public class Purchase extends NodeItem
 	public Purchase()
 	{
 		this.item = null;
-		this.dateTime = LocalDateTime.now();
+		this.date = new Date();
 		this.quantity = 0;
 	}
 	
 	public Purchase(Purchase other)
 	{
 		this.item = other.item;
-		this.dateTime = other.dateTime;
+		this.date = other.date;
 		this.quantity = other.quantity;
 	}
 	
-	public Purchase(Priceable item, int quantity, LocalDateTime dateTime)
+	public Purchase(Priceable item, int quantity, Date date)
 	{
 		this.item = item;
-		this.dateTime = dateTime;
+		this.date = date;
 		this.quantity = quantity;
 	}
 	
@@ -41,7 +41,7 @@ public class Purchase extends NodeItem
 	public Purchase(Priceable item, int quantity)
 	{
 		this.item = item;
-		this.dateTime = LocalDateTime.now();
+		this.date = new Date();
 		this.quantity = quantity;
 	}
 
@@ -59,14 +59,14 @@ public class Purchase extends NodeItem
 		this.item = item;
 	}
 
-	public LocalDateTime getDateTime() 
+	public Date getDate()
 	{
-		return dateTime;
+		return date;
 	}
 
-	public void setDateTime(LocalDateTime dateTime) 
+	public void setDate(Date date)
 	{
-		this.dateTime = dateTime;
+		this.date = date;
 	}
 
 	public int getQuantity() 
@@ -91,7 +91,7 @@ public class Purchase extends NodeItem
 		if (other instanceof Purchase)
 		{
 			temp = (Purchase)other;
-			return (this.item == temp.getItem() && this.dateTime == temp.getDateTime() && this.quantity == temp.getQuantity());
+			return (this.item == temp.item && this.date == temp.date && this.quantity == temp.quantity);
 		}
 		else
 			ErrorHandler.printFailedDowncastErr("Compareable", this, "equals()");
@@ -107,7 +107,7 @@ public class Purchase extends NodeItem
 		if (other instanceof Purchase)
 		{
 			temp = (Purchase)other;
-			return (this.dateTime.compareTo(temp.getDateTime()));
+			return (this.date.compareTo(temp.date));
 		}
 		else
 			ErrorHandler.printFailedDowncastErr("Compareable", this, "compare()");
@@ -118,7 +118,7 @@ public class Purchase extends NodeItem
 	@Override
 	public String toString() 
 	{
-		return ("Item:\n" + this.item.toString() + "\nTime:\t" + this.dateTime.toString() + "\nQuantity:\t" + this.quantity);
+		return ("Item:\n" + this.item.toString() + "\nTime:\t" + this.date.toString() + "\nQuantity:\t" + this.quantity);
 	}
 
 	@Override
@@ -141,9 +141,9 @@ public class Purchase extends NodeItem
 		else
 			ErrorHandler.printFailedDowncastErr("Priceable", this, "toString_CSV()");
 		
-		if(output != "")
+		if(!output.equals(""))
 		{
-			output += "," + this.quantity + "," + this.dateTime.toString() + ";";
+			output += "," + this.quantity + "," + this.date.toString() + ";";
 		}
 		else
 			ErrorHandler.printErr("Could not properly downcast item!", this, "toString_CSV()");

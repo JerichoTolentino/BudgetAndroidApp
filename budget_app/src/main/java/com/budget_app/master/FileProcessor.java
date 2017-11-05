@@ -11,7 +11,9 @@ import com.budget_app.jt_linked_list.SortedList;
 import com.budget_app.jt_linked_list.StringItem;
 import com.budget_app.plans.*;
 import java.io.PrintWriter;
-import java.time.LocalDateTime;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
 import com.budget_app.error_handler.ErrorHandler;
 
@@ -178,7 +180,7 @@ public class FileProcessor
 	//process a line containing PurchaseHistory info
 	public static void processPurchaseLine(SortedList purchaseHistory, SortedList expenses, String line)
 	{
-		Node purchaseItem = null;
+		Node purchaseItem;
 		Priceable item = null;
 		
 		String fields[] = new String[4];
@@ -223,7 +225,13 @@ public class FileProcessor
 				ErrorHandler.printFailedDowncastErr("NodeItem", FileProcessor.class, "processPurchaseLine()");
 			
 			if(item != null)
-				purchaseHistory.insertSorted(new Purchase(item, Integer.parseInt(fields[2]), LocalDateTime.parse(fields[3])));
+			{
+				try {
+					purchaseHistory.insertSorted(new Purchase(item, Integer.parseInt(fields[2]), DateFormat.getDateInstance().parse(fields[3])));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
 			else
 				ErrorHandler.printNullPointerErr("item", FileProcessor.class, "processPurchaseLine()");
 		}
@@ -236,7 +244,7 @@ public class FileProcessor
 	public static void writeListToFile(SortedList list, PrintWriter pr)
 	{
 		Node curr = list.getHead();
-		String output = "";
+		String output;
 		CSVExportable exportable;
 		
 		while(curr != null)

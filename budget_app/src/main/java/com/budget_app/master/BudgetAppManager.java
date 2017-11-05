@@ -10,7 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import com.budget_app.error_handler.ErrorHandler;
 
@@ -200,14 +200,14 @@ public class BudgetAppManager
 		Expense expense;
 		boolean added = false;
 		
-		if(name != "" && price > 0)
+		if(!name.equals("") && price > 0)
 		{
 			expense = new Expense(name, price);
 			
-			if(category != "")
+			if(!category.equals(""))
 				expense.setCategory(category);
 			
-			if(description != "")
+			if(!description.equals(""))
 				expense.setDescription(description);
 			
 			if(expenses.findNode(expense) == null)
@@ -229,7 +229,7 @@ public class BudgetAppManager
 	//removes an expense from the app; cascades to expenseGroups as well
 	public static boolean removeExpense(Expense expense)
 	{
-		boolean removed = false;
+		boolean removed;
 		Node currExpenseGroup;
 		SortedList expensesInGroup;
 		
@@ -304,7 +304,7 @@ public class BudgetAppManager
 		boolean added = false;
 		ExpenseGroup actualGroup = null;
 		Expense actualExpense = null;
-		Node temp = null;
+		Node temp;
 		
 		//get actual ExpenseGroup
 		temp = expenseGroups.findNode(expenseGroup);
@@ -396,7 +396,7 @@ public class BudgetAppManager
 	//remove an expense group from the app
 	public static boolean removeExpenseGroup(ExpenseGroup expenseGroup)
 	{
-		boolean removed = false;
+		boolean removed;
 		
 		removed = (expenseGroups.removeNode(expenseGroup) != null);
 		
@@ -497,9 +497,9 @@ public class BudgetAppManager
 	}
 
 	//get the list of purchases from a specified date
-	public static SortedList getPurchasesOn(LocalDateTime dateTime)
+	public static SortedList getPurchasesOn(Date date)
 	{
-		SortedList purchases = purchaseHistory.getPurchasesOn(dateTime);
+		SortedList purchases = purchaseHistory.getPurchasesOn(date);
 		
 		if(purchases == null)
 			MessageHandler.printMessage("No purchases found on that date.");
@@ -508,7 +508,7 @@ public class BudgetAppManager
 	}
 	
 	//get the list of purchases from a specified date range
-	public static SortedList getPurchasesBetween(LocalDateTime min, LocalDateTime max)
+	public static SortedList getPurchasesBetween(Date min, Date max)
 	{
 		SortedList purchases = purchaseHistory.getPurchasesBetween(min, max);
 		

@@ -1,7 +1,7 @@
 package com.budget_app.expenses;
 
 import com.budget_app.jt_linked_list.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 import com.budget_app.jt_interfaces.*;
 
 import com.budget_app.error_handler.ErrorHandler;
@@ -35,10 +35,10 @@ public class PurchaseHistory implements Stringable, CSVExportable
 	}
 	
 	//returns a wrapped list of the purchases on the specified date
-	public SortedList getPurchasesOn(LocalDateTime dateTime)
+	public SortedList getPurchasesOn(Date date)
 	{
 		SortedList purchasesOn = null;
-		Purchase currPurchase = null;
+		Purchase currPurchase;
 		Node curr = purchases.getHead();
 		Node prev = null;
 		int purchasesOnSize = 0;
@@ -51,7 +51,7 @@ public class PurchaseHistory implements Stringable, CSVExportable
 				currPurchase = (Purchase)curr.getItem();
 				
 				//if the date of curr is the desired date (list should be ordered!)
-				if(dateTime.toLocalDate().equals(currPurchase.getDateTime().toLocalDate()))
+				if(date.toString().equals(currPurchase.getDate().toString()))
 				{
 					//should only happen once.. create SortedList and set it's head
 					if(purchasesOnSize == 0)
@@ -81,10 +81,10 @@ public class PurchaseHistory implements Stringable, CSVExportable
 	}
 
 	//returns a wrapped list of the purchases between the specified dates
-	public SortedList getPurchasesBetween(LocalDateTime min, LocalDateTime max)
+	public SortedList getPurchasesBetween(Date min, Date max)
 	{
 		SortedList purchasesOn = null;
-		Purchase currPurchase = null;
+		Purchase currPurchase;
 		Node curr = purchases.getHead();
 		Node prev = null;
 		int purchasesOnSize = 0;
@@ -97,7 +97,7 @@ public class PurchaseHistory implements Stringable, CSVExportable
 				currPurchase = (Purchase)curr.getItem();
 				
 				//if the date of curr is within the desired range (list should be ordered!)
-				if(min.compareTo(currPurchase.getDateTime()) <= 0 && max.compareTo(currPurchase.getDateTime()) >= 0)
+				if(min.compareTo(currPurchase.getDate()) <= 0 && max.compareTo(currPurchase.getDate()) >= 0)
 				{
 					//should only happen once.. create SortedList and set it's head
 					if(purchasesOnSize == 0)
