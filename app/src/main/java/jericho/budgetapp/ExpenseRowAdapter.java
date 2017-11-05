@@ -21,7 +21,7 @@ import com.budget_app.utilities.*;
 
 class ExpenseRowAdapter extends ArrayAdapter<Purchase>
 {
-    private static final int SELECTED_COLOR = Color.GREEN;
+    private static final int SELECTED_COLOR = Color.rgb(187, 255, 122);
     private static final int NOT_SELECTED_COLOR = Color.WHITE;
 
     public ExpenseRowAdapter(@NonNull Context context, Purchase purchases[])
