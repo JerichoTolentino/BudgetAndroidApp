@@ -1,8 +1,13 @@
 package com.budget_app.master;
 
-import com.budget_app.jt_linked_list.*;
-import com.budget_app.expenses.*;
+import com.budget_app.error_handler.ErrorHandler;
+import com.budget_app.expenses.Expense;
+import com.budget_app.expenses.ExpenseGroup;
+import com.budget_app.expenses.Purchase;
+import com.budget_app.expenses.PurchaseHistory;
 import com.budget_app.jt_interfaces.Priceable;
+import com.budget_app.jt_linked_list.Node;
+import com.budget_app.jt_linked_list.SortedList;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -12,8 +17,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-import com.budget_app.error_handler.ErrorHandler;
-
 public class BudgetAppManager 
 {
 	private static final String EXPENSES_FILE = "res/data/expenses.app";
@@ -21,10 +24,10 @@ public class BudgetAppManager
 	private static final String PLANS_FILE = "res/data/plans.app";
 	private static final String PURCHASE_HISTORY_FILE = "res/data/purchase_history.app";
 	
-	private static SortedList expenses = new SortedList();
-	private static SortedList expenseGroups = new SortedList();
-	private static SortedList plans = new SortedList();
-	private static PurchaseHistory purchaseHistory = new PurchaseHistory();
+	private static SortedList expenses;
+	private static SortedList expenseGroups;
+	private static SortedList plans;
+	private static PurchaseHistory purchaseHistory;
 
 	//-------------------------//
 	//--- Getters & Setters ---//
@@ -190,7 +193,50 @@ public class BudgetAppManager
 		
 	}
 
-	
+
+	//--- Methods for Front-End ---///
+
+	public static void init()
+	{
+		expenses = new SortedList();
+		expenseGroups = new SortedList();
+		plans = new SortedList();
+		purchaseHistory = new PurchaseHistory();
+	}
+
+	public static SortedList initAllPurchases()
+	{
+		//create purchases for each expense/expense group
+		SortedList purchases = new SortedList();
+
+		//add all expenses to list
+		Node curr = expenses.getHead();
+
+		while(curr != null)
+		{
+			if(curr.getItem() instanceof Priceable)
+				purchases.insertFront(new Purchase((Priceable)curr.getItem(), 0));
+			curr = curr.getNext();
+		}
+
+		//add all expense groups to list
+		curr = expenseGroups.getHead();
+
+		while(curr != null)
+		{
+			if(curr.getItem() instanceof Priceable)
+				purchases.insertFront(new Purchase((Priceable)curr.getItem(), 0));
+			curr = curr.getNext();
+		}
+
+		return purchases;
+	}
+
+	public static void close()
+	{
+		//write all data to database
+	}
+
 	
 	//--- Expense Methods ---//
 	

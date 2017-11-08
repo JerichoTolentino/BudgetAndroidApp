@@ -2,7 +2,6 @@ package jericho.budgetapp;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -12,8 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.budget_app.expenses.*;
-import com.budget_app.utilities.*;
+import com.budget_app.expenses.Expense;
+import com.budget_app.expenses.Purchase;
+import com.budget_app.utilities.MoneyFormatter;
 
 /**
  * Created by Jericho on 11/4/2017.
@@ -23,10 +23,12 @@ class ExpenseRowAdapter extends ArrayAdapter<Purchase>
 {
     private static final int SELECTED_COLOR = Color.rgb(187, 255, 122);
     private static final int NOT_SELECTED_COLOR = Color.WHITE;
+    private Context m_context;
 
     public ExpenseRowAdapter(@NonNull Context context, Purchase purchases[])
     {
         super(context, R.layout.expense_row, purchases);
+        this.m_context = context;
     }
 
     @NonNull
@@ -47,6 +49,9 @@ class ExpenseRowAdapter extends ArrayAdapter<Purchase>
         final Button btnIncrease = customView.findViewById(R.id.btnIncrease);
         final Button btnDecrease = customView.findViewById(R.id.btnDecrease);
 
+        //Get reference to total
+        final TextView tvTotal = parent.findViewById(R.id.tvCurrentTotal);
+
         assert expense != null;
 
         //Set row elements based on purchase fields
@@ -65,6 +70,15 @@ class ExpenseRowAdapter extends ArrayAdapter<Purchase>
 
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
 
+                        //calculate and set total price in MainActivity
+                        if(m_context instanceof MainActivity)
+                        {
+                            long currTotal = ((MainActivity)m_context).getTotalPrice();
+                            currTotal += purchase.getItem().getPrice();
+                            ((MainActivity) m_context).updateTotalPrice(MoneyFormatter.formatLongToMoney(currTotal));
+                            ((MainActivity) m_context).addToPurchases(purchase);
+                        }
+
                         checkQuantity(purchase.getQuantity(), customView);
                     }
                 }
@@ -77,15 +91,25 @@ class ExpenseRowAdapter extends ArrayAdapter<Purchase>
                     public void onClick(View v)
                     {
                         if(purchase.getQuantity() > 0)
+                        {
                             purchase.setQuantity(purchase.getQuantity() - 1);
 
+                            //calculate and set total price in MainActivity
+                            if(m_context instanceof MainActivity)
+                            {
+                                long currTotal = ((MainActivity)m_context).getTotalPrice();
+                                currTotal -= purchase.getItem().getPrice();
+                                ((MainActivity) m_context).updateTotalPrice(MoneyFormatter.formatLongToMoney(currTotal));
+                                ((MainActivity) m_context).removeFromPurchases(purchase);
+                            }
+
+                        }
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
 
                         checkQuantity(purchase.getQuantity(), customView);
                     }
                 }
         );
-
 
         return customView;
     }
