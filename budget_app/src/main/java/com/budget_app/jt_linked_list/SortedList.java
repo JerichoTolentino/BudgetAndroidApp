@@ -63,6 +63,7 @@ public class SortedList extends LinkedList
 					//attach node to list
 					prev.setNext(node);
 					curr.setPrev(node);
+					super.setSize(getSize() + 1);
 				}
 				//reuse insertFront() method
 				else

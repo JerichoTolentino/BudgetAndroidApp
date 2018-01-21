@@ -1,7 +1,13 @@
 package jericho.budgetapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -20,12 +26,23 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private SortedList m_allPurchases;
+    private ActionMenuView amvMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BudgetAppManager.init();
+
+        Toolbar toolbar = findViewById(R.id.custom_toolbar);
+        amvMenu = toolbar.findViewById(R.id.amvMenu);
+        amvMenu.setOnMenuItemClickListener(new ActionMenuView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return onOptionsItemSelected(item);
+            }
+        });
+        setSupportActionBar(toolbar);
 
         m_allPurchases = new SortedList();
 
@@ -66,10 +83,36 @@ public class MainActivity extends AppCompatActivity {
         purchases[8] = new Purchase(tuition, 0, new Date());
         purchases[9] = new Purchase(fruit, 0, new Date());
 
-        ListAdapter listAdapter = new ExpenseRowAdapter(this, purchases);
-        ListView lvExpenses = (ListView) findViewById(R.id.lvExpenses);
+        ListAdapter listAdapter = new PurchaseRowAdapter(this, purchases);
+        ListView lvExpenses = (ListView) findViewById(R.id.lvPurchases);
         lvExpenses.setAdapter(listAdapter);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_items, amvMenu.getMenu());
+        amvMenu.getMenu().findItem(R.id.add_new).setVisible(false);
+        amvMenu.getMenu().findItem(R.id.manage_expenses_title).setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.open_side_menu:
+                Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+                startActivity(intent);
+                //overridePendingTransition(R.anim.push_left_in,R.anim.push_up_out); // eventually create animation files to change the activity transition
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    //region Event Handlers
 
     public void btnPurchase_onClick(View v)
     {
@@ -94,6 +137,10 @@ public class MainActivity extends AppCompatActivity {
         if(!message.equals(""))
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+
+    //endregion
+
+    //region Helper Methods
 
     public void addToPurchases(Purchase purchase)
     {
@@ -135,5 +182,6 @@ public class MainActivity extends AppCompatActivity {
         return Long.parseLong(tvCurrentTotal.getText().toString().replace("$","").replace(",","").replace(".",""));
     }
 
+    //endregion
 
 }
