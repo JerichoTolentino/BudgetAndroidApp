@@ -1,6 +1,7 @@
 package jericho.budgetapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -60,8 +61,8 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
                 {
                     public void onClick(View v)
                     {
-                        String text = expense.toString();
-                        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getContext(), EditExpenseActivity.class);
+                        intent.putExtra("ExpenseID", expense.getId());
                     }
                 }
         );

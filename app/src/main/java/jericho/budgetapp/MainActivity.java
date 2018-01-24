@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         lvExpenses.setAdapter(listAdapter);
     }
 
+    // region Toolbar Events
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    //endregion
 
     //region Event Handlers
 

@@ -1,37 +1,44 @@
 package com.budget_app.expenses;
 
-import com.budget_app.jt_linked_list.*;
 import com.budget_app.error_handler.ErrorHandler;
-import com.budget_app.jt_interfaces.*;
+import com.budget_app.jt_interfaces.Compareable;
+import com.budget_app.jt_interfaces.Priceable;
+import com.budget_app.jt_linked_list.Node;
+import com.budget_app.jt_linked_list.NodeItem;
+import com.budget_app.jt_linked_list.SortedList;
 
-public class ExpenseGroup extends NodeItem implements Priceable 
+public class ExpenseGroup extends NodeItem implements Priceable
 {
+	private static final long DEFAULT_ID = 0;
 	private static final long DEFAULT_PRICE = 0;
 	private static final String DEFAULT_NAME = "";
 	private static final String DEFAULT_CATEGORY = "Uncategorized";
 	private static final String DEFAULT_DESCRIPTION = "";
 
+	private long id;
 	private long price;
 	private String name;
 	private String category;
 	private String description;
 	private SortedList expenses;
-	
+
 	//--------------------//
 	//--- Constructors ---//
 	//--------------------//
 
 	public ExpenseGroup()
 	{
+		this.id = DEFAULT_ID;
 		this.price = DEFAULT_PRICE;
 		this.name = DEFAULT_NAME;
 		this.category = DEFAULT_CATEGORY;
 		this.description = DEFAULT_DESCRIPTION;
 		this.expenses = new SortedList();
 	}
-	
+
 	public ExpenseGroup(ExpenseGroup other)
 	{
+		this.id = other.id;
 		this.price = other.price;
 		this.name = other.name;
 		this.category = other.category;
@@ -39,9 +46,10 @@ public class ExpenseGroup extends NodeItem implements Priceable
 		this.expenses = new SortedList(other.expenses);
 		updatePrice();
 	}
-	
+
 	public ExpenseGroup(String name, String category, String description, SortedList expenses)
 	{
+		this.id = DEFAULT_ID;
 		this.name = name;
 		this.price = 0;
 		this.category = category;
@@ -49,9 +57,10 @@ public class ExpenseGroup extends NodeItem implements Priceable
 		this.expenses = expenses;
 		updatePrice();
 	}
-	
+
 	public ExpenseGroup(String name, String category, String description)
 	{
+		this.id = DEFAULT_ID;
 		this.name = name;
 		this.price = 0;
 		this.category = category;
@@ -59,18 +68,21 @@ public class ExpenseGroup extends NodeItem implements Priceable
 		this.expenses = new SortedList();
 		updatePrice();
 	}
-	
-	public ExpenseGroup(String name, long price, String category, String description)
+
+	public ExpenseGroup(long id, String name, long price, String category, String description, SortedList expenses)
 	{
+		this.id = id;
 		this.price = price;
 		this.name = name;
 		this.category = category;
 		this.description = description;
-		this.expenses = new SortedList();
+		this.expenses = expenses;
+		updatePrice();
 	}
-	
+
 	public ExpenseGroup(String name, long price, String category, String description, SortedList expenses)
 	{
+		this.id = DEFAULT_ID;
 		this.price = price;
 		this.name = name;
 		this.category = category;
@@ -82,53 +94,58 @@ public class ExpenseGroup extends NodeItem implements Priceable
 	//dummy constructor for lookup
 	public ExpenseGroup(String name)
 	{
+		this.id = DEFAULT_ID;
 		this.name = name;
 		this.price = DEFAULT_PRICE;
 		this.category = DEFAULT_CATEGORY;
 		this.description = DEFAULT_DESCRIPTION;
 		this.expenses = null;
 	}
-	
+
 	//-------------------------//
 	//--- Getters & Setters ---//
 	//-------------------------//
 
-	public String getName() 
+	public long getId() { return this.id; }
+
+	public void setId(long id) { this.id = id; }
+
+	public String getName()
 	{
 		return name;
 	}
 
-	public void setName(String name) 
+	public void setName(String name)
 	{
 		this.name = name;
 	}
 
-	public String getCategory() 
+	public String getCategory()
 	{
 		return category;
 	}
 
-	public void setCategory(String category) 
+	public void setCategory(String category)
 	{
 		this.category = category;
 	}
 
-	public String getDescription() 
+	public String getDescription()
 	{
 		return description;
 	}
 
-	public void setDescription(String description) 
+	public void setDescription(String description)
 	{
 		this.description = description;
 	}
 
-	public SortedList getExpenses() 
+	public SortedList getExpenses()
 	{
 		return expenses;
 	}
 
-	public void setExpenses(SortedList expenses) 
+	public void setExpenses(SortedList expenses)
 	{
 		this.expenses = expenses;
 		updatePrice();
@@ -140,79 +157,90 @@ public class ExpenseGroup extends NodeItem implements Priceable
 
 	//modified to only use name for lookup via name functionality
 	@Override
-	public boolean equals(Compareable other) 
+	public boolean equals(Compareable other)
 	{
 		ExpenseGroup temp;
-		
+		boolean result = false;
+
 		if (other instanceof ExpenseGroup)
 		{
 			temp = (ExpenseGroup)other;
-			return (this.name.equals(temp.getName()));
+			result = this.name.equals(temp.name) &&
+					this.id == temp.id &&
+					this.price == temp.price &&
+					this.category.equals(temp.category) &&
+					this.description.equals(temp.description) &&
+					this.expenses.equals(temp.expenses);
 		}
 		else
 			ErrorHandler.printFailedDowncastErr("Compareable", this, "equals()");
-		
-		return false;
+
+		return result;
 	}
 
-	//compares the prices of the two expense groups
 	@Override
-	public int compare(Compareable other) 
+	public int compare(Compareable other)
 	{
 		ExpenseGroup temp;
-		
+		int result = -1;
+
 		if (other instanceof ExpenseGroup)
 		{
 			temp = (ExpenseGroup)other;
-			return (int)(this.price - temp.price);
+			result = this.name.compareTo(temp.name);
+
+			if(result == 0)
+				result = (int)(this.price - temp.price);	//Note: this is probably bad
+			if(result == 0)
+				result = this.category.compareTo(temp.category);
+			if(result == 0)
+				result = this.description.compareTo(temp.description);
+			if(result == 0)
+				result = (int)(this.id - temp.id);			//Note: this is probably bad
 		}
 		else
 			ErrorHandler.printFailedDowncastErr("Compareable", this, "compare()");
-		
-		return 0;
+
+		return result;
 	}
 
 	@Override
-	public long getPrice() 
+	public long getPrice()
 	{
 		return this.price;
 	}
 
 	@Override
-	public void setPrice(long price) 
+	public void setPrice(long price)
 	{
 		this.price = price;
 	}
 
 	@Override
-	public String toString() 
+	public String toString()
 	{
-		return "Name:\t" + name + "\nPrice:\t" + Long.toString(price) + "\nCategory:\t" + category + 
-				"\nDescription:\t" + description + "\nExpenses:\n" + expenses.toString();
+		return "ID:\t" + Long.toString(this.id) + "\nName:\t" + name + "\nPrice:\t" + Long.toString(price)
+				+ "\nCategory:\t" + category + "\nDescription:\t" + description + "\nExpenses:\n" + expenses.toString();
 	}
-	
+
 	@Override
-	public String toString_CSV() 
+	public String toString_CSV()
 	{
-		String output = "";
+		String output;
 		Node curr = this.expenses.getHead();
-		
-		output = '"' + this.name + "\",\"" + this.category + "\",\"" + this.description;
-		
+
+		output = Long.toString(this.id) + ",\"" + this.name + "\",\"" + this.category + "\",\"" + this.description + "\"";
+
 		while(curr != null)
 		{
 			if(curr.getItem() instanceof Expense)
-			{
-			output += "\",\"" + ((Expense)curr.getItem()).getName();
-			}
+				output += ",\"" + ((Expense)curr.getItem()).getName() + "\"";
 			else
 				ErrorHandler.printFailedDowncastErr("NodeItem", this, "toString_CSV()");
-				
+
 			curr = curr.getNext();
 		}
-		
-		output += "\";";
-		
+
 		return output;
 	}
 
@@ -226,15 +254,15 @@ public class ExpenseGroup extends NodeItem implements Priceable
 		expenses.insertSorted(expense);
 		updatePrice();
 	}
-	
+
 	//remove an expense from the group; returns false if failed
 	public boolean removeExpense(Expense expense)
 	{
 		boolean result = (expenses.removeNode(expense) != null);
-		
+
 		if(result)
 			updatePrice();
-		
+
 		return result;
 	}
 
@@ -248,19 +276,19 @@ public class ExpenseGroup extends NodeItem implements Priceable
 		Node curr = expenses.getHead();
 		NodeItem item;
 		long totalPrice = 0;
-		
+
 		while(curr != null)
 		{
 			item = curr.getItem();
-			
+
 			if(item instanceof Expense)
 				totalPrice += ((Expense)item).getPrice();
 			else
 				ErrorHandler.printFailedDowncastErr("NodeItem", this, "calculatePrice()");
-			
+
 			curr = curr.getNext();
 		}
-		
+
 		this.price = totalPrice;
 	}
 
