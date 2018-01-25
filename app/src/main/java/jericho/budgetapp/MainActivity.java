@@ -23,6 +23,8 @@ import com.budget_app.utilities.MoneyFormatter;
 
 import java.util.Date;
 
+import utils.Utils;
+
 public class MainActivity extends AppCompatActivity {
 
     private SortedList m_allPurchases;
@@ -94,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, amvMenu.getMenu());
-        amvMenu.getMenu().findItem(R.id.add_new).setVisible(false);
-        amvMenu.getMenu().findItem(R.id.manage_expenses_title).setVisible(false);
+        Utils.showMenuItems(amvMenu.getMenu(), new int[]{R.id.toolbar_title, R.id.view_history, R.id.open_side_menu});
         return super.onCreateOptionsMenu(menu);
     }
 

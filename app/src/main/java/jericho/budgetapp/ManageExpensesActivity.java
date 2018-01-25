@@ -15,6 +15,8 @@ import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.SortedList;
 import com.budget_app.master.BudgetAppManager;
 
+import utils.Utils;
+
 public class ManageExpensesActivity extends AppCompatActivity {
 
     private ActionMenuView amvMenu;
@@ -56,8 +58,7 @@ public class ManageExpensesActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, amvMenu.getMenu());
-        amvMenu.getMenu().findItem(R.id.view_history).setVisible(false);
-        amvMenu.getMenu().findItem(R.id.toolbar_title).setVisible(false);
+        Utils.showMenuItems(amvMenu.getMenu(), new int[] {R.id.add_new, R.id.open_side_menu, R.id.manage_expenses_title});
         return super.onCreateOptionsMenu(menu);
     }
 

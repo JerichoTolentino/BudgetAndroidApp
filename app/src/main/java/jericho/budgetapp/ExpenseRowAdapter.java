@@ -63,6 +63,11 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
                     {
                         Intent intent = new Intent(getContext(), EditExpenseActivity.class);
                         intent.putExtra("ExpenseID", expense.getId());
+                        intent.putExtra("ExpenseName", expense.getName());
+                        intent.putExtra("ExpensePrice", String.valueOf(expense.getPrice()));
+                        intent.putExtra("ExpenseCategory", expense.getCategory());
+                        intent.putExtra("ExpenseDescription", expense.getDescription());
+                        getContext().startActivity(intent);
                     }
                 }
         );
