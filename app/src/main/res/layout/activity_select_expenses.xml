@@ -4,11 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jericho.budgetapp.ManageExpensesActivity">
+    tools:context="jericho.budgetapp.SelectExpensesActivity">
 
-    <include layout="@layout/custom_toolbar"
-        android:id="@id/custom_toolbar"
-        />
+    <include
+        android:id="@+id/custom_toolbar"
+        layout="@layout/custom_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/lvExpenses"
@@ -17,7 +20,7 @@
         app:layout_constraintBottom_toTopOf="@+id/BottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/custom_toolbar"></ListView>
+        app:layout_constraintTop_toBottomOf="@+id/custom_toolbar" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/BottomBar"
@@ -36,8 +39,8 @@
             android:layout_height="50dp"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
-            android:onClick="btnSwitchView_OnClick"
-            android:text="@string/manage_expense_groups"
+            android:onClick="btnConfirm_OnClick"
+            android:text="@string/confirm"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

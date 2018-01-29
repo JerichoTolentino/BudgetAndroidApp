@@ -2,7 +2,9 @@ package com.budget_app.jt_linked_list;
 
 import com.budget_app.error_handler.ErrorHandler;
 
-public class SortedList extends LinkedList 
+import java.io.Serializable;
+
+public class SortedList extends LinkedList implements Serializable
 {
 	
 	//--------------------//

@@ -3,7 +3,9 @@ package com.budget_app.jt_linked_list;
 import com.budget_app.error_handler.ErrorHandler;
 import com.budget_app.jt_interfaces.Compareable;
 
-public class LinkedList implements Compareable
+import java.io.Serializable;
+
+public class LinkedList implements Compareable, Serializable
 {
 	private Node head;
 	private Node tail;
@@ -274,9 +276,10 @@ public class LinkedList implements Compareable
 		Node remove = null;
 		Node find = findNode(search);
 		
-		if(find != null)
+		if(find != null) {
 			detachNode(find);
-		
+			this.size--;
+		}
 		remove = find;
 		
 		return remove;

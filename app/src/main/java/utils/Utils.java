@@ -13,7 +13,9 @@ import jericho.budgetapp.R;
 public class Utils
 {
 
-    private static final int[] ALL_MENU_ITEM_IDS = new int[] {R.id.view_history, R.id.open_side_menu, R.id.toolbar_title, R.id.add_new, R.id.manage_expenses_title};
+    private static final int[] ALL_MENU_ITEM_IDS = new int[] {R.id.view_history,
+                                                              R.id.add_new,
+                                                              R.id.remove};
 
     public static void showMenuItems(Menu menu, int[] visible_item_ids)
     {

@@ -1,8 +1,8 @@
 package jericho.budgetapp;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -10,20 +10,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-import com.budget_app.expenses.Expense;
+import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.SortedList;
 
 import utils.Utils;
 
-public class ManageExpensesActivity extends AppCompatActivity {
+public class ManageExpenseGroupsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manage_expenses);
+        setContentView(R.layout.activity_manage_expensegroups);
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
@@ -45,13 +45,13 @@ public class ManageExpensesActivity extends AppCompatActivity {
         switch (item.getItemId())
         {
             case android.R.id.home:
-                intent = new Intent(ManageExpensesActivity.this, MenuActivity.class);
+                intent = new Intent(ManageExpenseGroupsActivity.this, MenuActivity.class);
                 startActivity(intent);
                 break;
 
             case R.id.add_new:
-                intent = new Intent(ManageExpensesActivity.this, EditExpenseActivity.class);
-                intent.putExtra("expense", new Expense());
+                intent = new Intent(ManageExpenseGroupsActivity.this, EditExpenseGroupActivity.class);
+                intent.putExtra("expenseGroup", new ExpenseGroup());
                 intent.putExtra("createNew", true);
                 startActivity(intent);
 
@@ -65,7 +65,7 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        updateExpenseListView();
+        updateExpenseGroupListView();
         super.onResume();
     }
 
@@ -73,7 +73,7 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     public void btnSwitchView_OnClick(View v)
     {
-        Intent intent = new Intent(ManageExpensesActivity.this, ManageExpenseGroupsActivity.class);
+        Intent intent = new Intent(ManageExpenseGroupsActivity.this, ManageExpensesActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
@@ -82,21 +82,21 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     // region Helper Methods
 
-    public void updateExpenseListView()
+    public void updateExpenseGroupListView()
     {
-        SortedList expenses = new SortedList(MainActivity.g_dbHandler.queryExpenses(null));
-        Expense[] expenseArray = new Expense[expenses.getSize()];
+        SortedList expenseGroups = new SortedList(MainActivity.g_dbHandler.queryExpenseGroups(null));
+        ExpenseGroup[] expenseGroupArray = new ExpenseGroup[expenseGroups.getSize()];
 
-        Node curr = expenses.getHead();
+        Node curr = expenseGroups.getHead();
         int index = 0;
         while(curr != null)
         {
-            expenseArray[index] = (Expense) curr.getItem();
+            expenseGroupArray[index] = (ExpenseGroup) curr.getItem();
             index++;
             curr = curr.getNext();
         }
 
-        ExpenseRowAdapter adapter = new ExpenseRowAdapter(ManageExpensesActivity.this, expenseArray);
+        ExpenseGroupRowAdapter adapter = new ExpenseGroupRowAdapter(ManageExpenseGroupsActivity.this, expenseGroupArray);
         ListView lvExpenses = findViewById(R.id.lvExpenses);
         lvExpenses.setAdapter(adapter);
     }

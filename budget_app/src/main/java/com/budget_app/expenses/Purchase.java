@@ -3,9 +3,11 @@ package com.budget_app.expenses;
 import com.budget_app.jt_interfaces.*;
 import com.budget_app.jt_linked_list.NodeItem;
 import com.budget_app.error_handler.ErrorHandler;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class Purchase extends NodeItem
+public class Purchase extends NodeItem implements Serializable
 {
 
 	private long id;

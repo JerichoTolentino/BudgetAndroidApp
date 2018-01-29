@@ -2,4 +2,19 @@
     <string name="app_name">BudgetApp</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="name">Name</string>
+    <string name="price">Price</string>
+    <string name="category">Category</string>
+    <string name="description">Description</string>
+    <string name="current_total">Current Total:</string>
+    <string name="zero_dollars">$0.00</string>
+    <string name="purchase">Purchase</string>
+    <string name="confirm">Confirm</string>
+    <string name="add_to_expense_group">Add To Expense Group</string>
+    <string name="budget_buddy">Budget Buddy</string>
+    <string name="edit_expense">Edit Expense</string>
+    <string name="manage_expense_groups">Manage Expense Groups</string>
+    <string name="add_expenses">Add Expenses</string>
+    <string name="expenses">Expenses</string>
+    <string name="manage_expenses">Manage Expenses</string>
 </resources>

@@ -3,7 +3,6 @@ package jericho.budgetapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,77 +15,57 @@ import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.Purchase;
+import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.SortedList;
 import com.budget_app.master.BudgetAppManager;
 import com.budget_app.utilities.MoneyFormatter;
 
-import java.util.Date;
-
+import databases.DBHandler;
 import utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static DBHandler g_dbHandler;
+
+    private Toolbar toolbar;
     private SortedList m_allPurchases;
-    private ActionMenuView amvMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BudgetAppManager.init();
+        g_dbHandler = new DBHandler(getApplicationContext(), null, null, 0);
 
-        Toolbar toolbar = findViewById(R.id.custom_toolbar);
-        amvMenu = toolbar.findViewById(R.id.amvMenu);
-        amvMenu.setOnMenuItemClickListener(new ActionMenuView.OnMenuItemClickListener() {
+        toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_view_menu);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return onOptionsItemSelected(item);
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+                startActivity(intent);
             }
         });
+
         setSupportActionBar(toolbar);
 
         m_allPurchases = new SortedList();
 
-        Purchase purchases[] = new Purchase[10];
+        SortedList expenses = new SortedList(g_dbHandler.queryExpenses(null));
+        Priceable items[] = new Priceable[expenses.getSize()];
 
-        Toast.makeText(this, "Welcome to BudgetApp", Toast.LENGTH_SHORT).show();
+        Node curr = expenses.getHead();
+        int index = 0;
+        while (curr != null)
+        {
+            items[index] = (Priceable) curr.getItem();
+            index++;
+            curr = curr.getNext();
+        }
 
-        Expense mcdonalds = new Expense("Mcdonalds", 1000, "Food", "Yummy Mcdonalds");
-        Expense burgerKing = new Expense("Burger King", 1100, "Food", "Delicious Burger King");
-        Expense wendys = new Expense("Wendys", 1200, "Food", "Absolutely delightful Wendys");
-        Expense thanhVi = new Expense("Thanh Vi", 854, "Food", "Yum");
-        Expense gangnamSushi = new Expense("Gangnam Sushi", 1699, "Food", "Yummy");
-        Expense alcohol = new Expense("Alfred Lamb's", 2079, "Drinks", "Slurp");
-        Expense water = new Expense("Water", 199, "Drinks", "Plain");
-        Expense montreal = new Expense("Montreal Trip", 104523, "Travel", "Fun!");
-        Expense tuition = new Expense("Tuition", 2353003, "Education", "Expensive");
-        Expense fruit = new Expense("Apple", 54, "Food", "Nice");
-
-        BudgetAppManager.addNewExpense(mcdonalds.getName(), mcdonalds.getPrice(), mcdonalds.getCategory(), mcdonalds.getDescription());
-        BudgetAppManager.addNewExpense(burgerKing.getName(), burgerKing.getPrice(), burgerKing.getCategory(), burgerKing.getDescription());
-        BudgetAppManager.addNewExpense(wendys.getName(), wendys.getPrice(), wendys.getCategory(), wendys.getDescription());
-        BudgetAppManager.addNewExpense(thanhVi.getName(), thanhVi.getPrice(), thanhVi.getCategory(), thanhVi.getDescription());
-        BudgetAppManager.addNewExpense(gangnamSushi.getName(), gangnamSushi.getPrice(), gangnamSushi.getCategory(), gangnamSushi.getDescription());
-        BudgetAppManager.addNewExpense(alcohol.getName(), alcohol.getPrice(), alcohol.getCategory(), alcohol.getDescription());
-        BudgetAppManager.addNewExpense(water.getName(), water.getPrice(), water.getCategory(), water.getDescription());
-        BudgetAppManager.addNewExpense(montreal.getName(), montreal.getPrice(), montreal.getCategory(), montreal.getDescription());
-        BudgetAppManager.addNewExpense(tuition.getName(), tuition.getPrice(), tuition.getCategory(), tuition.getDescription());
-        BudgetAppManager.addNewExpense(fruit.getName(), fruit.getPrice(), fruit.getCategory(), fruit.getDescription());
-
-        purchases[0] = new Purchase(mcdonalds, 0, new Date());
-        purchases[1] = new Purchase(burgerKing, 0, new Date());
-        purchases[2] = new Purchase(wendys, 0, new Date());
-        purchases[3] = new Purchase(thanhVi, 0, new Date());
-        purchases[4] = new Purchase(gangnamSushi, 0, new Date());
-        purchases[5] = new Purchase(alcohol, 0, new Date());
-        purchases[6] = new Purchase(water, 0, new Date());
-        purchases[7] = new Purchase(montreal, 0, new Date());
-        purchases[8] = new Purchase(tuition, 0, new Date());
-        purchases[9] = new Purchase(fruit, 0, new Date());
-
-        ListAdapter listAdapter = new PurchaseRowAdapter(this, purchases);
-        ListView lvExpenses = (ListView) findViewById(R.id.lvPurchases);
+        ListAdapter listAdapter = new PriceableRowAdapter(this, items);
+        ListView lvExpenses = findViewById(R.id.lvPurchases);
         lvExpenses.setAdapter(listAdapter);
     }
 
@@ -95,20 +74,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_items, amvMenu.getMenu());
-        Utils.showMenuItems(amvMenu.getMenu(), new int[]{R.id.toolbar_title, R.id.view_history, R.id.open_side_menu});
+        inflater.inflate(R.menu.menu_items, toolbar.getMenu());
+        Utils.showMenuItems(toolbar.getMenu(), new int[]{R.id.view_history});
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+
         switch (item.getItemId())
         {
-            case R.id.open_side_menu:
-                Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+            // this is navigation icon listener
+            case android.R.id.home:
+                intent = new Intent(MainActivity.this, MenuActivity.class);
                 startActivity(intent);
-                //overridePendingTransition(R.anim.push_left_in,R.anim.push_up_out); // eventually create animation files to change the activity transition
-                break;
+
             default:
                 break;
         }
@@ -129,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
             if(curr.getItem() != null && curr.getItem() instanceof Purchase)
             {
                 Purchase currPurchase = (Purchase)curr.getItem();
-                BudgetAppManager.makePurchase(currPurchase.getItem(), currPurchase.getQuantity());
 
                 if(message.equals(""))
                     message += MoneyFormatter.formatLongToMoney(currPurchase.getItem().getPrice() * currPurchase.getQuantity()) + " purchase successful!";
@@ -176,14 +156,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateTotalPrice(String newPrice)
     {
-        final TextView tvCurrentTotal = (TextView) findViewById(R.id.tvCurrentTotal);
+        final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
 
         tvCurrentTotal.setText(newPrice);
     }
 
     public long getTotalPrice()
     {
-        final TextView tvCurrentTotal = (TextView) findViewById(R.id.tvCurrentTotal);
+        final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
         return Long.parseLong(tvCurrentTotal.getText().toString().replace("$","").replace(",","").replace(".",""));
     }
 

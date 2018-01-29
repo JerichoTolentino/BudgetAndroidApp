@@ -7,7 +7,9 @@ import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.NodeItem;
 import com.budget_app.jt_linked_list.SortedList;
 
-public class ExpenseGroup extends NodeItem implements Priceable
+import java.io.Serializable;
+
+public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 {
 	private static final long DEFAULT_ID = 0;
 	private static final long DEFAULT_PRICE = 0;

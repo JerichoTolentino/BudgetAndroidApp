@@ -1,12 +1,14 @@
 package com.budget_app.expenses;
 
 import com.budget_app.jt_linked_list.*;
+
+import java.io.Serializable;
 import java.util.Date;
 import com.budget_app.jt_interfaces.*;
 
 import com.budget_app.error_handler.ErrorHandler;
 
-public class PurchaseHistory implements Stringable, CSVExportable
+public class PurchaseHistory implements Stringable, CSVExportable, Serializable
 {
 	
 	SortedList purchases;

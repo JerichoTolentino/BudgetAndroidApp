@@ -5,14 +5,16 @@ import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.jt_linked_list.NodeItem;
 import com.budget_app.error_handler.ErrorHandler;
 
+import java.io.Serializable;
+
 //import java.sql.Date;
 
-public class Expense extends NodeItem implements Priceable
+public class Expense extends NodeItem implements Priceable, Serializable
 {
 	private static final long DEFAULT_ID = 0;
-	private static final String DEFAULT_NAME = "DEFAULT_NAME";
+	private static final String DEFAULT_NAME = "";
 	private static final long DEFAULT_PRICE = 0;
-	private static final String DEFAULT_CATEGORY = "Uncategorized";
+	private static final String DEFAULT_CATEGORY = "";
 	private static final String DEFAULT_DESCRIPTION = "";
 
 	private long id;

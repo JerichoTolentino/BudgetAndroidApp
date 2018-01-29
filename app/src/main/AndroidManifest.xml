@@ -18,7 +18,11 @@
         </activity>
         <activity android:name=".MenuActivity" />
         <activity android:name=".ManageExpensesActivity" />
-        <activity android:name=".EditExpenseActivity"></activity>
+        <activity android:name=".EditExpenseActivity" />
+        <activity android:name=".EditExpenseGroupActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".ManageExpenseGroupsActivity"/>
+        <activity android:name=".SelectExpensesActivity" />
     </application>
 
 </manifest>

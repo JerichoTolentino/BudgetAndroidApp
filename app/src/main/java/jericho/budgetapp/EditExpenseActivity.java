@@ -1,6 +1,9 @@
 package jericho.budgetapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ActionMenuView;
@@ -8,21 +11,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
+import com.budget_app.utilities.MoneyFormatter;
 
 import databases.DBHandler;
 import utils.Utils;
 
 public class EditExpenseActivity extends AppCompatActivity {
 
-    private ActionMenuView amvMenu;
+    private Toolbar toolbar;
     private EditText etName;
     private EditText etPrice;
     private EditText etCategory;
     private EditText etDescription;
+    private Expense m_expense;
+
+    private boolean m_createNew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,22 +42,22 @@ public class EditExpenseActivity extends AppCompatActivity {
         etCategory = findViewById(R.id.etCategory);
         etDescription = findViewById(R.id.etDescription);
 
-        Toolbar toolbar = findViewById(R.id.custom_toolbar);
-        amvMenu = toolbar.findViewById(R.id.amvMenu);
+        toolbar = findViewById(R.id.custom_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        String expenseID = getIntent().getExtras().getString("ExpenseID");
-        String expenseName = getIntent().getExtras().getString("ExpenseName");
-        String expensePrice = getIntent().getExtras().getString("ExpensePrice");
-        String expenseCategory = getIntent().getExtras().getString("ExpenseCategory");
-        String expenseDescription = getIntent().getExtras().getString("ExpenseDescription");
+        m_expense = (Expense) getIntent().getSerializableExtra("expense");
+        m_createNew = getIntent().getExtras().getBoolean("createNew");
+        InputMultilineEditText.setContext(this);
 
-        etName.setText(expenseName);
-        etPrice.setText(expensePrice);
-        etCategory.setText(expenseCategory);
-        etDescription.setText(expenseDescription);
+        if (!m_createNew)
+        {
+            etName.setText(m_expense.getName());
+            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expense.getPrice()).replace("$", ""));
+            etCategory.setText(m_expense.getCategory());
+            etDescription.setText(m_expense.getDescription());
+        }
     }
 
     //region Toolbar Events
@@ -57,11 +65,30 @@ public class EditExpenseActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_items, amvMenu.getMenu());
+        inflater.inflate(R.menu.menu_items, toolbar.getMenu());
 
-        Utils.showMenuItems(amvMenu.getMenu(), null);
+        Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove});
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId())
+        {
+            case R.id.remove:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Are you sure you want to delete this expense?")
+                       .setPositiveButton("Yes", dialogClickListener)
+                       .setNegativeButton("No", dialogClickListener).show();
+                break;
+
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -69,6 +96,59 @@ public class EditExpenseActivity extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
+    //endregion
+
+    //region Event Handlers
+
+    public void btnConfirm_OnClick(View v)
+    {
+        try {
+            String message = "Failed to save changes.";
+            m_expense.setName(etName.getText().toString());
+            m_expense.setPrice(Long.parseLong(etPrice.getText().toString().replace(",", "").replace(".","")));
+            m_expense.setCategory(etCategory.getText().toString());
+            m_expense.setDescription(etDescription.getText().toString());
+
+            if (m_createNew) {
+                MainActivity.g_dbHandler.addExpense(m_expense);
+                message = "Expense added!";
+            } else {
+                if (MainActivity.g_dbHandler.queryExpenses(DBHandler.EXPENSE_COL_ID + "=" + m_expense.getId()).getSize() == 1) {
+                    MainActivity.g_dbHandler.updateExpense(m_expense);
+                    message = "Expense updated!";
+                }
+            }
+
+            Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            onBackPressed();    // leave activity
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex.getMessage() + ex.getStackTrace());
+        }
+    }
+
+    //endregion
+
+    //region Alert Dialog
+
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    MainActivity.g_dbHandler.removeExpense(m_expense.getId());
+                    Toast.makeText(EditExpenseActivity.this, "Expense deleted!", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
+            }
+        }
+    };
 
     //endregion
 

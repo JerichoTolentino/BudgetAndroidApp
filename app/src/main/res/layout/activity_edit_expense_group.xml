@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jericho.budgetapp.EditExpenseActivity">
+    tools:context="jericho.budgetapp.EditExpenseGroupActivity">
 
     <include
         android:id="@id/custom_toolbar"
@@ -51,8 +51,10 @@
         android:layout_marginTop="8dp"
         android:layout_weight="4"
         android:ems="10"
+        android:enabled="false"
         android:hint="@string/price"
         android:inputType="numberDecimal"
+        android:text="0.00"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/etCategory"
         app:layout_constraintTop_toBottomOf="@+id/etName" />
@@ -68,14 +70,13 @@
         android:hint="@string/category"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/etDescription"
+        app:layout_constraintStart_toStartOf="@+id/lvExpenses"
         app:layout_constraintTop_toBottomOf="@+id/etPrice" />
 
     <TextView
         android:id="@+id/tvCategory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_weight="1"
         android:text="@string/category"
         app:layout_constraintBaseline_toBaselineOf="@+id/etCategory"
@@ -86,24 +87,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:text="@string/description"
-        app:layout_constraintBaseline_toBaselineOf="@+id/etDescription"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:text="@string/expenses"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/lvExpenses" />
 
-    <jericho.budgetapp.InputMultilineEditText
-        android:id="@+id/etDescription"
-        style="@android:style/Widget.Holo.EditText"
+    <ListView
+        android:id="@+id/lvExpenses"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:ems="10"
-        android:gravity="top|center_vertical"
-        android:hint="@string/description"
-        android:inputType="textMultiLine"
         app:layout_constraintBottom_toTopOf="@+id/gl85Bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvDescription"
@@ -126,7 +123,7 @@
         app:layout_constraintTop_toTopOf="@+id/gl85Bottom" />
 
     <Button
-        android:id="@+id/btnAddToExpenseGroup"
+        android:id="@+id/btnAddExpenses"
         style="@android:style/Widget.Holo.Light.Button.Small"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -134,7 +131,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="@string/add_to_expense_group"
+        android:onClick="btnAddExpenses_OnClick"
+        android:text="@string/add_expenses"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/glCenterVert"

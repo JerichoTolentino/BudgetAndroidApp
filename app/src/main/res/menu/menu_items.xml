@@ -8,20 +8,7 @@
         android:icon="@drawable/ic_view_history"
         android:title="View History"
         android:orderInCategory="300"
-        app:showAsAction="always"/>
-
-    <item
-        android:id="@+id/open_side_menu"
-        android:icon="@drawable/ic_view_menu"
-        android:orderInCategory="100"
-        android:title="Open Menu"
-        app:showAsAction="always" />
-
-
-    <item android:id="@+id/toolbar_title"
-        android:title="Budget Buddy"
-        android:orderInCategory="200"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom"/>
     <!-- END [Main Page Items] -->
 
     <!-- START [Manage Expenses Items] -->
@@ -30,15 +17,19 @@
         android:icon="@drawable/ic_add_new"
         android:orderInCategory="300"
         android:title="Add New"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         />
 
-    <item
-        android:id="@+id/manage_expenses_title"
-        android:title="Manage Expenses"
-        android:orderInCategory="200"
-        app:showAsAction="always"
-        />
     <!-- END [Manage Expenses Items] -->
+
+    <!-- START [Edit Expense Items] -->
+    <item
+        android:id="@+id/remove"
+        android:icon="@drawable/ic_delete"
+        android:title="Remove"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        />
+    <!-- END [Edit Expense Items] -->
 
 </menu>

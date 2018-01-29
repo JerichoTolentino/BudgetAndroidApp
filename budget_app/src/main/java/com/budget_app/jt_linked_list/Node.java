@@ -1,6 +1,8 @@
 package com.budget_app.jt_linked_list;
 
-public class Node 
+import java.io.Serializable;
+
+public class Node implements Serializable
 {
 
 	private Node next;

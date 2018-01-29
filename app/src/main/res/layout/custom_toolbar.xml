@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tbMainToolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
-    android:gravity="center_vertical|start"
-    android:elevation="4dp"
-    app:title="Budget Buddy"
-    app:theme="@style/CustomToolbarStyle"
     app:popupTheme="@style/CustomPopupStyle"
-    >
-
-    <android.support.v7.widget.ActionMenuView
-        android:id="@+id/amvMenu"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:gravity="center_vertical|start"
-        />
-
+    app:theme="@style/CustomToolbarStyle"
+    app:title="Budget Buddy">
 
 </android.support.v7.widget.Toolbar>
