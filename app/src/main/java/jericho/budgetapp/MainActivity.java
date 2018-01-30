@@ -21,6 +21,9 @@ import com.budget_app.jt_linked_list.SortedList;
 import com.budget_app.master.BudgetAppManager;
 import com.budget_app.utilities.MoneyFormatter;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+
 import databases.DBHandler;
 import utils.Utils;
 
@@ -40,13 +43,6 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MenuActivity.class);
-                startActivity(intent);
-            }
-        });
 
         setSupportActionBar(toolbar);
 

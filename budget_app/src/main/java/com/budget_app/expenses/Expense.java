@@ -1,21 +1,24 @@
 package com.budget_app.expenses;
 
-import com.budget_app.jt_interfaces.Compareable;
 import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.jt_linked_list.NodeItem;
-import com.budget_app.error_handler.ErrorHandler;
 
 import java.io.Serializable;
 
-//import java.sql.Date;
 
-public class Expense extends NodeItem implements Priceable, Serializable
+public class Expense implements Priceable, Serializable
 {
+
+	//region Constants
+
 	private static final long DEFAULT_ID = 0;
 	private static final String DEFAULT_NAME = "";
 	private static final long DEFAULT_PRICE = 0;
 	private static final String DEFAULT_CATEGORY = "";
 	private static final String DEFAULT_DESCRIPTION = "";
+
+	//endregion
+
+	//region Members
 
 	private long id;
 	private String name;
@@ -23,9 +26,9 @@ public class Expense extends NodeItem implements Priceable, Serializable
 	private String category;
 	private String description;
 
-	//--------------------//
-	//--- Constructors ---//
-	//--------------------//
+	//endregion
+
+	//region Constructor
 
 	public Expense()
 	{
@@ -72,19 +75,9 @@ public class Expense extends NodeItem implements Priceable, Serializable
 		this.description = DEFAULT_DESCRIPTION;
 	}
 
-	//dummy constructor for lookup
-	public Expense(String name)
-	{
-		this.id = DEFAULT_ID;
-		this.name = name;
-		this.price = 0;
-		this.category = "DummyExpense";
-		this.description = "DummyExpense";
-	}
+	//endregion
 
-	//-------------------------//
-	//--- Getters & Setters ---//
-	//-------------------------//
+	//region Getters & Setters
 
 	public long getId() { return this.id; }
 
@@ -132,81 +125,12 @@ public class Expense extends NodeItem implements Priceable, Serializable
 		this.description = description;
 	}
 
-	//---------------------------//
-	//--- Implemented Methods ---//
-	//---------------------------//
-
-	@Override
-	public boolean equals(Compareable other)
-	{
-		Expense temp;
-		boolean result = false;
-
-		if (other instanceof Expense)
-		{
-			temp = (Expense)other;
-
-			result = this.name.equals(temp.name) &&
-					this.id == temp.id &&
-					this.price == temp.price &&
-					this.category.equals(temp.category) &&
-					this.description.equals(temp.description);
-
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "equals()");
-
-		return result;
-	}
-
-	@Override
-	public int compare(Compareable other)
-	{
-		Expense temp;
-		int result = -1;
-
-		if (other instanceof Expense)
-		{
-			temp = (Expense)other;
-			result = this.name.compareTo(temp.name);
-
-			if(result == 0)
-				result = (int)(this.price - temp.price);	//Note: this is probably bad
-			if(result == 0)
-				result = this.category.compareTo(temp.category);
-			if(result == 0)
-				result = this.description.compareTo(temp.description);
-			if(result == 0)
-				result = (int)(this.id - temp.id);			//Note: this is probably bad
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "compare()");
-
-		return result;
-	}
+	//endregion
 
 	@Override
 	public String toString()
 	{
 		return "ID:\t\t" + id + "\nName:\t\t" + name + "\nPrice:\t\t" + Long.toString(price) + "\nCategory:\t" + category + "\nDescription:\t" + description + "\n------";
 	}
-
-	@Override
-	public String toString_CSV()
-	{
-		return Long.toString(this.id) + ",\"" + this.name + "\"," + Long.toString(this.price) + ",\"" + this.category + "\",\"" + this.description + "\";";
-	}
-
-	//-----------------------------//
-	//--- Functionality Methods ---//
-	//-----------------------------//
-
-
-
-	//----------------------//
-	//--- Helper Methods ---//
-	//----------------------//
-
-
 
 }

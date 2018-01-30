@@ -1,23 +1,24 @@
 package com.budget_app.expenses;
 
 import com.budget_app.jt_interfaces.*;
-import com.budget_app.jt_linked_list.NodeItem;
-import com.budget_app.error_handler.ErrorHandler;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 
-public class Purchase extends NodeItem implements Serializable
+public class Purchase implements Serializable, Comparable
 {
+
+	//region Members
 
 	private long id;
 	private Priceable item;
 	private Date date;
 	private int quantity;
 
-	//--------------------//
-	//--- Constructors ---//
-	//--------------------//
+	//endregion
+
+	//region Constructor
 
 	public Purchase()
 	{
@@ -60,9 +61,9 @@ public class Purchase extends NodeItem implements Serializable
 		this.quantity = quantity;
 	}
 
-	//-------------------------//
-	//--- Getters & Setters ---//
-	//-------------------------//
+	//endregion
+
+	//region Getters & Setters
 
 	public long getId() { return this.id; }
 
@@ -98,47 +99,9 @@ public class Purchase extends NodeItem implements Serializable
 		this.quantity = quantity;
 	}
 
-	//---------------------------//
-	//--- Implemented Methods ---//
-	//---------------------------//
+	//endregion
 
-	@Override
-	public boolean equals(Compareable other)
-	{
-		Purchase temp;
-
-		if (other instanceof Purchase)
-		{
-			temp = (Purchase)other;
-			return (this.id == temp.id && this.item == temp.item && this.date == temp.date && this.quantity == temp.quantity);
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "equals()");
-
-		return false;
-	}
-
-	@Override
-	public int compare(Compareable other)
-	{
-		Purchase temp;
-		int result = -1;
-
-		if (other instanceof Purchase)
-		{
-			temp = (Purchase)other;
-			result = (this.date.compareTo(temp.date));
-
-			if(result == 0)
-				result = (this.quantity - temp.quantity);
-			if(result == 0)
-				result = (int)(this.item.getPrice() - temp.item.getPrice());
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "compare()");
-
-		return result;
-	}
+	//region Implemented Methods
 
 	@Override
 	public String toString()
@@ -147,48 +110,33 @@ public class Purchase extends NodeItem implements Serializable
 	}
 
 	@Override
-	public String toString_CSV()
-	{
-		Expense tempExpense;
-		ExpenseGroup tempExpenseGroup;
-		String output = Long.toString(this.id);
+	public int compareTo(Object o) {
 
-		if(this.item instanceof Expense)
+		if (o instanceof Purchase)
 		{
-			tempExpense = (Expense)this.item;
-			output += ",\"" + tempExpense.getName() + "\"," + Long.toString(tempExpense.getPrice());
-		}
-		else if(this.item instanceof ExpenseGroup)
-		{
-			tempExpenseGroup = (ExpenseGroup)this.item;
-			output += ",\"" + tempExpenseGroup.getName() + "\"," + Long.toString(tempExpenseGroup.getPrice());
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Priceable", this, "toString_CSV()");
+			Purchase other = (Purchase) o;
 
-		if(!output.equals(Long.toString(this.id)))
-		{
-			output += "," + this.quantity + "," + this.date.toString() + ";";
+			return (int)(other.id - this.id);
 		}
-		else
-			ErrorHandler.printErr("Could not properly downcast item!", this, "toString_CSV()");
 
-		return output;
+		return 0;
 	}
 
-	//-----------------------------//
-	//--- Functionality Methods ---//
-	//-----------------------------//
+	//endregion
 
+	//region Custom Comparators
 
+	public static Comparator<Purchase> getDateComparator()
+	{
+		return new Comparator<Purchase>()
+		{
+			public int compare(Purchase one, Purchase two)
+			{
+				return one.getDate().compareTo(two.getDate());
+			}
+		};
+	}
 
-	//----------------------//
-	//--- Helper Methods ---//
-	//----------------------//
-
-
-
-
-
+	//endregion
 
 }

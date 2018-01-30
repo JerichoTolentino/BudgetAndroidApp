@@ -10,13 +10,16 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.budget_app.expenses.Expense;
+
+import java.util.HashSet;
+
 public class MenuActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-
 
         String[] menuItems = new String[] {"Main Page", "Manage Expenses", "Manage Budget/Savings", "TBA", "View Statistics", "Settings"};
         ListAdapter listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menuItems);

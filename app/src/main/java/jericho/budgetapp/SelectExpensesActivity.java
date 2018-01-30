@@ -10,19 +10,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseWithQuantity;
 import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.jt_linked_list.LinkedList;
 import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.SortedList;
 import com.budget_app.master.BudgetAppManager;
-import com.budget_app.utilities.MoneyFormatter;
 
 import databases.DBHandler;
 import utils.Utils;

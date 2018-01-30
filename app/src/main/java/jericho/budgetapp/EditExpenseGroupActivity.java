@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseWithQuantity;
+import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.jt_linked_list.LinkedList;
 import com.budget_app.jt_linked_list.Node;
 import com.budget_app.jt_linked_list.SortedList;
@@ -211,7 +211,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         SortedList expenses = new SortedList();
         for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++)
         {
-            ExpenseWithQuantity e = (ExpenseWithQuantity) lvExpenses.getAdapter().getItem(i);
+            ExpenseInGroup e = (ExpenseInGroup) lvExpenses.getAdapter().getItem(i);
             for (int j = 0; j < e.getQuantity(); j++)
                 expenses.insertSorted(e.getExpense());
         }
@@ -221,7 +221,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
     public void updateExpensesListView()
     {
         LinkedList expenseList = m_expenseGroup.getExpenses();
-        ArrayList<ExpenseWithQuantity> expenseWithQuantities = new ArrayList<>();
+        ArrayList<ExpenseInGroup> expenseWithQuantities = new ArrayList<>();
         Node curr = expenseList.getHead();
 
         while (curr != null)
@@ -230,20 +230,20 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
             if (ArrayListContainsExpense(expenseWithQuantities, expense))
             {
-                ExpenseWithQuantity expenseWithQuantity = expenseWithQuantities.get(IndexOfExpenseInArrayList(expenseWithQuantities, expense));
-                expenseWithQuantity.setQuantity(expenseWithQuantity.getQuantity() + 1);
+                ExpenseInGroup expenseInGroup = expenseWithQuantities.get(IndexOfExpenseInArrayList(expenseWithQuantities, expense));
+                expenseInGroup.setQuantity(expenseInGroup.getQuantity() + 1);
             }
             else
-                expenseWithQuantities.add(new ExpenseWithQuantity(expense, 1));
+                expenseWithQuantities.add(new ExpenseInGroup(expense, 1));
 
             curr = curr.getNext();
         }
 
 
-        // build array of ExpenseWithQuantity objects
-        ExpenseWithQuantity[] expenses = new ExpenseWithQuantity[expenseWithQuantities.size()];
+        // build array of ExpenseInGroup objects
+        ExpenseInGroup[] expenses = new ExpenseInGroup[expenseWithQuantities.size()];
         int i = 0;
-        for (ExpenseWithQuantity e : expenseWithQuantities)
+        for (ExpenseInGroup e : expenseWithQuantities)
         {
             expenses[i] = e;
             i++;
@@ -258,7 +258,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         etPrice.setEnabled(false);
     }
 
-    private boolean ArrayListContainsExpense(ArrayList<ExpenseWithQuantity> list, Expense expense)
+    private boolean ArrayListContainsExpense(ArrayList<ExpenseInGroup> list, Expense expense)
     {
         for (Expense e : list)
         {
@@ -267,7 +267,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         return false;
     }
 
-    private int IndexOfExpenseInArrayList(ArrayList<ExpenseWithQuantity> list, Expense expense)
+    private int IndexOfExpenseInArrayList(ArrayList<ExpenseInGroup> list, Expense expense)
     {
         int index = 0;
 

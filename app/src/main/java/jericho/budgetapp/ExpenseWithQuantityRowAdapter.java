@@ -1,8 +1,6 @@
 package jericho.budgetapp;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -11,20 +9,19 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.budget_app.expenses.ExpenseWithQuantity;
+import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.utilities.MoneyFormatter;
 
 /**
  * Created by Jericho on 11/4/2017.
  */
 
-class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseWithQuantity>
+class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
 {
     private Context m_context;
 
-    public ExpenseWithQuantityRowAdapter(@NonNull Context context, ExpenseWithQuantity expenses[])
+    public ExpenseWithQuantityRowAdapter(@NonNull Context context, ExpenseInGroup expenses[])
     {
         super(context, R.layout.expense_row_for_expense_group, expenses);
         this.m_context = context;
@@ -38,7 +35,7 @@ class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseWithQuantity>
         final View customView = layoutInflater.inflate(R.layout.expense_row_for_expense_group, parent, false);
 
         //Get references to row data object
-        final ExpenseWithQuantity expense = getItem(position);
+        final ExpenseInGroup expense = getItem(position);
 
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
