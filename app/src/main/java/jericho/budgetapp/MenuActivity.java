@@ -16,6 +16,8 @@ import java.util.HashSet;
 
 public class MenuActivity extends AppCompatActivity {
 
+    //region onCreate()
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,21 +33,15 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+
                 String value = String.valueOf(parent.getItemAtPosition(position));
-                Intent intent = null;
-
-
                 switch (value)
                 {
                     case "Main Page":
-                        intent = new Intent(MenuActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        goToMainActivity();
                         break;
                     case "Manage Expenses":
-                        intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        goToManageExpensesActivity();
                         break;
                     default:
                         Toast.makeText(MenuActivity.this, value, Toast.LENGTH_SHORT).show();
@@ -53,6 +49,26 @@ public class MenuActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
+
+    //endregion
+
+    //region Helper Methods
+
+    private void goToMainActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManageExpensesActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    //endregion
+
 }

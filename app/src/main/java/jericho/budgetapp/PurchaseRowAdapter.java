@@ -76,11 +76,9 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
                     public void onClick(View v)
                     {
                         if(purchase.getQuantity() > 0)
-                        {
                             purchase.setQuantity(purchase.getQuantity() - 1);
-                        }
-                        tvQuantity.setText(String.valueOf(purchase.getQuantity()));
 
+                        tvQuantity.setText(String.valueOf(purchase.getQuantity()));
                         checkQuantity(purchase.getQuantity(), customView);
                     }
                 }

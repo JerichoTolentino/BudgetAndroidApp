@@ -16,13 +16,9 @@ import android.widget.Toast;
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.SortedList;
-import com.budget_app.master.BudgetAppManager;
 import com.budget_app.utilities.MoneyFormatter;
 
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import databases.DBHandler;
 import utils.Utils;
@@ -31,41 +27,40 @@ public class MainActivity extends AppCompatActivity {
 
     public static DBHandler g_dbHandler;
 
+    //region Members
+
     private Toolbar toolbar;
-    private SortedList m_allPurchases;
+    private ArrayList<Purchase> m_allPurchases;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BudgetAppManager.init();
         g_dbHandler = new DBHandler(getApplicationContext(), null, null, 0);
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
-
         setSupportActionBar(toolbar);
 
-        m_allPurchases = new SortedList();
+        m_allPurchases = new ArrayList<>();
 
-        SortedList expenses = new SortedList(g_dbHandler.queryExpenses(null));
-        Priceable items[] = new Priceable[expenses.getSize()];
+        ArrayList<Expense> expenses = g_dbHandler.queryExpenses(null);
+        Priceable items[] = new Priceable[expenses.size()];
 
-        Node curr = expenses.getHead();
         int index = 0;
-        while (curr != null)
-        {
-            items[index] = (Priceable) curr.getItem();
+        for (Expense e : expenses) {
+            items[index] = e;
             index++;
-            curr = curr.getNext();
         }
 
         ListAdapter listAdapter = new PriceableRowAdapter(this, items);
         ListView lvExpenses = findViewById(R.id.lvPurchases);
         lvExpenses.setAdapter(listAdapter);
     }
-
-    // region Toolbar Events
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,16 +70,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    //endregion
+
+    // region Toolbar Events
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
 
         switch (item.getItemId())
         {
-            // this is navigation icon listener
             case android.R.id.home:
-                intent = new Intent(MainActivity.this, MenuActivity.class);
-                startActivity(intent);
+                goToMenuActivity();
 
             default:
                 break;
@@ -98,21 +94,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnPurchase_onClick(View v)
     {
-        Node curr = m_allPurchases.getHead();
         String message = "";
 
-        while(curr != null)
+        for (Purchase p : m_allPurchases)
         {
-            if(curr.getItem() != null && curr.getItem() instanceof Purchase)
-            {
-                Purchase currPurchase = (Purchase)curr.getItem();
-
-                if(message.equals(""))
-                    message += MoneyFormatter.formatLongToMoney(currPurchase.getItem().getPrice() * currPurchase.getQuantity()) + " purchase successful!";
-                else
-                    message += "\n" + MoneyFormatter.formatLongToMoney(currPurchase.getItem().getPrice()) + " purchase successful!";
-            }
-            curr = curr.getNext();
+            if(message.equals(""))
+                message += MoneyFormatter.formatLongToMoney(p.getItem().getPrice() * p.getQuantity()) + " purchase successful!";
+            else
+                message += "\n" + MoneyFormatter.formatLongToMoney(p.getItem().getPrice()) + " purchase successful!";
         }
 
         if(!message.equals(""))
@@ -123,30 +112,32 @@ public class MainActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    private void goToMenuActivity()
+    {
+        Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+        startActivity(intent);
+    }
+
     public void addToPurchases(Purchase purchase)
     {
-        Node purchaseNode = m_allPurchases.findNode(purchase);
-
-        if(purchaseNode != null && purchaseNode.getItem() instanceof Purchase)
+        if(m_allPurchases.contains(purchase))
         {
-            Purchase realPurchase = (Purchase) purchaseNode.getItem();
+            Purchase realPurchase = m_allPurchases.get(m_allPurchases.indexOf(purchase));
             realPurchase.setQuantity(purchase.getQuantity());
         }
         else
-            m_allPurchases.insertSorted(purchase);
+            m_allPurchases.add(purchase);
     }
 
     public void removeFromPurchases(Purchase purchase)
     {
         if(purchase.getQuantity() < 1)
-            m_allPurchases.removeNode(purchase);
+            m_allPurchases.remove(purchase);
 
-        Node purchaseNode = m_allPurchases.findNode(purchase);
-
-        if(purchaseNode != null && purchaseNode.getItem() instanceof Purchase)
+        if(m_allPurchases.contains(purchase))
         {
-            Purchase realPurchase = (Purchase) purchaseNode.getItem();
-            realPurchase.setQuantity(purchase.getQuantity());
+            Purchase realPurchase = m_allPurchases.get(m_allPurchases.indexOf(purchase));
+            realPurchase.setQuantity(purchase.getQuantity() - 1);
         }
     }
 

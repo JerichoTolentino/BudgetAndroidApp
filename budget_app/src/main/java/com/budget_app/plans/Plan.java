@@ -2,9 +2,10 @@ package com.budget_app.plans;
 
 import com.budget_app.error_handler.ErrorHandler;
 import com.budget_app.jt_interfaces.Compareable;
-import com.budget_app.jt_linked_list.*;
 
-public class Plan extends NodeItem
+import java.io.Serializable;
+
+public class Plan implements Serializable
 {
 	private String name;
 	private long annualBudget;
@@ -72,58 +73,13 @@ public class Plan extends NodeItem
 	//---------------------------//
 	//--- Implemented Methods ---//
 	//---------------------------//
-
-	@Override
-	public boolean equals(Compareable other) 
-	{
-		Plan temp;
-		boolean equal = false;
-		
-		if(other instanceof Plan)
-		{
-			temp = (Plan)other;
-			equal = (this.name.equals(temp.getName()) && this.annualBudget == temp.getAnnualBudget() && this.annualSavings == temp.getAnnualSavings());
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Plan", this, "equals()");
-		
-		return equal;
-	}
-
-	@Override
-	public int compare(Compareable other) 
-	{
-		Plan temp;
-		int compare = 0;
-		
-		if(other instanceof Plan)
-		{
-			temp = (Plan)other;
-			compare = (int)(this.annualBudget - temp.getAnnualBudget());
-			
-			if(compare == 0)
-			{
-				compare = (int)(this.annualSavings - temp.getAnnualSavings());
-			}
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Plan", this, "equals()");
-		
-		return compare;
-	}
 	
 	@Override
 	public String toString()
 	{
 		return ("Plan Name:\t" + this.name + "\nAnnual Budget:\t" + Long.toString(this.annualBudget) + "\nAnnual Savings:\t" + Long.toString(this.annualSavings) + "\n-------");
 	}
-	
-	@Override
-	public String toString_CSV() 
-	{
-		return '"' + this.name + "\"," + Long.toString(this.annualBudget) + "," + Long.toString(this.annualSavings) + ";";
-	}
-	
+
 	//-----------------------------//
 	//--- Functionality Methods ---//
 	//-----------------------------//

@@ -8,23 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
+import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.jt_linked_list.LinkedList;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.NodeFactory;
-import com.budget_app.jt_linked_list.SortedList;
-import com.budget_app.jt_linked_list.StringItem;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
-
-
-/**
- * Created by Jericho on 11/7/2017.
- */
 
 //TODO: Create methods in DBHandler to replace methods in BudgetAppManager
     /*
@@ -61,6 +52,7 @@ public class DBHandler extends SQLiteOpenHelper
     public static final String EXPENSESINGROUP_COL_ID = "ID";
     public static final String EXPENSESINGROUP_COL_EXPENSEGROUPID = "ExpenseGroupID";
     public static final String EXPENSESINGROUP_COL_EXPENSEID = "ExpenseID";
+    public static final String EXPENSESINGROUP_COL_QUANTITY = "Quantity";
 
     //Plans Table Info
     //TODO: Add plans
@@ -111,7 +103,8 @@ public class DBHandler extends SQLiteOpenHelper
         sql = "CREATE TABLE '" + EXPENSESINGROUP_TABLE + "'('"
                 + EXPENSESINGROUP_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
                 + EXPENSESINGROUP_COL_EXPENSEGROUPID + "' INTEGER NOT NULL, '"
-                + EXPENSESINGROUP_COL_EXPENSEID + "' INTEGER NOT NULL"
+                + EXPENSESINGROUP_COL_EXPENSEID + "' INTEGER NOT NULL, '"
+                + EXPENSESINGROUP_COL_QUANTITY + "' INTEGER NOT NULL"
                 + ");";
 
         sqLiteDatabase.execSQL(sql);
@@ -136,6 +129,7 @@ public class DBHandler extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS '" + EXPENSE_TABLE + "';");
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS '" + EXPENSEGROUP_TABLE + "';");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS '" + EXPENSESINGROUP_TABLE + "';");
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS '" + PURCHASES_TABLE + "';");
         this.onCreate(sqLiteDatabase);
     }
@@ -146,17 +140,17 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Query Methods
 
-    public LinkedList queryExpenses(String where)
+    public ArrayList<Expense> queryExpenses(String where)
     {
         SQLiteDatabase db = getWritableDatabase();
-        LinkedList list = new LinkedList();
+        ArrayList<Expense> list = new ArrayList<>();
         String id;
         String name;
         String price;
         String category;
         String description;
 
-        if (where == null || where == "")
+        if (where == null || where.equals(""))
             where = "1";
 
         Cursor c = db.rawQuery("SELECT * FROM " + EXPENSE_TABLE + " WHERE " + where + ";", null);
@@ -171,7 +165,7 @@ public class DBHandler extends SQLiteOpenHelper
             category = c.getString(c.getColumnIndex((EXPENSE_COL_CATEGORY)));
             description = c.getString(c.getColumnIndex((EXPENSE_COL_DESCRIPTION)));
 
-            list.insertFront(new Expense(Long.parseLong(id), name, Long.parseLong(price), category, description));
+            list.add(new Expense(Long.parseLong(id), name, Long.parseLong(price), category, description));
             c.moveToNext();
         }
 
@@ -181,10 +175,10 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
-    public LinkedList queryExpenseGroups(String where)
+    public ArrayList<ExpenseGroup> queryExpenseGroups(String where)
     {
         SQLiteDatabase db = getWritableDatabase();
-        LinkedList list = new LinkedList();
+        ArrayList<ExpenseGroup> list = new ArrayList<>();
         String id;
         String name;
         String price;
@@ -192,9 +186,9 @@ public class DBHandler extends SQLiteOpenHelper
         String description;
 
         long expenseGroupID;
-        LinkedList expenses;
+        ArrayList<ExpenseInGroup> expenses;
 
-        if (where == null || where == "")
+        if (where == null || where.equals(""))
             where = "1";
 
         Cursor c = db.rawQuery("SELECT * FROM " + EXPENSEGROUP_TABLE + " WHERE " + where + ";", null);
@@ -212,7 +206,7 @@ public class DBHandler extends SQLiteOpenHelper
             expenseGroupID = Long.parseLong(c.getString(c.getColumnIndex(EXPENSEGROUP_COL_ID)));
             expenses = getExpensesInGroup(db, expenseGroupID);
 
-            list.insertFront(new ExpenseGroup(Long.parseLong(id), name, Long.parseLong(price), category, description, new SortedList(expenses)));
+            list.add(new ExpenseGroup(Long.parseLong(id), name, Long.parseLong(price), category, description, expenses));
             c.moveToNext();
         }
 
@@ -222,10 +216,10 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
-    public LinkedList queryPurchases(String where) throws ParseException
+    public ArrayList<Purchase> queryPurchases(String where) throws ParseException
     {
         SQLiteDatabase db = getWritableDatabase();
-        LinkedList list = new LinkedList();
+        ArrayList<Purchase> list = new ArrayList<>();
         String id;
         String itemType;
         String date;
@@ -233,9 +227,8 @@ public class DBHandler extends SQLiteOpenHelper
 
         String itemID;
         Priceable item = null;
-        LinkedList itemList;
 
-        if (where == null || where == "")
+        if (where == null || where.equals(""))
             where = "1";
 
         Cursor c = db.rawQuery("SELECT * FROM " + PURCHASES_TABLE + " WHERE " + where + ";", null);
@@ -251,18 +244,20 @@ public class DBHandler extends SQLiteOpenHelper
 
             itemID = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMID));
 
-            if(itemType.equals(Expense.class.getName()))
+            switch (itemType)
             {
-                itemList = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
-                item = (Expense)(itemList.getHead().getItem());
-            }
-            else if(itemType.equals(ExpenseGroup.class.getName()))
-            {
-                itemList = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
-                item = (ExpenseGroup)(itemList.getHead().getItem());
+                case "Expense":
+                    ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
+                    item = (expenses.get(0));
+                    break;
+
+                case "ExpenseGroup":
+                    ArrayList<ExpenseGroup> expenseGroups = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
+                    item = expenseGroups.get(0);
+                    break;
             }
 
-            list.insertFront(new Purchase(Long.parseLong(id), item, Integer.parseInt(quantity), DateFormat.getDateInstance().parse(date)));
+            list.add(new Purchase(Long.parseLong(id), item, Integer.parseInt(quantity), DateFormat.getDateInstance().parse(date)));
             c.moveToNext();
         }
 
@@ -340,13 +335,14 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region ExpenseGroup Table Methods
 
-    public boolean addExpenseToGroup(long expenseID, long expenseGroupID)
+    public boolean addExpenseToGroup(long expenseID, long expenseGroupID, int quantity)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSESINGROUP_COL_EXPENSEGROUPID, expenseGroupID);
         values.put(EXPENSESINGROUP_COL_EXPENSEID, expenseID);
+        values.put(EXPENSESINGROUP_COL_QUANTITY, quantity);
 
         final long insert = db.insert(EXPENSESINGROUP_TABLE, null, values);
 
@@ -458,10 +454,10 @@ public class DBHandler extends SQLiteOpenHelper
     //region Category Methods
     //Note: I know this is bad...
 
-    public LinkedList buildCategoryList()
+    public HashSet<String> buildCategoryList()
     {
         SQLiteDatabase db = getWritableDatabase();
-        LinkedList list = new LinkedList();
+        HashSet<String> set = new HashSet<>();
         String category = "";
 
         Cursor c = db.rawQuery("SELECT * FROM " + EXPENSE_TABLE + " WHERE 1 ;", null);
@@ -470,21 +466,15 @@ public class DBHandler extends SQLiteOpenHelper
         while(!c.isAfterLast())
         {
             category = c.getString(c.getColumnIndex((EXPENSE_COL_CATEGORY)));
-            if (category != null)
-            {
-                StringItem item = new StringItem(category);
-
-                if (list.findNode(item) == null)
-                {
-                    list.insertFront(item);
-                }
+            if (category != null) {
+                set.add(category);
             }
             c.moveToNext();
         }
         c.close();
         db.close();
 
-        return list;
+        return set;
     }
 
     //endregion
@@ -494,28 +484,22 @@ public class DBHandler extends SQLiteOpenHelper
     //region Helper Methods
 
     //helper method to addExpenseGroup
-    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, SortedList expenses)
+    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, ArrayList<ExpenseInGroup> expenses)
     {
         ContentValues values = new ContentValues();
-        Node curr = expenses.getHead();
         boolean success = true;
 
-        while(curr != null)
+        for (ExpenseInGroup e : expenses)
         {
-            if(curr.getItem() instanceof Expense)
-            {
-                Expense expense = (Expense) curr.getItem();
+            values.put(EXPENSESINGROUP_COL_EXPENSEGROUPID, expenseGroupID);
+            values.put(EXPENSESINGROUP_COL_EXPENSEID, e.getId());
+            values.put(EXPENSESINGROUP_COL_QUANTITY, e.getQuantity());
 
-                values.put(EXPENSESINGROUP_COL_EXPENSEGROUPID, expenseGroupID);
-                values.put(EXPENSESINGROUP_COL_EXPENSEID, expense.getId());
+            final long insert = db.insert(EXPENSESINGROUP_TABLE, null, values);
+            if(insert == -1)
+                success = false;
 
-                final long insert = db.insert(EXPENSESINGROUP_TABLE, null, values);
-                if(insert == -1)
-                    success = false;
-
-                values.clear();
-            }
-            curr = curr.getNext();
+            values.clear();
         }
 
         return success;
@@ -550,14 +534,15 @@ public class DBHandler extends SQLiteOpenHelper
     }
 
     //helper method for queryExpenseGroups
-    private LinkedList getExpensesInGroup(SQLiteDatabase db, long expenseGroupID)
+    private ArrayList<ExpenseInGroup> getExpensesInGroup(SQLiteDatabase db, long expenseGroupID)
     {
-        LinkedList list = new LinkedList();
+        ArrayList<ExpenseInGroup> list = new ArrayList<>();
         String id;
         String name;
         String price;
         String category;
         String description;
+        String quantity;
 
         Cursor c = db.rawQuery("SELECT * FROM " + EXPENSESINGROUP_TABLE + " INNER JOIN " + EXPENSE_TABLE + " ON "
                 + EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_EXPENSEID + "=" + EXPENSE_TABLE + "."
@@ -573,9 +558,9 @@ public class DBHandler extends SQLiteOpenHelper
             price = c.getString(c.getColumnIndex(EXPENSE_COL_PRICE));
             category = c.getString(c.getColumnIndex(EXPENSE_COL_CATEGORY));
             description = c.getString(c.getColumnIndex(EXPENSE_COL_DESCRIPTION));
+            quantity = c.getString(c.getColumnIndex(EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_QUANTITY));
 
-            list.insertFront(new Expense(Long.parseLong(id), name, Long.parseLong(price), category, description));
-
+            list.add(new ExpenseInGroup(Long.parseLong(id), name, Long.parseLong(price), category, description, Integer.parseInt(quantity)));
             c.moveToNext();
         }
 
@@ -586,37 +571,9 @@ public class DBHandler extends SQLiteOpenHelper
 
     //endregion
 
-//    public void deleteProduct(String productName)
-//    {
-//        SQLiteDatabase db = getWritableDatabase();
-//        db.execSQL("DELETE FROM '" + TABLE_PRODUCTS + "' WHERE " + COLUMN_NAME + " = '" + productName + "';");
-//    }
-//
-//    public String dbToString()
-//    {
-//        String dbString = "";
-//        SQLiteDatabase db = getWritableDatabase();
-//        String query = "SELECT * FROM '" + TABLE_PRODUCTS + "' WHERE 1;";
-//
-//        Cursor c = db.rawQuery(query, null);
-//        c.moveToFirst();
-//
-//        while(!c.isAfterLast())
-//        {
-//            if(c.getString(c.getColumnIndex(COLUMN_NAME)) != null)
-//            {
-//                dbString += c.getString(c.getColumnIndex(COLUMN_ID)) + "\t" + c.getString(c.getColumnIndex(COLUMN_NAME));
-//                dbString += "\n";
-//            }
-//            c.moveToNext();
-//        }
-//
-//        c.close();
-//        db.close();
-//        return dbString;
-//    }
-
 }
+
+//region Class ItemInfo
 
 //would have liked a simple struct here, but this will do
 class ItemInfo
@@ -650,3 +607,5 @@ class ItemInfo
         this.itemID = id;
     }
 }
+
+//endregion

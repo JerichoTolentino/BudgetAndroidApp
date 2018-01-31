@@ -13,29 +13,29 @@ import android.widget.ListView;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
+import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_linked_list.LinkedList;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.SortedList;
-import com.budget_app.master.BudgetAppManager;
 
-import databases.DBHandler;
+import java.util.ArrayList;
+
 import utils.Utils;
 
 public class SelectExpensesActivity extends AppCompatActivity {
 
-    public static DBHandler g_dbHandler;
+    //region Members
 
     private Toolbar toolbar;
     private ListView lvExpenses;
     private ExpenseGroup m_expenseGroup;
 
+    //endregion
+
+    //region onCreate()
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_expenses);
-        BudgetAppManager.init();
-        g_dbHandler = new DBHandler(getApplicationContext(), null, null, 0);
 
         toolbar = findViewById(R.id.custom_toolbar);
         setSupportActionBar(toolbar);
@@ -44,22 +44,22 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
         m_expenseGroup = (ExpenseGroup) getIntent().getSerializableExtra("expenseGroup");
 
-        SortedList expenses = new SortedList(g_dbHandler.queryExpenses(null));
-        Purchase items[] = new Purchase[expenses.getSize()];
+        ArrayList<Expense> expenses = MainActivity.g_dbHandler.queryExpenses(null);
+        Purchase items[] = new Purchase[expenses.size()];
 
-        Node curr = expenses.getHead();
         int index = 0;
-        while (curr != null)
+        for (Expense e : expenses)
         {
-            items[index] = new Purchase((Expense) curr.getItem(), 0);
+            items[index] = new Purchase(e, 0);
             index++;
-            curr = curr.getNext();
         }
 
         ListAdapter listAdapter = new PurchaseRowAdapter(this, items);
         lvExpenses = findViewById(R.id.lvExpenses);
         lvExpenses.setAdapter(listAdapter);
     }
+
+    //endregion
 
     // region Toolbar Events
 
@@ -73,14 +73,13 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
 
         switch (item.getItemId())
         {
             // this is navigation icon listener
             case android.R.id.home:
-                intent = new Intent(SelectExpensesActivity.this, EditExpenseGroupActivity.class);
-                startActivity(intent);
+                returnToEditExpenseGroupActivity();
+                break;
 
             default:
                 break;
@@ -96,24 +95,31 @@ public class SelectExpensesActivity extends AppCompatActivity {
     {
         try
         {
-            LinkedList purchases = new LinkedList();
+            ArrayList<ExpenseInGroup> expenses = new ArrayList<>();
 
-            for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++)
-            {
+            // build list of expenses user wants to add
+            for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++) {
                 Purchase purchase = (Purchase) lvExpenses.getAdapter().getItem(i);
                 if (purchase.getQuantity() > 0)
-                {
-                    for (int j = 0; j < purchase.getQuantity(); j++)
-                        purchases.insertFront(new Expense((Expense) purchase.getItem()));
-                }
+                    expenses.add(new ExpenseInGroup((Expense) purchase.getItem(), purchase.getQuantity()));
             }
 
-            Intent intent = new Intent(SelectExpensesActivity.this, EditExpenseGroupActivity.class);
-            intent.putExtra("expensesToAdd", purchases);
-            intent.putExtra("expenseGroup", m_expenseGroup);
-            intent.putExtra("createNew", getIntent().getExtras().getBoolean("createNew"));
-            startActivity(intent);
+            // add the expenses to the group
+            for (ExpenseInGroup addExpense : expenses) {
+                boolean found = false;
+                for (ExpenseInGroup currExpense : m_expenseGroup.getExpenses()) {
+                    if (currExpense.getId() == addExpense.getId()) {
+                        found = true;
+                        currExpense.setQuantity(currExpense.getQuantity() + addExpense.getQuantity());
+                        m_expenseGroup.updatePrice();
+                        break;
+                    }
+                }
+                if (!found)
+                    m_expenseGroup.addExpense(addExpense);
+            }
 
+            returnToEditExpenseGroupActivity();
         }
         catch (Exception ex)
         {
@@ -125,7 +131,13 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     //region Helper Methods
 
-
+    private void returnToEditExpenseGroupActivity()
+    {
+        Intent intent = new Intent(SelectExpensesActivity.this, EditExpenseGroupActivity.class);
+        intent.putExtra("expenseGroup", m_expenseGroup);
+        intent.putExtra("createNew", getIntent().getExtras().getBoolean("createNew"));
+        startActivity(intent);
+    }
 
     //endregion
 

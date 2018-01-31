@@ -11,14 +11,20 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.SortedList;
+
+import java.util.ArrayList;
 
 import utils.Utils;
 
 public class ManageExpenseGroupsActivity extends AppCompatActivity {
 
+    //region Members
+
     private Toolbar toolbar;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,23 +44,21 @@ public class ManageExpenseGroupsActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    //endregion
+
+    //region Event Handlers
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
 
         switch (item.getItemId())
         {
             case android.R.id.home:
-                intent = new Intent(ManageExpenseGroupsActivity.this, MenuActivity.class);
-                startActivity(intent);
+                goToMenuActivity();
                 break;
 
             case R.id.add_new:
-                intent = new Intent(ManageExpenseGroupsActivity.this, EditExpenseGroupActivity.class);
-                intent.putExtra("expenseGroup", new ExpenseGroup());
-                intent.putExtra("createNew", true);
-                startActivity(intent);
-
+                goToEditExpenseGroupActivity();
                 break;
 
             default:
@@ -69,31 +73,46 @@ public class ManageExpenseGroupsActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    //region Event Handlers
-
     public void btnSwitchView_OnClick(View v)
     {
-        Intent intent = new Intent(ManageExpenseGroupsActivity.this, ManageExpensesActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        goToManageExpensesActivity();
     }
 
     //endregion
 
     // region Helper Methods
 
+    private void goToEditExpenseGroupActivity()
+    {
+        Intent intent = new Intent(ManageExpenseGroupsActivity.this, EditExpenseGroupActivity.class);
+        intent.putExtra("expenseGroup", new ExpenseGroup());
+        intent.putExtra("createNew", true);
+        startActivity(intent);
+    }
+
+    private void goToMenuActivity()
+    {
+        Intent intent = new Intent(ManageExpenseGroupsActivity.this, MenuActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToManageExpensesActivity()
+    {
+        Intent intent = new Intent(ManageExpenseGroupsActivity.this, ManageExpensesActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     public void updateExpenseGroupListView()
     {
-        SortedList expenseGroups = new SortedList(MainActivity.g_dbHandler.queryExpenseGroups(null));
-        ExpenseGroup[] expenseGroupArray = new ExpenseGroup[expenseGroups.getSize()];
+        ArrayList<ExpenseGroup> expenseGroups = MainActivity.g_dbHandler.queryExpenseGroups(null);
+        ExpenseGroup[] expenseGroupArray = new ExpenseGroup[expenseGroups.size()];
 
-        Node curr = expenseGroups.getHead();
         int index = 0;
-        while(curr != null)
+        for (ExpenseGroup e : expenseGroups)
         {
-            expenseGroupArray[index] = (ExpenseGroup) curr.getItem();
+            expenseGroupArray[index] = e;
             index++;
-            curr = curr.getNext();
         }
 
         ExpenseGroupRowAdapter adapter = new ExpenseGroupRowAdapter(ManageExpenseGroupsActivity.this, expenseGroupArray);
@@ -102,4 +121,5 @@ public class ManageExpenseGroupsActivity extends AppCompatActivity {
     }
 
     //endregion
+
 }

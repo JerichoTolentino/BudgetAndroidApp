@@ -23,14 +23,19 @@ import utils.Utils;
 
 public class EditExpenseActivity extends AppCompatActivity {
 
+    //region Members
+
     private Toolbar toolbar;
     private EditText etName;
     private EditText etPrice;
     private EditText etCategory;
     private EditText etDescription;
     private Expense m_expense;
-
     private boolean m_createNew;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,8 @@ public class EditExpenseActivity extends AppCompatActivity {
         }
     }
 
+    //endregion
+
     //region Toolbar Events
 
     @Override
@@ -77,6 +84,10 @@ public class EditExpenseActivity extends AppCompatActivity {
 
         switch (item.getItemId())
         {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
             case R.id.remove:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Are you sure you want to delete this expense?")
@@ -89,12 +100,6 @@ public class EditExpenseActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
     }
 
     //endregion
@@ -114,7 +119,7 @@ public class EditExpenseActivity extends AppCompatActivity {
                 MainActivity.g_dbHandler.addExpense(m_expense);
                 message = "Expense added!";
             } else {
-                if (MainActivity.g_dbHandler.queryExpenses(DBHandler.EXPENSE_COL_ID + "=" + m_expense.getId()).getSize() == 1) {
+                if (MainActivity.g_dbHandler.queryExpenses(DBHandler.EXPENSE_COL_ID + "=" + m_expense.getId()).size() == 1) {
                     MainActivity.g_dbHandler.updateExpense(m_expense);
                     message = "Expense updated!";
                 }
