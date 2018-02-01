@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.budget_app.expenses.ExpenseGroup;
 
@@ -75,7 +76,8 @@ public class ManageExpenseGroupsActivity extends AppCompatActivity {
 
     public void btnSwitchView_OnClick(View v)
     {
-        goToManageExpensesActivity();
+        Toast.makeText(this, "Do something else.", Toast.LENGTH_SHORT).show();
+        //goToManageExpensesActivity();
     }
 
     //endregion

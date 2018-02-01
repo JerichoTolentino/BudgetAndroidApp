@@ -1,5 +1,7 @@
 package com.budget_app.jt_interfaces;
 
+import java.util.Comparator;
+
 public interface Priceable
 {
 	String getName();

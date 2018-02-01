@@ -14,11 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
+import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.utilities.MoneyFormatter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import databases.DBHandler;
 import utils.Utils;
@@ -49,15 +53,10 @@ public class MainActivity extends AppCompatActivity {
         m_allPurchases = new ArrayList<>();
 
         ArrayList<Expense> expenses = g_dbHandler.queryExpenses(null);
-        Priceable items[] = new Priceable[expenses.size()];
+        ArrayList<ExpenseGroup> expenseGroups = g_dbHandler.queryExpenseGroups(null);
+        Priceable[] priceables = GeneratePriceablesArray(expenses, expenseGroups);
 
-        int index = 0;
-        for (Expense e : expenses) {
-            items[index] = e;
-            index++;
-        }
-
-        ListAdapter listAdapter = new PriceableRowAdapter(this, items);
+        ListAdapter listAdapter = new PriceableRowAdapter(this, priceables);
         ListView lvExpenses = findViewById(R.id.lvPurchases);
         lvExpenses.setAdapter(listAdapter);
     }
@@ -111,6 +110,33 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     //region Helper Methods
+
+    private Priceable[] GeneratePriceablesArray(ArrayList<Expense> expenses, ArrayList<ExpenseGroup> expenseGroups)
+    {
+        ArrayList<Priceable> priceables = new ArrayList<>(expenses.size() + expenseGroups.size());
+
+        for (Expense e : expenses)
+            priceables.add(e);
+        for (ExpenseGroup e : expenseGroups)
+            priceables.add(e);
+
+        priceables.sort(new Comparator<Priceable>() {
+            @Override
+            public int compare(Priceable priceable, Priceable t1) {
+                return priceable.getName().compareTo(t1.getName());
+            }
+        });
+
+        Priceable[] priceablesArray = new Priceable[priceables.size()];
+
+        int index = 0;
+        for (Priceable p : priceables) {
+            priceablesArray[index] = p;
+            index++;
+        }
+
+        return priceablesArray;
+    }
 
     private void goToMenuActivity()
     {

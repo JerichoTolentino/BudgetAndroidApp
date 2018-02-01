@@ -4,6 +4,7 @@ import com.budget_app.jt_interfaces.Priceable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ExpenseGroup implements Priceable, Serializable
 {
@@ -205,6 +206,20 @@ public class ExpenseGroup implements Priceable, Serializable
 		}
 
 		this.price = price;
+	}
+
+	//endregion
+
+	//region Custom Comparators
+
+	public static Comparator<ExpenseGroup> getNameComparator()
+	{
+		return new Comparator<ExpenseGroup>() {
+			@Override
+			public int compare(ExpenseGroup expenseGroup, ExpenseGroup t1) {
+				return expenseGroup.getName().compareTo(t1.getName());
+			}
+		};
 	}
 
 	//endregion

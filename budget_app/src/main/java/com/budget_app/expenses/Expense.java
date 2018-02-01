@@ -3,6 +3,7 @@ package com.budget_app.expenses;
 import com.budget_app.jt_interfaces.Priceable;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 public class Expense implements Priceable, Serializable
@@ -132,5 +133,19 @@ public class Expense implements Priceable, Serializable
 	{
 		return "ID:\t\t" + id + "\nName:\t\t" + name + "\nPrice:\t\t" + Long.toString(price) + "\nCategory:\t" + category + "\nDescription:\t" + description + "\n------";
 	}
+
+	//region Custom Comparators
+
+	public static Comparator<Expense> getNameComparator()
+	{
+		return new Comparator<Expense>() {
+			@Override
+			public int compare(Expense expense, Expense t1) {
+				return expense.getName().compareTo(t1.getName());
+			}
+		};
+	}
+
+	//endregion
 
 }

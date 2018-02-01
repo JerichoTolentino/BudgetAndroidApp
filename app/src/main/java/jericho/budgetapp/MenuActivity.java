@@ -23,7 +23,7 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        String[] menuItems = new String[] {"Main Page", "Manage Expenses", "Manage Budget/Savings", "TBA", "View Statistics", "Settings"};
+        String[] menuItems = new String[] {"Main Page", "Manage Expenses", "Manage Expense Groups", "Manage Plans", "View Statistics", "Settings"};
         ListAdapter listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menuItems);
         ListView lvMenuItems = findViewById(R.id.lvMenuItems);
         lvMenuItems.setAdapter(listAdapter);
@@ -40,9 +40,15 @@ public class MenuActivity extends AppCompatActivity {
                     case "Main Page":
                         goToMainActivity();
                         break;
+
                     case "Manage Expenses":
                         goToManageExpensesActivity();
                         break;
+
+                    case "Manage Expense Groups":
+                        goToManageExpenseGroupsActivity();
+                        break;
+
                     default:
                         Toast.makeText(MenuActivity.this, value, Toast.LENGTH_SHORT).show();
                         break;
@@ -65,6 +71,13 @@ public class MenuActivity extends AppCompatActivity {
     private void goToManageExpensesActivity()
     {
         Intent intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManageExpenseGroupsActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, ManageExpenseGroupsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
