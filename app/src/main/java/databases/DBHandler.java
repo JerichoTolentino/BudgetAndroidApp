@@ -15,7 +15,9 @@ import com.budget_app.jt_interfaces.Priceable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 
 //TODO: Create methods in DBHandler to replace methods in BudgetAppManager
     /*
@@ -244,20 +246,18 @@ public class DBHandler extends SQLiteOpenHelper
 
             itemID = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMID));
 
-            switch (itemType)
-            {
-                case "Expense":
-                    ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
-                    item = (expenses.get(0));
-                    break;
-
-                case "ExpenseGroup":
+            if (itemType.equals(Expense.class.getName().toString())) {
+                ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
+                item = (expenses.get(0));
+            } else if (itemType.equals(ExpenseGroup.class.getName().toString())) {
                     ArrayList<ExpenseGroup> expenseGroups = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
                     item = expenseGroups.get(0);
-                    break;
-            }
+            } else
+                return null;
 
-            list.add(new Purchase(Long.parseLong(id), item, Integer.parseInt(quantity), DateFormat.getDateInstance().parse(date)));
+            Date parsedDate = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).parse(date);
+
+            list.add(new Purchase(Long.parseLong(id), item, Integer.parseInt(quantity), parsedDate));
             c.moveToNext();
         }
 
@@ -430,7 +430,8 @@ public class DBHandler extends SQLiteOpenHelper
         values.put(PURCHASES_COL_ITEMTYPE, itemInfo.getItemType());
         values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
         values.put(PURCHASES_COL_QUANTITY, purchase.getQuantity());
-        values.put(PURCHASES_COL_DATE, purchase.getDate().toString());
+        values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
+        //vallues.put(PURCHASES_COL_DATE, purchase.getDate().toString());
 
         final long insert = db.insert(PURCHASES_TABLE, null, values);
         db.close();

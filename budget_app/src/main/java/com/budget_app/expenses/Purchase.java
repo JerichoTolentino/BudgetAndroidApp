@@ -126,13 +126,23 @@ public class Purchase implements Serializable, Comparable
 
 	//region Custom Comparators
 
-	public static Comparator<Purchase> getDateComparator()
+	public static Comparator<Purchase> getAscendingDateComparator()
 	{
 		return new Comparator<Purchase>()
 		{
 			public int compare(Purchase one, Purchase two)
 			{
 				return one.getDate().compareTo(two.getDate());
+			}
+		};
+	}
+
+	public static Comparator<Purchase> getDescendendingDateComparator()
+	{
+		return new Comparator<Purchase>() {
+			@Override
+			public int compare(Purchase purchase, Purchase t1) {
+				return t1.getDate().compareTo(purchase.getDate());
 			}
 		};
 	}

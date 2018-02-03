@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.Purchase;
+import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.utilities.MoneyFormatter;
 
 /**
@@ -39,7 +40,7 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 
         //Get references to row data object
         final Purchase purchase = getItem(position);
-        final Expense expense = (Expense)purchase.getItem();
+        final Priceable item = purchase.getItem();
 
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
@@ -48,11 +49,11 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
         final Button btnIncrease = customView.findViewById(R.id.btnIncrease);
         final Button btnDecrease = customView.findViewById(R.id.btnDecrease);
 
-        assert expense != null;
+        assert item != null;
 
         //Set row elements based on purchase fields
-        tvName.setText(expense.getName());
-        tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice()));
+        tvName.setText(item.getName());
+        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice()));
         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
         checkQuantity(purchase.getQuantity(), customView);
 

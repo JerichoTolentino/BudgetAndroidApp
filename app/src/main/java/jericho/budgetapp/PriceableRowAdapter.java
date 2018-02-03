@@ -11,8 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.utilities.MoneyFormatter;
 
@@ -22,14 +20,30 @@ import com.budget_app.utilities.MoneyFormatter;
 
 class PriceableRowAdapter extends ArrayAdapter<Priceable>
 {
+
+    //region Constants
+
     private static final int NOT_SELECTED_COLOR = Color.WHITE;
+
+    //endregion
+
+    //region Members
+
     private Context m_context;
+
+    //endregion
+
+    //region Constructor
 
     public PriceableRowAdapter(@NonNull Context context, Priceable items[])
     {
         super(context, R.layout.priceable_row, items);
         this.m_context = context;
     }
+
+    //endregion
+
+    //region getView()
 
     @NonNull
     @Override
@@ -96,6 +110,10 @@ class PriceableRowAdapter extends ArrayAdapter<Priceable>
         return customView;
     }
 
+    //endregion
+
+    //region Helper Methods
+
     //Change color of row based on quantity value
     private void checkQuantity(int quantity, View customView)
     {
@@ -104,4 +122,7 @@ class PriceableRowAdapter extends ArrayAdapter<Priceable>
         else
             customView.setBackgroundColor(NOT_SELECTED_COLOR);
     }
+
+    //endregion
+
 }

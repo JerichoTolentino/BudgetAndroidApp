@@ -4,6 +4,10 @@ import android.content.ClipData;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.budget_app.jt_interfaces.Priceable;
+
+import java.util.Comparator;
+
 import jericho.budgetapp.R;
 
 /**
@@ -34,6 +38,16 @@ public class Utils
                 item.setVisible(true);
             }
         }
+    }
+
+    public static Comparator<Priceable> getPrioeableNameComparator()
+    {
+        return new Comparator<Priceable>() {
+            @Override
+            public int compare(Priceable priceable, Priceable t1) {
+                return priceable.getName().compareTo(t1.getName());
+            }
+        };
     }
 
 }

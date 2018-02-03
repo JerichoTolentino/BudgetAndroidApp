@@ -58,7 +58,7 @@ public class PurchaseHistory implements Stringable, Serializable
 			}
 		}
 
-		Collections.sort(purchasesOnDate, Purchase.getDateComparator());
+		Collections.sort(purchasesOnDate, Purchase.getAscendingDateComparator());
 
 		return purchasesOnDate;
 	}
@@ -76,7 +76,7 @@ public class PurchaseHistory implements Stringable, Serializable
 			}
 		}
 
-		Collections.sort(purchasesBetween, Purchase.getDateComparator());
+		Collections.sort(purchasesBetween, Purchase.getAscendingDateComparator());
 
 		return purchasesBetween;
 	}

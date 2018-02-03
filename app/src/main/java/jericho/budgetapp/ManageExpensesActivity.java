@@ -34,6 +34,7 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
+        toolbar.setTitle(R.string.expenses);
         setSupportActionBar(toolbar);
     }
 

@@ -18,14 +18,19 @@
         </activity>
         <activity android:name=".MenuActivity" />
         <activity android:name=".ManageExpensesActivity" />
-        <activity android:name=".EditExpenseActivity"
-            android:parentActivityName=".ManageExpensesActivity"/>
-        <activity android:name=".EditExpenseGroupActivity"
+        <activity
+            android:name=".EditExpenseActivity"
+            android:parentActivityName=".ManageExpensesActivity" />
+        <activity
+            android:name=".EditExpenseGroupActivity"
             android:parentActivityName=".ManageExpenseGroupsActivity"
-            android:windowSoftInputMode="adjustPan"/>
-        <activity android:name=".ManageExpenseGroupsActivity"/>
-        <activity android:name=".SelectExpensesActivity"
-            android:parentActivityName=".EditExpenseGroupActivity"/>
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ManageExpenseGroupsActivity" />
+        <activity
+            android:name=".SelectExpensesActivity"
+            android:parentActivityName=".EditExpenseGroupActivity" />
+        <activity android:name=".ViewPurchaseHistory"
+            android:parentActivityName=".MainActivity"></activity>
     </application>
 
 </manifest>

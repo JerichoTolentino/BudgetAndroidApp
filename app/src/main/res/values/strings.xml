@@ -13,8 +13,10 @@
     <string name="add_to_expense_group">Add To Expense Group</string>
     <string name="budget_buddy">Budget Buddy</string>
     <string name="edit_expense">Edit Expense</string>
+    <string name="manage_expenses">Manage Expenses</string>
     <string name="manage_expense_groups">Manage Expense Groups</string>
+    <string name="expense_groups">Expense Groups</string>
     <string name="add_expenses">Add Expenses</string>
     <string name="expenses">Expenses</string>
-    <string name="manage_expenses">Manage Expenses</string>
+    <string name="purchase_history">Purchase History</string>
 </resources>

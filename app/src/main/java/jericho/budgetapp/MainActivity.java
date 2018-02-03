@@ -17,12 +17,10 @@ import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.utilities.MoneyFormatter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import databases.DBHandler;
 import utils.Utils;
@@ -35,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ArrayList<Purchase> m_allPurchases;
+    private ListView lvPurchases;
 
     //endregion
 
@@ -48,17 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
+        toolbar.setTitle(R.string.budget_buddy);
         setSupportActionBar(toolbar);
 
         m_allPurchases = new ArrayList<>();
-
-        ArrayList<Expense> expenses = g_dbHandler.queryExpenses(null);
-        ArrayList<ExpenseGroup> expenseGroups = g_dbHandler.queryExpenseGroups(null);
-        Priceable[] priceables = GeneratePriceablesArray(expenses, expenseGroups);
-
-        ListAdapter listAdapter = new PriceableRowAdapter(this, priceables);
-        ListView lvExpenses = findViewById(R.id.lvPurchases);
-        lvExpenses.setAdapter(listAdapter);
+        initPurchases();
     }
 
     @Override
@@ -80,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
         {
             case android.R.id.home:
                 goToMenuActivity();
+                break;
+
+            case R.id.view_history:
+                goToViewPurchaseHistoryActivity();
+                break;
 
             default:
                 break;
@@ -93,25 +91,57 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnPurchase_onClick(View v)
     {
-        String message = "";
+        try {
+            makePurchases();
+        } catch (Exception ex) {
+            System.err.println(ex.toString());
+        }
+    }
 
-        for (Purchase p : m_allPurchases)
+    //endregion
+
+    //region Functionality Methods
+
+    public void makePurchases()
+    {
+
+        for (int i = 0; i < lvPurchases.getCount(); i++)
         {
-            if(message.equals(""))
-                message += MoneyFormatter.formatLongToMoney(p.getItem().getPrice() * p.getQuantity()) + " purchase successful!";
-            else
-                message += "\n" + MoneyFormatter.formatLongToMoney(p.getItem().getPrice()) + " purchase successful!";
+            Purchase purchase = (Purchase) lvPurchases.getItemAtPosition(i);
+
+            if (purchase.getQuantity() > 0)
+                m_allPurchases.add(purchase);
         }
 
-        if(!message.equals(""))
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        String message = "";
+        for (Purchase p : m_allPurchases) {
+            message += p.toString() + "\n";
+            g_dbHandler.addPurchase(p);
+        }
+
+        if (message.length() > 0)
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+        initPurchases();
+        m_allPurchases.clear();
     }
 
     //endregion
 
     //region Helper Methods
 
-    private Priceable[] GeneratePriceablesArray(ArrayList<Expense> expenses, ArrayList<ExpenseGroup> expenseGroups)
+    private void initPurchases()
+    {
+        ArrayList<Expense> expenses = g_dbHandler.queryExpenses(null);
+        ArrayList<ExpenseGroup> expenseGroups = g_dbHandler.queryExpenseGroups(null);
+        Purchase[] purchases = GeneratePurchasesArray(expenses, expenseGroups);
+
+        ListAdapter listAdapter = new PurchaseRowAdapter(this, purchases);
+        lvPurchases = findViewById(R.id.lvPurchases);
+        lvPurchases.setAdapter(listAdapter);
+    }
+
+    private Purchase[] GeneratePurchasesArray(ArrayList<Expense> expenses, ArrayList<ExpenseGroup> expenseGroups)
     {
         ArrayList<Priceable> priceables = new ArrayList<>(expenses.size() + expenseGroups.size());
 
@@ -120,27 +150,24 @@ public class MainActivity extends AppCompatActivity {
         for (ExpenseGroup e : expenseGroups)
             priceables.add(e);
 
-        priceables.sort(new Comparator<Priceable>() {
-            @Override
-            public int compare(Priceable priceable, Priceable t1) {
-                return priceable.getName().compareTo(t1.getName());
-            }
-        });
+        Collections.sort(priceables, Utils.getPrioeableNameComparator());
+        Purchase[] purchases = new Purchase[priceables.size()];
 
-        Priceable[] priceablesArray = new Priceable[priceables.size()];
+        for (int i = 0; i < priceables.size(); i++)
+            purchases[i] = new Purchase(priceables.get(i), 0);
 
-        int index = 0;
-        for (Priceable p : priceables) {
-            priceablesArray[index] = p;
-            index++;
-        }
-
-        return priceablesArray;
+        return purchases;
     }
 
     private void goToMenuActivity()
     {
         Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToViewPurchaseHistoryActivity()
+    {
+        Intent intent = new Intent(MainActivity.this, ViewPurchaseHistory.class);
         startActivity(intent);
     }
 
