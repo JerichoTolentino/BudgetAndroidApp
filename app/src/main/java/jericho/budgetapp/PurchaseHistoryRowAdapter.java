@@ -53,7 +53,7 @@ class PurchaseHistoryRowAdapter extends ArrayAdapter<Purchase>
 
         //Set row elements based on purchase fields
         tvName.setText(item.getName());
-        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice()));
+        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice(), true));
         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
         tvDate.setText(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
 

@@ -69,7 +69,7 @@ class PriceableRowAdapter extends ArrayAdapter<Priceable>
 
         //Set row elements based on purchase fields
         tvName.setText(item.getName());
-        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice()));
+        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice(), true));
         checkQuantity(Integer.parseInt(tvQuantity.getText().toString()), customView);
 
         //Increase quantity event handler

@@ -60,7 +60,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
             m_createNew = getIntent().getExtras().getBoolean("createNew");
 
             etName.setText(m_expenseGroup.getName());
-            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice()).replace("$", ""));
+            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));
             etCategory.setText(m_expenseGroup.getCategory());
 
             updateExpensesListView();
@@ -225,7 +225,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         lvExpenses.setAdapter(listAdapter);
 
         etPrice.setEnabled(true);
-        etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice()).replace("$", ""));
+        etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));
         etPrice.setEnabled(false);
     }
 

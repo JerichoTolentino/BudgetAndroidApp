@@ -1,5 +1,9 @@
 package com.budget_app.utilities;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+
+import java.text.ParseException;
+
 /**
  * Created by Jericho on 11/5/2017.
  */
@@ -7,18 +11,23 @@ package com.budget_app.utilities;
 public class MoneyFormatter
 {
 
-    public static String formatLongToMoney(long amount)
+    //region Long To Money
+
+    public static String formatLongToMoney(long amount, boolean addDollarSign)
     {
-        String money;
+        String money = "";
+
+        if (addDollarSign)
+            money += "$";
 
         if(amount < 10)
-            money = "$0." + twoDigitToString(amount);
+            money += "0." + twoDigitToString(amount);
         else
         {
             long dollarPart = amount / 100;
             int centsPart = (int)(amount % 100);
 
-            money = "$" + formatDollarPart(dollarPart) + "." + twoDigitToString(centsPart);
+            money += formatDollarPart(dollarPart) + "." + twoDigitToString(centsPart);
         }
 
         return money;
@@ -73,5 +82,31 @@ public class MoneyFormatter
 
         return result;
     }
+
+    //endregion
+
+    //region Money To Long
+
+    public static long formatMoneyToLong(String money) throws ParseException
+    {
+        if (StringHelper.countOccurrences(money, "$") > 1 || StringHelper.countOccurrences(money, ".") > 1)
+            throw new ParseException("Money parsing error", 0);
+
+        money = money.replace("$", "");
+
+        int length = money.length();
+        int decimalIndex = money.indexOf(".");
+
+        if (decimalIndex == (length - 1) - 2)
+        {
+            money = money.replace(".", "");
+            return Long.parseLong(money);
+        }
+        else
+            throw new ParseException("Money decimal parsing error", decimalIndex);
+
+    }
+
+    //endregion
 
 }

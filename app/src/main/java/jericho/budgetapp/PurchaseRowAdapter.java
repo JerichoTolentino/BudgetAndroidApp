@@ -53,7 +53,7 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 
         //Set row elements based on purchase fields
         tvName.setText(item.getName());
-        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice()));
+        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice(), true));
         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
         checkQuantity(purchase.getQuantity(), customView);
 

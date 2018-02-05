@@ -59,7 +59,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         if (!m_createNew)
         {
             etName.setText(m_expense.getName());
-            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expense.getPrice()).replace("$", ""));
+            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expense.getPrice(), false));
             etCategory.setText(m_expense.getCategory());
             etDescription.setText(m_expense.getDescription());
         }

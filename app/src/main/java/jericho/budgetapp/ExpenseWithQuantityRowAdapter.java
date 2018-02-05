@@ -48,7 +48,7 @@ class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
         {
             //Set row elements based on expense fields
             tvName.setText(expense.getName());
-            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice()));
+            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice(), true));
             tvQuantity.setText("x" + String.valueOf(expense.getQuantity()));
 
             btnClear.setOnClickListener(

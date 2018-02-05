@@ -47,7 +47,7 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
         {
             //Set row elements based on expense fields
             tvName.setText(expense.getName());
-            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice()));
+            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice(), true));
 
             btnEdit.setOnClickListener(
                     new View.OnClickListener()

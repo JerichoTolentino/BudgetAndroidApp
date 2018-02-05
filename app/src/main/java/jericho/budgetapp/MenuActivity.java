@@ -49,6 +49,10 @@ public class MenuActivity extends AppCompatActivity {
                         goToManageExpenseGroupsActivity();
                         break;
 
+                    case "Manage Plans":
+                        goToManagePlansActivity();
+                        break;
+
                     default:
                         Toast.makeText(MenuActivity.this, value, Toast.LENGTH_SHORT).show();
                         break;
@@ -78,6 +82,13 @@ public class MenuActivity extends AppCompatActivity {
     private void goToManageExpenseGroupsActivity()
     {
         Intent intent = new Intent(MenuActivity.this, ManageExpenseGroupsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManagePlansActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, EditBudgetPlanActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }

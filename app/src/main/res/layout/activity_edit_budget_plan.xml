@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RootParent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="jericho.budgetapp.EditBudgetPlanActivity">
+
+    <include
+        android:id="@+id/custom_toolbar"
+        layout="@layout/custom_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/svParent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/BottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/custom_toolbar">
+
+        <LinearLayout
+            android:id="@+id/ScrollableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/AnnualInputSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:labelFor="@+id/etAnnualIncome"
+                    android:text="@string/plan_name"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etName"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvAnnualIncome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/etAnnualIncome"
+                    android:tag="CreateNew"
+                    android:text="@string/annual_income"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etAnnualIncome"
+                    app:layout_constraintStart_toStartOf="@+id/tvName" />
+
+                <TextView
+                    android:id="@+id/tvAnnualExpenses"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/etAnnualExpenses"
+                    android:tag="CreateNew"
+                    android:text="@string/annual_expenses"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etAnnualExpenses"
+                    app:layout_constraintStart_toStartOf="@+id/tvAnnualIncome" />
+
+                <TextView
+                    android:id="@+id/tvAnnualSavings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/etAnnualSavings"
+                    android:tag="CreateNew"
+                    android:text="@string/annual_savings"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etAnnualSavings"
+                    app:layout_constraintStart_toStartOf="@+id/tvAnnualExpenses" />
+
+                <EditText
+                    android:id="@+id/etName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="8dp"
+                    android:ems="10"
+                    android:hint="@string/name"
+                    android:inputType="textPersonName"
+                    app:layout_constraintBottom_toTopOf="@+id/etAnnualIncome"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/etAnnualIncome"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/etAnnualIncome"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="16dp"
+                    android:ems="10"
+                    android:hint="@string/zero_decimal"
+                    android:inputType="numberDecimal"
+                    android:tag="CreateNew"
+                    app:layout_constraintBottom_toTopOf="@+id/etAnnualExpenses"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvAnnualIncome"
+                    app:layout_constraintTop_toBottomOf="@+id/etName" />
+
+                <EditText
+                    android:id="@+id/etAnnualExpenses"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/zero_decimal"
+                    android:inputType="numberDecimal"
+                    android:tag="CreateNew"
+                    app:layout_constraintBottom_toTopOf="@+id/etAnnualSavings"
+                    app:layout_constraintEnd_toEndOf="@+id/etAnnualIncome"
+                    app:layout_constraintStart_toStartOf="@+id/etAnnualIncome"
+                    app:layout_constraintTop_toBottomOf="@+id/etAnnualIncome" />
+
+                <EditText
+                    android:id="@+id/etAnnualSavings"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:ems="10"
+                    android:hint="@string/zero_decimal"
+                    android:inputType="numberDecimal"
+                    android:tag="CreateNew"
+                    app:layout_constraintBottom_toTopOf="@+id/btnGeneratePlan"
+                    app:layout_constraintEnd_toEndOf="@+id/etAnnualExpenses"
+                    app:layout_constraintStart_toStartOf="@+id/etAnnualExpenses"
+                    app:layout_constraintTop_toBottomOf="@+id/etAnnualExpenses" />
+
+                <Button
+                    android:id="@+id/btnGeneratePlan"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginStart="24dp"
+                    android:onClick="btnGeneratePlan_OnClick"
+                    android:padding="16dp"
+                    android:tag="CreateNew"
+                    android:text="@string/generate_plan"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/WeeklyBudgetSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvTotalWeeklyBudget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:tag="ModifyExisting"
+                    android:text="@string/total_weekly_budget"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etWeeklyBudget"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <EditText
+                    android:id="@+id/etWeeklyBudget"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:hint="@string/total_weekly_budget"
+                    android:inputType="textPersonName"
+                    android:tag="ModifyExisting"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvTotalWeeklyBudget"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvAmountAllocated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="ModifyExisting"
+                    android:text="@string/amount_allocated"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etAmountAllocated"
+                    app:layout_constraintStart_toStartOf="@+id/tvTotalWeeklyBudget" />
+
+                <EditText
+                    android:id="@+id/etAmountAllocated"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:hint="@string/amount_allocated"
+                    android:inputType="textPersonName"
+                    android:tag="ModifyExisting"
+                    app:layout_constraintEnd_toEndOf="@+id/etWeeklyBudget"
+                    app:layout_constraintStart_toStartOf="@+id/etWeeklyBudget"
+                    app:layout_constraintTop_toBottomOf="@+id/etWeeklyBudget" />
+
+                <TextView
+                    android:id="@+id/tvAmountRemaining"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="ModifyExisting"
+                    android:text="@string/amount_remaining"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etAmountRemaining"
+                    app:layout_constraintStart_toStartOf="@+id/tvAmountAllocated" />
+
+                <EditText
+                    android:id="@+id/etAmountRemaining"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:ems="10"
+                    android:enabled="false"
+                    android:hint="@string/amount_remaining"
+                    android:inputType="textPersonName"
+                    android:tag="ModifyExisting"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/etAmountAllocated"
+                    app:layout_constraintStart_toStartOf="@+id/etAmountAllocated"
+                    app:layout_constraintTop_toBottomOf="@+id/etAmountAllocated" />
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/DayOfWeekSelectionSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ToggleButton
+                    android:id="@+id/tbtnSunday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@color/colorSelectedItem"
+                    android:checked="true"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="0"
+                    android:text="@string/sun"
+                    android:textOff="@string/sun"
+                    android:textOn="@string/sun"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnMonday"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnMonday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="1"
+                    android:text="@string/mon"
+                    android:textOff="@string/mon"
+                    android:textOn="@string/mon"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnTuesday"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnSunday" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnTuesday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="2"
+                    android:text="@string/tue"
+                    android:textOff="@string/tue"
+                    android:textOn="@string/tue"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnWednesday"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnMonday" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnWednesday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="3"
+                    android:text="@string/wed"
+                    android:textOff="@string/wed"
+                    android:textOn="@string/wed"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnThursday"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnTuesday" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnThursday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="4"
+                    android:text="@string/thu"
+                    android:textOff="@string/thu"
+                    android:textOn="@string/thu"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnFriday"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnWednesday" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnFriday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="5"
+                    android:text="@string/fri"
+                    android:textOff="@string/fri"
+                    android:textOn="@string/fri"
+                    app:layout_constraintEnd_toStartOf="@+id/tbtnSaturday"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnThursday" />
+
+                <ToggleButton
+                    android:id="@+id/tbtnSaturday"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:background="@android:color/darker_gray"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:onClick="btnWeekday_OnClick"
+                    android:tag="6"
+                    android:text="@string/sat"
+                    android:textOff="@string/sat"
+                    android:textOn="@string/sat"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tbtnFriday" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/DailyModificationSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tvDailyLimit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:tag="ModifyExisting"
+                    android:text="@string/daily_limit"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/etDailyLimit"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/etDailyLimit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="16dp"
+                    android:ems="10"
+                    android:hint="@string/zero_decimal"
+                    android:inputType="textPersonName"
+                    android:tag="ModifyExisting"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvDailyLimit" />
+            </android.support.constraint.ConstraintLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/BottomBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btnConfirm"
+            style="@android:style/Widget.Holo.Light.Button.Small"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:text="@string/confirm"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

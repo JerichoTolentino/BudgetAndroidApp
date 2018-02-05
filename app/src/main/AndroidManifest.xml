@@ -16,8 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MenuActivity" />
-        <activity android:name=".ManageExpensesActivity" />
+        <activity
+            android:name=".MenuActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Manage Expenses -->
+        <activity
+            android:name=".ManageExpensesActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".EditExpenseActivity"
             android:parentActivityName=".ManageExpensesActivity" />
@@ -25,12 +31,22 @@
             android:name=".EditExpenseGroupActivity"
             android:parentActivityName=".ManageExpenseGroupsActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ManageExpenseGroupsActivity" />
+
+        <!-- Manage Expense Groups -->
+        <activity
+            android:name=".ManageExpenseGroupsActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SelectExpensesActivity"
             android:parentActivityName=".EditExpenseGroupActivity" />
-        <activity android:name=".ViewPurchaseHistory"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".ViewPurchaseHistory"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".ManagePlansActivity" />
+
+        <!-- Manage Budget Plans -->
+        <activity android:name=".EditBudgetPlanActivity"
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>
