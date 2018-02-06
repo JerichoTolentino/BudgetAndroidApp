@@ -7,6 +7,18 @@ import java.util.Date;
 public class Plan implements Serializable
 {
 
+	//region Constants
+	private static final long DEFAULT_ID = 0
+	private static final String DAYOFWEEK_SUNDAY = "sunday";
+	private static final String DAYOFWEEK_MONDAY = "monday";
+	private static final String DAYOFWEEK_TUESDAY = "tuesday";
+	private static final String DAYOFWEEK_WEDNESDAY = "wednesday";
+	private static final String DAYOFWEEK_THURSDAY = "thursday";
+	private static final String DAYOFWEEK_FRIDAY = "friday";
+	private static final String DAYOFWEEK_SATURDAY = "saturday";
+
+	//endregion
+
 	//region Members
 
 	// non-editable members
@@ -14,7 +26,7 @@ public class Plan implements Serializable
 	private final long m_annualExpenses;
 	private final long m_annualSavings;
 
-
+	private long m_id;
 	private String m_name;
 	private long m_annualBudget;
 
@@ -31,6 +43,7 @@ public class Plan implements Serializable
 
 	public Plan(String name, long annualIncome, long annualExpenses, long annualSavings)
 	{
+		this.m_id = DEFAULT_ID;
 		this.m_name = name;
 		this.m_annualIncome = annualIncome;
 		this.m_annualExpenses = annualExpenses;
@@ -45,6 +58,7 @@ public class Plan implements Serializable
 		if (dailyBudgets.length != 7)
 			assert false;
 
+		this.m_id = DEFAULT_ID;
 		this.m_name = name;
 		this.m_annualIncome = annualIncome;
 		this.m_annualExpenses = annualExpenses;
@@ -55,8 +69,25 @@ public class Plan implements Serializable
 		this.m_dailyBudgets = dailyBudgets;
 	}
 
+	public Plan(long id, String name, long annualIncome, long annualExpenses, long annualSavings, long annualBudget, PeriodicBudget weeklyBudget, PeriodicBudget[] dailyBudgets)
+	{
+		if (dailyBudgets.length != 7)
+			assert false;
+
+		this.m_id = id;
+		this.m_name = name;
+		this.m_annualIncome = annualIncome;
+		this.m_annualExpenses = annualExpenses;
+		this.m_annualSavings = annualSavings;
+		this.m_annualBudget = annualBudget;
+
+		this.m_weeklyBudget = weeklyBudget;
+		this.m_dailyBudgets = dailyBudgets;
+	}
+
 	public Plan(Plan other)
 	{
+		this.m_id = other.m_id;
 		this.m_name = other.m_name;
 		this.m_annualIncome = other.m_annualIncome;
 		this.m_annualExpenses = other.m_annualExpenses;
@@ -70,6 +101,10 @@ public class Plan implements Serializable
 	//endregion
 
 	//region Getters & Setters
+
+	public long getId() { return this.m_id; }
+
+	public void setId(long id) { this.m_id = id; }
 
 	public String getName()
 	{
@@ -125,11 +160,35 @@ public class Plan implements Serializable
 		long dailyBudget = m_annualBudget / numDaysThisYear;
 
 		//PeriodicBudget monthly = new PeriodicBudget()
-		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget);
+		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget, "weekly");
 		m_dailyBudgets = new PeriodicBudget[7];
 
 		for (int i = 0; i < m_dailyBudgets .length; i++)
-			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget);
+			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget, indexToDayOfWeek(i));
+	}
+
+	private String indexToDayOfWeek(int index)
+	{
+		switch (index)
+		{
+			case 0:
+				return DAYOFWEEK_SUNDAY;
+			case 1:
+				return DAYOFWEEK_MONDAY;
+			case 2:
+				return DAYOFWEEK_TUESDAY;
+			case 3:
+				return DAYOFWEEK_WEDNESDAY;
+			case 4:
+				return DAYOFWEEK_THURSDAY;
+			case 5:
+				return DAYOFWEEK_FRIDAY;
+			case 6:
+				return DAYOFWEEK_SATURDAY;
+			default:
+				return "";
+		}
+
 	}
 
 	//endregion

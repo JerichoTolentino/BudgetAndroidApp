@@ -11,6 +11,8 @@ import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
+import com.budget_app.plans.PeriodicBudget;
+import com.budget_app.plans.Plan;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -61,6 +63,34 @@ public class DBHandler extends SQLiteOpenHelper
 
     //Plans Table Info
     //TODO: Add plans
+    public static final String PLANS_TABLE = "tblPlans";
+    public static final String PLANS_COL_ID = "ID";
+    public static final String PLANS_COL_ANNUALINCOME = "AnnualIncome";
+    public static final String PLANS_COL_ANNUALEXPENSES = "AnnualExpenses";
+    public static final String PLANS_COL_ANNUALSAVINGS = "AnnualSavings";
+    public static final String PLANS_COL_NAME = "Name";
+    public static final String PLANS_COL_ANNUALBUDGET = "AnnualBudget";
+    public static final String PLANS_COL_MONTHLYBUDGETID = "MonthlyBudgetID";
+    public static final String PLANS_COL_WEEKLYBUDGETID = "WeeklyBudgetID";
+    public static final String PLANS_COL_DAILYBUDGETSID = "DailyBudgetsID";
+    // Linked to PeriodicBudgets table via DailyBudgetsInPlan bridge-table
+
+    //Period Budgets Table info
+    public static final String PERIODICBUDGETS_TABLE = "tblPeriodicBudgets";
+    public static final String PERIODICBUDGETS_COL_ID = "ID";
+    public static final String PERIODICBUDGETS_COL_NAME = "Name";
+    public static final String PERIODICBUDGETS_COL_TOTALDAYS = "TotalDays";
+    public static final String PERIODICBUDGETS_COL_TOTALBUDGET = "TotalBudget";
+    public static final String PERIODICBUDGETS_COL_DAYSPASSED = "DaysPassed";
+    public static final String PERIODICBUDGETS_COL_CURRENTBUDGET = "CurrentBudget";
+    public static final String PERIODICBUDGETS_COL_SPENT = "Spent";
+    public static final String PERIODICBUDGETS_COL_DATELASTCHECKED = "DateLastChecked";
+
+    //Daily Budgets In Plan Bridge-Table Info
+    public static final String DAILYBUDGETSINPLAN_TABLE = "tblDailyBudgetsInPlan";
+    public static final String DAILYBUDGETSINPLAN_COL_ID = "ID";
+    public static final String DAILYBUDGETSINPLAN_COL_PLANID = "PlanID";
+    public static final String DAILYBUDGETSINPLAN_COL_PERIODICBUDGETID = "PeriodicBudgetID";
 
     //PurchaseHistory Table Info
     public static final String PURCHASES_TABLE = "tblPurchases";
@@ -127,6 +157,42 @@ public class DBHandler extends SQLiteOpenHelper
 
         //Create Plans Table
         //TODO: Add plans table
+        sql = "CREATE TABLE '" + PLANS_TABLE + "'('"
+                + PLANS_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
+                + PLANS_COL_ANNUALINCOME + "' INTEGER NOT NULL, '"
+                + PLANS_COL_ANNUALEXPENSES + "' INTEGER NOT NULL, '"
+                + PLANS_COL_ANNUALSAVINGS + "' INTEGER NOT NULL, '"
+                + PLANS_COL_NAME + "' TEXT NOT NULL, '"
+                + PLANS_COL_ANNUALBUDGET + "' INTEGER NOT NULL, '"
+                + PLANS_COL_MONTHLYBUDGETID + "' INTEGER NOT NULL, '"
+                + PLANS_COL_WEEKLYBUDGETID + "' INTEGER NOT NULL, '"
+                + PLANS_COL_DAILYBUDGETSID + "' INTEGER NOT NULL"
+                + ");";
+
+        sqLiteDatabase.execSQL(sql);
+
+        //Create PeriodicBudgets Table
+        sql = "CREATE TABLE '" + PERIODICBUDGETS_TABLE + "'('"
+                + PERIODICBUDGETS_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
+                + PERIODICBUDGETS_COL_NAME + "' TEXT NOT NULL, '"
+                + PERIODICBUDGETS_COL_TOTALDAYS + "' INTEGER NOT NULL, '"
+                + PERIODICBUDGETS_COL_TOTALBUDGET + "' INTEGER NOT NULL, '"
+                + PERIODICBUDGETS_COL_DAYSPASSED + "' INTEGER NOT NULL, '"
+                + PERIODICBUDGETS_COL_CURRENTBUDGET + "' INTEGER NOT NULL, '"
+                + PERIODICBUDGETS_COL_SPENT + "' INTEGER NOT NULL, '"
+                + PERIODICBUDGETS_COL_DATELASTCHECKED + "' TEXT NOT NULL"
+                + ");";
+
+        sqLiteDatabase.execSQL(sql);
+
+        //Create Daily Budgets In Plan Bridge-Table
+        sql = "CREATE TABLE '" + DAILYBUDGETSINPLAN_TABLE + "'('"
+                + DAILYBUDGETSINPLAN_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
+                + DAILYBUDGETSINPLAN_COL_PLANID + "' INTEGER NOT NULL, '"
+                + DAILYBUDGETSINPLAN_COL_PERIODICBUDGETID + "' INTEGER NOT NULL"
+                + ");";
+
+        sqLiteDatabase.execSQL(sql);
 
     }
 
@@ -270,21 +336,116 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
-    //TODO: Put this in a method that queries bridge table (or separate into two mehtods)
-            /*
-        SELECT * FROM
-	        ExpenseGroups As GroupedExpenses INNER JOIN
-	        (ExpensesInGroup INNER JOIN Expenses ON ExpensesInGroup.ExpenseID = Expenses.ID)
-	        ON GroupedExpenses.ID = ExpensesInGroup.ExpenseGroupID
-	        WHERE GroupedExpenses.ExpenseGroupID = [expenseGroupID];
-         */
+    public ArrayList<Plan> queryPlans(String where) throws ParseException
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        ArrayList<Plan> list = new ArrayList<>();
+        String id;
+        String annualIncome;
+        String annualExpenses;
+        String annualSavings;
+        String name;
+        String annualBudget;
+        String monthlyBudgetID;
+        String weeklyBudgetID;
+        String dailyBudgetsID;
 
-//    Cursor c = db.rawQuery("SELECT " + select + " FROM " + EXPENSEGROUP_TABLE
-//            + " INNER JOIN (" + EXPENSESINGROUP_TABLE + " INNER JOIN " + EXPENSE_TABLE + " ON "
-//            + EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_EXPENSEID + "=" + EXPENSE_TABLE
-//            + "." + EXPENSE_COL_ID + ") ON " + EXPENSEGROUP_TABLE + "." + EXPENSEGROUP_COL_ID
-//            + "=" + EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_EXPENSEGROUPID
-//            + " WHERE " + where + ";", null);
+        if (where == null || where.equals(""))
+            where = "1";
+
+        Cursor c = db.rawQuery("SELECT * FROM " + PLANS_TABLE + " WHERE " + where + ";", null);
+
+        c.moveToFirst();
+
+        while(!c.isAfterLast())
+        {
+            id = c.getString(c.getColumnIndex(PLANS_COL_ID));
+            annualIncome = c.getString(c.getColumnIndex(PLANS_COL_ANNUALINCOME));
+            annualExpenses = c.getString(c.getColumnIndex(PLANS_COL_ANNUALEXPENSES));
+            annualSavings = c.getString(c.getColumnIndex(PLANS_COL_ANNUALSAVINGS));
+            name = c.getString(c.getColumnIndex(PLANS_COL_NAME));
+            annualBudget = c.getString(c.getColumnIndex(PLANS_COL_ANNUALBUDGET);
+            monthlyBudgetID = c.getString(c.getColumnIndex(PLANS_COL_MONTHLYBUDGETID));
+            weeklyBudgetID = c.getString(c.getColumnIndex(PLANS_COL_WEEKLYBUDGETID));
+            dailyBudgetsID = c.getString(c.getColumnIndex(PLANS_COL_DAILYBUDGETSID));
+
+            PeriodicBudget weeklyBudget = queryPeriodicBudgets(PERIODICBUDGETS_COL_ID + "=" + weeklyBudgetID).get(0);
+            //PeriodicBudget[] dailyBudgets = queryPeriodicBudgets(PERIODICBUDGETS_COL_ID + "=" +);
+
+            //TODO: Add query for bridge table to then use result to populate dailyBudgets[] array to pass into the plan below
+
+            Plan plan = new Plan(Long.parseLong(id),
+                                                name,
+                                                Long.parseLong(annualIncome),
+                                                Long.parseLong(annualExpenses),
+                                                Long.parseLong(annualSavings),
+                                                Long.parseLong(annualBudget),
+                                                weeklyBudget,
+                                                dailyBudgets);
+
+
+            list.add(plan);
+            c.moveToNext();
+        }
+
+        c.close();
+        db.close();
+
+        return list;
+    }
+
+    public ArrayList<PeriodicBudget> queryPeriodicBudgets(String where) throws ParseException
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        ArrayList<PeriodicBudget> list = new ArrayList<>();
+        String id;
+        String name;
+        String totalDays;
+        String totalBudget;
+        String daysPassed;
+        String currentBudget;
+        String spent;
+        String dateLastChecked;
+
+        if (where == null || where.equals(""))
+            where = "1";
+
+        Cursor c = db.rawQuery("SELECT * FROM " + PLANS_TABLE + " WHERE " + where + ";", null);
+
+        c.moveToFirst();
+
+        while(!c.isAfterLast())
+        {
+            id = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_ID));
+            name = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_NAME));
+            totalDays = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_TOTALDAYS));
+            totalBudget = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_TOTALBUDGET));
+            daysPassed = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_DAYSPASSED));
+            currentBudget = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_CURRENTBUDGET));
+            spent = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_SPENT));
+            dateLastChecked = c.getString(c.getColumnIndex(PERIODICBUDGETS_COL_DATELASTCHECKED));
+
+            Date parsedDate = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).parse(dateLastChecked);
+
+            PeriodicBudget periodicBudget = new PeriodicBudget(Long.parseLong(id),
+                    Integer.parseInt(totalDays),
+                    Long.parseLong(totalBudget),
+                    name,
+                    Integer.parseInt(daysPassed),
+                    Integer.parseInt(currentBudget),
+                    Integer.parseInt(spent),
+                    parsedDate);
+
+
+            list.add(periodicBudget);
+            c.moveToNext();
+        }
+
+        c.close();
+        db.close();
+
+        return list;
+    }
 
     //endregion
 
@@ -434,7 +595,6 @@ public class DBHandler extends SQLiteOpenHelper
         values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
         values.put(PURCHASES_COL_QUANTITY, purchase.getQuantity());
         values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
-        //vallues.put(PURCHASES_COL_DATE, purchase.getDate().toString());
 
         final long insert = db.insert(PURCHASES_TABLE, null, values);
         db.close();
@@ -451,6 +611,33 @@ public class DBHandler extends SQLiteOpenHelper
         db.close();
 
         return delete == 1;
+    }
+
+    //endregion
+
+    //region Plan Table Methods
+
+    public boolean addPlan(Plan plan)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put()
+        values.put(PURCHASES_COL_ITEMTYPE, itemInfo.getItemType());
+        values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
+        values.put(PURCHASES_COL_QUANTITY, purchase.getQuantity());
+        values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
+        //vallues.put(PURCHASES_COL_DATE, purchase.getDate().toString());
+
+        final long insert = db.insert(PURCHASES_TABLE, null, values);
+        db.close();
+
+        return (insert != -1);
+    }
+
+    public boolean removePlan(long ID)
+    {
+
     }
 
     //endregion

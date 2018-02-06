@@ -45,8 +45,10 @@
         <activity android:name=".ManagePlansActivity" />
 
         <!-- Manage Budget Plans -->
-        <activity android:name=".EditBudgetPlanActivity"
-            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".EditBudgetPlanActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ManageBudgetPlansActivity"></activity>
     </application>
 
 </manifest>

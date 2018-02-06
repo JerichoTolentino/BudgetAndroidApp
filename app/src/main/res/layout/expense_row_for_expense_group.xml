@@ -51,10 +51,10 @@
         android:text="x1"
         android:textStyle="italic"
         app:layout_constraintBaseline_toBaselineOf="@+id/tvPrice"
-        app:layout_constraintEnd_toStartOf="@+id/btnClear" />
+        app:layout_constraintEnd_toStartOf="@+id/btnEdit" />
 
     <ImageButton
-        android:id="@+id/btnClear"
+        android:id="@+id/btnEdit"
         style="@android:style/Widget.Holo.Light.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="40dp"

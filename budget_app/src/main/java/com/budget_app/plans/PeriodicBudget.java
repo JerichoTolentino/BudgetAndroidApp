@@ -16,6 +16,8 @@ public class PeriodicBudget implements Serializable
     private final int m_totalDays;
     private final long m_totalBudget;
 
+    private long m_id;
+    private String m_name;
     private int m_daysPassed;
     private long m_currentBudget;
     private long m_spent;
@@ -25,10 +27,23 @@ public class PeriodicBudget implements Serializable
 
     //region Constructor
 
-    public PeriodicBudget(int days, long budget)
+    public PeriodicBudget(long id, int days, long budget, String name, int daysPassed, int currentBudget, int spent, Date dateLastChecked)
+    {
+        m_id = id;
+        m_totalDays = days;
+        m_totalBudget = budget;
+        m_name = name;
+        m_daysPassed = daysPassed;
+        m_currentBudget = currentBudget;
+        m_spent = spent;
+        m_dateLastChecked = dateLastChecked;
+    }
+
+    public PeriodicBudget(int days, long budget, String name)
     {
         m_totalDays = days;
         m_totalBudget = budget;
+        m_name = name;
         reset();
     }
 
@@ -36,6 +51,7 @@ public class PeriodicBudget implements Serializable
     {
         m_totalDays = other.m_totalDays;
         m_totalBudget = other.m_totalBudget;
+        m_name = other.m_name;
         reset();
     }
 
@@ -43,12 +59,15 @@ public class PeriodicBudget implements Serializable
 
     //region Getters
 
+    public long getId() { return this.m_id; }
+    public void setId(long id) { this.m_id = id; }
     public int getTotalDays() { return m_totalDays; }
     public long getTotalBudget() { return m_totalBudget; }
     public long getCurrentBudget() { return m_currentBudget; }
     public int getDaysPassed() { return m_daysPassed; }
     public long getAmountSpent() { return m_spent; }
     public long getRemainingAmount() { return m_totalBudget - m_spent; }
+    public String getName() { return m_name; }
 
     //endregion
 
