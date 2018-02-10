@@ -18,6 +18,11 @@ public class MoneyFormatter
         if (addDollarSign)
             money += "$";
 
+        if (amount < 0) {
+            money += "-";
+            amount = Math.abs(amount);
+        }
+
         if(amount < 10)
             money += "0." + twoDigitToString(amount);
         else
@@ -90,18 +95,29 @@ public class MoneyFormatter
         if (StringHelper.countOccurrences(money, "$") > 1 || StringHelper.countOccurrences(money, ".") > 1)
             throw new ParseException("Money parsing error", 0);
 
-        money = money.replace("$", "");
+        money = money.replace("$", "").replace(",", "");
 
         int length = money.length();
         int decimalIndex = money.indexOf(".");
 
-        if (decimalIndex == (length - 1) - 2)
+
+        if (length == 0)
+        {
+            return 0;
+        }
+        else if (decimalIndex == -1)
+        {
+            return Long.parseLong(money) * 100;
+        }
+        else if (decimalIndex == (length - 1) - 2)
         {
             money = money.replace(".", "");
             return Long.parseLong(money);
         }
         else
+        {
             throw new ParseException("Money decimal parsing error", decimalIndex);
+        }
 
     }
 

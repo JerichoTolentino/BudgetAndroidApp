@@ -47,8 +47,9 @@
         <!-- Manage Budget Plans -->
         <activity
             android:name=".EditBudgetPlanActivity"
+            android:parentActivityName=".ManageBudgetPlansActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ManageBudgetPlansActivity"></activity>
+        <activity android:name=".ManageBudgetPlansActivity"/>
     </application>
 
 </manifest>

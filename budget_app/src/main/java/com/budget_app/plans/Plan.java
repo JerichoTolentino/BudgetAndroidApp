@@ -8,7 +8,7 @@ public class Plan implements Serializable
 {
 
 	//region Constants
-	private static final long DEFAULT_ID = 0
+	private static final long DEFAULT_ID = 0;
 	private static final String DAYOFWEEK_SUNDAY = "sunday";
 	private static final String DAYOFWEEK_MONDAY = "monday";
 	private static final String DAYOFWEEK_TUESDAY = "tuesday";
@@ -21,14 +21,12 @@ public class Plan implements Serializable
 
 	//region Members
 
-	// non-editable members
-	private final long m_annualIncome;
-	private final long m_annualExpenses;
-	private final long m_annualSavings;
-
 	private long m_id;
 	private String m_name;
 	private long m_annualBudget;
+	private long m_annualIncome;
+	private long m_annualExpenses;
+	private long m_annualSavings;
 
 	// works independently of weekly/daily budgets
 	private PeriodicBudget m_monthlyBudget;
@@ -40,6 +38,18 @@ public class Plan implements Serializable
 	//endregion
 
 	//region Constructor
+
+	public Plan()
+	{
+		this.m_id = -1;
+		this.m_name = "";
+		this.m_annualIncome = 0;
+		this.m_annualExpenses = 0;
+		this.m_annualSavings = 0;
+		this.m_annualBudget = 0;
+
+		initializeDefaultPlan();
+	}
 
 	public Plan(String name, long annualIncome, long annualExpenses, long annualSavings)
 	{
@@ -103,29 +113,28 @@ public class Plan implements Serializable
 	//region Getters & Setters
 
 	public long getId() { return this.m_id; }
-
 	public void setId(long id) { this.m_id = id; }
 
 	public String getName()
 	{
 		return this.m_name;
 	}
-	
 	public void setName(String name)
 	{
 		this.m_name = name;
 	}
 
 	public long getAnnualIncome() { return this.m_annualIncome; }
+	public void setAnnualIncome(long annualIncome) { m_annualIncome = annualIncome; }
 
 	public long getAnnualExpenses() { return this.m_annualExpenses; }
+	public void setAnnualExpenses(long annualExpenses) { m_annualExpenses = annualExpenses; }
 
 	public long getAnnualSavings() { return this.m_annualSavings; }
+	public void setAnnualSavings(long annualSavings) { m_annualSavings = annualSavings; }
 
-	public long getAnnualBudget()
-	{
-		return this.m_annualBudget;
-	}
+	public long getAnnualBudget() { return this.m_annualBudget; }
+	public void setAnnualBudget(long annualBudget) { m_annualBudget = annualBudget; }
 
 	public PeriodicBudget getWeeklyBudget() { return this.m_weeklyBudget; }
 

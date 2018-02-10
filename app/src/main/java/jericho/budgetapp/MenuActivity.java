@@ -88,7 +88,7 @@ public class MenuActivity extends AppCompatActivity {
 
     private void goToManagePlansActivity()
     {
-        Intent intent = new Intent(MenuActivity.this, EditBudgetPlanActivity.class);
+        Intent intent = new Intent(MenuActivity.this, ManageBudgetPlansActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }

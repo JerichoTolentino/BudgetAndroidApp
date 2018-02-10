@@ -16,6 +16,7 @@ import com.budget_app.plans.Plan;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,10 +25,7 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-//TODO: Create methods in DBHandler to replace methods in BudgetAppManager
-    /*
-    Methods to replace:
-     */
+import jericho.budgetapp.BuildConfig;
 
 public class DBHandler extends SQLiteOpenHelper
 {
@@ -62,7 +60,6 @@ public class DBHandler extends SQLiteOpenHelper
     public static final String EXPENSESINGROUP_COL_QUANTITY = "Quantity";
 
     //Plans Table Info
-    //TODO: Add plans
     public static final String PLANS_TABLE = "tblPlans";
     public static final String PLANS_COL_ID = "ID";
     public static final String PLANS_COL_ANNUALINCOME = "AnnualIncome";
@@ -72,7 +69,7 @@ public class DBHandler extends SQLiteOpenHelper
     public static final String PLANS_COL_ANNUALBUDGET = "AnnualBudget";
     public static final String PLANS_COL_MONTHLYBUDGETID = "MonthlyBudgetID";
     public static final String PLANS_COL_WEEKLYBUDGETID = "WeeklyBudgetID";
-    public static final String PLANS_COL_DAILYBUDGETSID = "DailyBudgetsID";
+    //public static final String PLANS_COL_DAILYBUDGETSID = "DailyBudgetsID";
     // Linked to PeriodicBudgets table via DailyBudgetsInPlan bridge-table
 
     //Period Budgets Table info
@@ -102,9 +99,17 @@ public class DBHandler extends SQLiteOpenHelper
 
     //endregion
 
+    //region Members
+
+    DatabaseWrapper m_dbWrapper;
+
+    //endregion
+
     public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version)
     {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
+
+        m_dbWrapper = new DatabaseWrapper();
     }
 
     //region Event Handlers
@@ -165,8 +170,8 @@ public class DBHandler extends SQLiteOpenHelper
                 + PLANS_COL_NAME + "' TEXT NOT NULL, '"
                 + PLANS_COL_ANNUALBUDGET + "' INTEGER NOT NULL, '"
                 + PLANS_COL_MONTHLYBUDGETID + "' INTEGER NOT NULL, '"
-                + PLANS_COL_WEEKLYBUDGETID + "' INTEGER NOT NULL, '"
-                + PLANS_COL_DAILYBUDGETSID + "' INTEGER NOT NULL"
+                + PLANS_COL_WEEKLYBUDGETID + "' INTEGER NOT NULL"//, '"
+                //+ PLANS_COL_DAILYBUDGETSID + "' INTEGER NOT NULL"
                 + ");";
 
         sqLiteDatabase.execSQL(sql);
@@ -213,7 +218,7 @@ public class DBHandler extends SQLiteOpenHelper
 
     public ArrayList<Expense> queryExpenses(String where)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ArrayList<Expense> list = new ArrayList<>();
         String id;
         String name;
@@ -241,14 +246,14 @@ public class DBHandler extends SQLiteOpenHelper
         }
 
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return list;
     }
 
     public ArrayList<ExpenseGroup> queryExpenseGroups(String where)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ArrayList<ExpenseGroup> list = new ArrayList<>();
         String id;
         String name;
@@ -282,14 +287,14 @@ public class DBHandler extends SQLiteOpenHelper
         }
 
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return list;
     }
 
     public ArrayList<Purchase> queryPurchases(String where) throws ParseException
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ArrayList<Purchase> list = new ArrayList<>();
         String id;
         String itemType;
@@ -331,14 +336,14 @@ public class DBHandler extends SQLiteOpenHelper
         }
 
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return list;
     }
 
     public ArrayList<Plan> queryPlans(String where) throws ParseException
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ArrayList<Plan> list = new ArrayList<>();
         String id;
         String annualIncome;
@@ -348,7 +353,6 @@ public class DBHandler extends SQLiteOpenHelper
         String annualBudget;
         String monthlyBudgetID;
         String weeklyBudgetID;
-        String dailyBudgetsID;
 
         if (where == null || where.equals(""))
             where = "1";
@@ -364,39 +368,83 @@ public class DBHandler extends SQLiteOpenHelper
             annualExpenses = c.getString(c.getColumnIndex(PLANS_COL_ANNUALEXPENSES));
             annualSavings = c.getString(c.getColumnIndex(PLANS_COL_ANNUALSAVINGS));
             name = c.getString(c.getColumnIndex(PLANS_COL_NAME));
-            annualBudget = c.getString(c.getColumnIndex(PLANS_COL_ANNUALBUDGET);
+            annualBudget = c.getString(c.getColumnIndex(PLANS_COL_ANNUALBUDGET));
             monthlyBudgetID = c.getString(c.getColumnIndex(PLANS_COL_MONTHLYBUDGETID));
             weeklyBudgetID = c.getString(c.getColumnIndex(PLANS_COL_WEEKLYBUDGETID));
-            dailyBudgetsID = c.getString(c.getColumnIndex(PLANS_COL_DAILYBUDGETSID));
+            //dailyBudgetsID = c.getString(c.getColumnIndex(PLANS_COL_DAILYBUDGETSID));
 
+            // query weekly budget
             PeriodicBudget weeklyBudget = queryPeriodicBudgets(PERIODICBUDGETS_COL_ID + "=" + weeklyBudgetID).get(0);
-            //PeriodicBudget[] dailyBudgets = queryPeriodicBudgets(PERIODICBUDGETS_COL_ID + "=" +);
 
-            //TODO: Add query for bridge table to then use result to populate dailyBudgets[] array to pass into the plan below
+            // query bridge-table
+            ArrayList<DailyBudgetInPlan> bridgeIDs = queryDailyBudgetsInPlanTable(DAILYBUDGETSINPLAN_COL_PLANID + "=" + id);
+            PeriodicBudget[] dailyBudgets = new PeriodicBudget[bridgeIDs.size()];
+
+            if (BuildConfig.DEBUG && bridgeIDs.size() != 7) throw new AssertionError();
+
+            // build daily budgets via bridge-table query results
+            for (int i = 0; i < bridgeIDs.size(); i++) {
+                long periodicBudgetID = bridgeIDs.get(i).getPeriodicBudgetID();
+                PeriodicBudget dailyBudget = queryPeriodicBudgets(PERIODICBUDGETS_COL_ID + "=" + String.valueOf(periodicBudgetID)).get(0);
+                dailyBudgets[i] = dailyBudget;
+            }
 
             Plan plan = new Plan(Long.parseLong(id),
-                                                name,
-                                                Long.parseLong(annualIncome),
-                                                Long.parseLong(annualExpenses),
-                                                Long.parseLong(annualSavings),
-                                                Long.parseLong(annualBudget),
-                                                weeklyBudget,
-                                                dailyBudgets);
-
+                                 name,
+                                 Long.parseLong(annualIncome),
+                                 Long.parseLong(annualExpenses),
+                                 Long.parseLong(annualSavings),
+                                 Long.parseLong(annualBudget),
+                                 weeklyBudget,
+                                 dailyBudgets);
 
             list.add(plan);
             c.moveToNext();
         }
 
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
+
+        return list;
+    }
+
+    public ArrayList<DailyBudgetInPlan> queryDailyBudgetsInPlanTable(String where)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ArrayList<DailyBudgetInPlan> list = new ArrayList<>();
+        String id;
+        String planID;
+        String periodicBudgetID;
+
+        if (where == null || where.equals(""))
+            where = "1";
+
+        Cursor c = db.rawQuery("SELECT * FROM " + DAILYBUDGETSINPLAN_TABLE + " WHERE " + where + ";", null);
+
+        c.moveToFirst();
+
+        while(!c.isAfterLast())
+        {
+            id = c.getString(c.getColumnIndex(DAILYBUDGETSINPLAN_COL_ID));
+            planID = c.getString(c.getColumnIndex(DAILYBUDGETSINPLAN_COL_PLANID));
+            periodicBudgetID = c.getString(c.getColumnIndex(DAILYBUDGETSINPLAN_COL_PERIODICBUDGETID));
+
+            DailyBudgetInPlan dailyBudgetInPlan = new DailyBudgetInPlan(Long.parseLong(id),
+                                                                        Long.parseLong(planID),
+                                                                        Long.parseLong(periodicBudgetID));
+            list.add(dailyBudgetInPlan);
+            c.moveToNext();
+        }
+
+        c.close();
+        m_dbWrapper.CloseDatabase();
 
         return list;
     }
 
     public ArrayList<PeriodicBudget> queryPeriodicBudgets(String where) throws ParseException
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ArrayList<PeriodicBudget> list = new ArrayList<>();
         String id;
         String name;
@@ -410,7 +458,7 @@ public class DBHandler extends SQLiteOpenHelper
         if (where == null || where.equals(""))
             where = "1";
 
-        Cursor c = db.rawQuery("SELECT * FROM " + PLANS_TABLE + " WHERE " + where + ";", null);
+        Cursor c = db.rawQuery("SELECT * FROM " + PERIODICBUDGETS_TABLE + " WHERE " + where + ";", null);
 
         c.moveToFirst();
 
@@ -442,7 +490,7 @@ public class DBHandler extends SQLiteOpenHelper
         }
 
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return list;
     }
@@ -453,7 +501,7 @@ public class DBHandler extends SQLiteOpenHelper
 
     public boolean addExpense(Expense expense)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSE_COL_NAME, expense.getName());
@@ -462,14 +510,14 @@ public class DBHandler extends SQLiteOpenHelper
         values.put(EXPENSE_COL_DESCRIPTION, expense.getDescription());
 
         final long insert = db.insert(EXPENSE_TABLE, null, values);
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (insert != -1);
     }
 
     public boolean updateExpense(Expense expense)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSE_COL_NAME, expense.getName());
@@ -479,18 +527,17 @@ public class DBHandler extends SQLiteOpenHelper
 
         final int update = db.update(EXPENSE_TABLE, values, EXPENSE_COL_ID + " = " + Long.toString(expense.getId()), null);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (update == 1);
     }
 
     public boolean removeExpense(long ID)
     {
-        SQLiteDatabase db = getWritableDatabase();
-
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         final int delete = db.delete(EXPENSE_TABLE, EXPENSE_COL_ID + " = " + Long.toString(ID), null);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return delete == 1;
     }
@@ -501,7 +548,7 @@ public class DBHandler extends SQLiteOpenHelper
 
     public boolean addExpenseToGroup(long expenseID, long expenseGroupID, int quantity)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSESINGROUP_COL_EXPENSEGROUPID, expenseGroupID);
@@ -510,25 +557,25 @@ public class DBHandler extends SQLiteOpenHelper
 
         final long insert = db.insert(EXPENSESINGROUP_TABLE, null, values);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (insert != -1);
     }
 
     public boolean removeExpenseFromGroup(long expenseID, long expenseGroupID)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
 
         final int delete = db.delete(EXPENSESINGROUP_TABLE, EXPENSESINGROUP_COL_EXPENSEGROUPID + " = " + Long.toString(expenseGroupID), null);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return delete == 1;
     }
 
     public boolean addExpenseGroup(ExpenseGroup expenseGroup)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSEGROUP_COL_NAME, expenseGroup.getName());
@@ -543,26 +590,26 @@ public class DBHandler extends SQLiteOpenHelper
         if(expenseGroupID != -1)
             addedExpenses = addExpensesInGroupToTable(db, expenseGroupID, expenseGroup.getExpenses());
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (expenseGroupID != -1 && addedExpenses);
     }
 
     public boolean removeExpenseGroup(long ID)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
 
         final int deleteLinks = removeExpensesInGroupLinks(db, ID);
         final int deleteSrc = db.delete(EXPENSEGROUP_TABLE, EXPENSEGROUP_COL_ID + " = " + Long.toString(ID) + ";", null);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (deleteLinks + deleteSrc > 0);
     }
 
     public boolean updateExpenseGroup(ExpenseGroup expenseGroup)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         values.put(EXPENSEGROUP_COL_NAME, expenseGroup.getName());
@@ -575,7 +622,7 @@ public class DBHandler extends SQLiteOpenHelper
         removeExpensesInGroupLinks(db, expenseGroup.getId());
         addExpensesInGroupToTable(db, expenseGroup.getId(), expenseGroup.getExpenses());
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (update == 1);
     }
@@ -586,7 +633,7 @@ public class DBHandler extends SQLiteOpenHelper
 
     public boolean addPurchase(Purchase purchase)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
         ItemInfo itemInfo = findItemInfo(db, purchase.getItem());
@@ -597,18 +644,18 @@ public class DBHandler extends SQLiteOpenHelper
         values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
 
         final long insert = db.insert(PURCHASES_TABLE, null, values);
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return (insert != -1);
     }
 
     public boolean removePurchase(long ID)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
 
         final int delete = db.delete(PURCHASES_TABLE, PURCHASES_COL_ID + " = " + Long.toString(ID) + ";", null);
 
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return delete == 1;
     }
@@ -619,25 +666,176 @@ public class DBHandler extends SQLiteOpenHelper
 
     public boolean addPlan(Plan plan)
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
         ContentValues values = new ContentValues();
 
-        values.put()
-        values.put(PURCHASES_COL_ITEMTYPE, itemInfo.getItemType());
-        values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
-        values.put(PURCHASES_COL_QUANTITY, purchase.getQuantity());
-        values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
-        //vallues.put(PURCHASES_COL_DATE, purchase.getDate().toString());
+        long weeklyBudgetID = addPeriodicBudget(plan.getWeeklyBudget());
 
-        final long insert = db.insert(PURCHASES_TABLE, null, values);
-        db.close();
+        values.put(PLANS_COL_ANNUALINCOME, plan.getAnnualIncome());
+        values.put(PLANS_COL_ANNUALEXPENSES, plan.getAnnualExpenses());
+        values.put(PLANS_COL_ANNUALSAVINGS, plan.getAnnualSavings());
+        values.put(PLANS_COL_NAME, plan.getName());
+        values.put(PLANS_COL_ANNUALBUDGET, plan.getAnnualBudget());
+        values.put(PLANS_COL_MONTHLYBUDGETID, 0);
+        //values.put(PLANS_COL_MONTHLYBUDGETID, plan.getMonthlyBudget().getId());
+        values.put(PLANS_COL_WEEKLYBUDGETID, weeklyBudgetID);
+
+        final long planID = db.insert(PLANS_TABLE, null, values);
+
+        // add daily budgets and update bridge-table
+        for (PeriodicBudget dailyBudget : plan.getDailyBudgets()) {
+            long dailyBudgetID = addPeriodicBudget(dailyBudget);
+            DailyBudgetInPlan dailyBudgetInPlan = new DailyBudgetInPlan(planID, dailyBudgetID);
+
+            // add link to bridge-table
+            addDailyBudgetInPlan(dailyBudgetInPlan);
+        }
+
+        m_dbWrapper.CloseDatabase();
+
+        return (planID != -1);
+    }
+
+    public boolean removePlan(long ID) throws ParseException
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+
+        Plan plan = queryPlans(PLANS_COL_ID + "=" + Long.toString(ID) + ";").get(0);
+
+        // remove links in bridge-table
+        removeDailyBudgetsInPlan(plan.getId());
+
+        // remove weekly and daily budgets from periodic budgets table
+        removePeriodicBudget(plan.getWeeklyBudget().getId());
+        for (PeriodicBudget dailyBudget: plan.getDailyBudgets())
+            removePeriodicBudget(dailyBudget.getId());
+
+        // remove plan from plans table
+        final int delete = db.delete(PLANS_TABLE, PLANS_COL_ID + " = " + Long.toString(ID) + ";", null);
+
+        m_dbWrapper.CloseDatabase();
+
+        return delete == 1;
+    }
+
+    public boolean updatePlan(Plan plan)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(PLANS_COL_ANNUALINCOME, plan.getAnnualIncome());
+        values.put(PLANS_COL_ANNUALEXPENSES, plan.getAnnualExpenses());
+        values.put(PLANS_COL_ANNUALSAVINGS, plan.getAnnualSavings());
+        values.put(PLANS_COL_NAME, plan.getName());
+        values.put(PLANS_COL_ANNUALBUDGET, plan.getAnnualBudget());
+        values.put(PLANS_COL_MONTHLYBUDGETID, 0);
+        //values.put(PLANS_COL_MONTHLYBUDGETID, plan.getMonthlyBudget().getId());
+
+        updatePeriodicBudget(plan.getWeeklyBudget());
+        for (PeriodicBudget p : plan.getDailyBudgets())
+            updatePeriodicBudget(p);
+
+        final int update = db.update(PLANS_TABLE, values, PLANS_COL_ID + " = " + Long.toString(plan.getId()) + ";", null);
+
+        m_dbWrapper.CloseDatabase();
+
+        return (update == 1);
+    }
+
+    //endregion
+
+    //region Periodic Budget Table Methods
+
+    public long addPeriodicBudget(PeriodicBudget periodicBudget)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(PERIODICBUDGETS_COL_NAME, periodicBudget.getName());
+        values.put(PERIODICBUDGETS_COL_CURRENTBUDGET, periodicBudget.getCurrentBudget());
+        values.put(PERIODICBUDGETS_COL_DATELASTCHECKED, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(periodicBudget.getDateLastChecked()));
+        values.put(PERIODICBUDGETS_COL_DAYSPASSED, periodicBudget.getDaysPassed());
+        values.put(PERIODICBUDGETS_COL_SPENT, periodicBudget.getAmountSpent());
+        values.put(PERIODICBUDGETS_COL_TOTALBUDGET, periodicBudget.getTotalBudget());
+        values.put(PERIODICBUDGETS_COL_TOTALDAYS, periodicBudget.getTotalDays());
+
+        final long insert = db.insert(PERIODICBUDGETS_TABLE, null, values);
+        m_dbWrapper.CloseDatabase();
+
+        return insert;
+    }
+
+    public boolean removePeriodicBudget(long ID)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+
+        final int delete = db.delete(PERIODICBUDGETS_TABLE, PERIODICBUDGETS_COL_ID + " = " + Long.toString(ID) + ";", null);
+
+        m_dbWrapper.CloseDatabase();
+
+        return delete == 1;
+    }
+
+    public boolean updatePeriodicBudget(PeriodicBudget periodicBudget)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(PERIODICBUDGETS_COL_NAME, periodicBudget.getName());
+        values.put(PERIODICBUDGETS_COL_CURRENTBUDGET, periodicBudget.getCurrentBudget());
+        values.put(PERIODICBUDGETS_COL_DATELASTCHECKED, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(periodicBudget.getDateLastChecked()));
+        values.put(PERIODICBUDGETS_COL_DAYSPASSED, periodicBudget.getDaysPassed());
+        values.put(PERIODICBUDGETS_COL_SPENT, periodicBudget.getAmountSpent());
+        values.put(PERIODICBUDGETS_COL_TOTALBUDGET, periodicBudget.getTotalBudget());
+        values.put(PERIODICBUDGETS_COL_TOTALDAYS, periodicBudget.getTotalDays());
+
+        final int update = db.update(PERIODICBUDGETS_TABLE, values, PERIODICBUDGETS_COL_ID + " = " + Long.toString(periodicBudget.getId()) + ";", null);
+        m_dbWrapper.CloseDatabase();
+
+        return update == 1;
+    }
+
+    //endregion
+
+    //region Daily Budget In Plan Table Methods
+
+    public boolean addDailyBudgetInPlan(DailyBudgetInPlan dailyBudgetInPlan)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(DAILYBUDGETSINPLAN_COL_PERIODICBUDGETID, dailyBudgetInPlan.getPeriodicBudgetID());
+        values.put(DAILYBUDGETSINPLAN_COL_PLANID, dailyBudgetInPlan.getPlanID());
+
+        final long insert = db.insert(DAILYBUDGETSINPLAN_TABLE, null, values);
+        m_dbWrapper.CloseDatabase();
 
         return (insert != -1);
     }
 
-    public boolean removePlan(long ID)
+    public boolean removeDailyBudgetsInPlan(long planID)
     {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
 
+        final int delete = db.delete(DAILYBUDGETSINPLAN_TABLE, DAILYBUDGETSINPLAN_COL_PLANID + " = " + Long.toString(planID) + ";", null);
+
+        m_dbWrapper.CloseDatabase();
+
+        return delete == 1;
+    }
+
+    public boolean updateDailyBudgetInPlan(DailyBudgetInPlan dailyBudgetInPlan)
+    {
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(DAILYBUDGETSINPLAN_COL_PERIODICBUDGETID, dailyBudgetInPlan.getPeriodicBudgetID());
+        values.put(DAILYBUDGETSINPLAN_COL_PLANID, dailyBudgetInPlan.getPlanID());
+
+        final long update = db.update(DAILYBUDGETSINPLAN_TABLE, values, DAILYBUDGETSINPLAN_COL_ID + "=" + Long.toString(dailyBudgetInPlan.getID()) + ";", null);
+        m_dbWrapper.CloseDatabase();
+
+        return (update == 1);
     }
 
     //endregion
@@ -647,7 +845,8 @@ public class DBHandler extends SQLiteOpenHelper
 
     public HashSet<String> buildCategoryList()
     {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = m_dbWrapper.OpenDatabase();
+
         HashSet<String> set = new HashSet<>();
         String category = "";
 
@@ -663,7 +862,7 @@ public class DBHandler extends SQLiteOpenHelper
             c.moveToNext();
         }
         c.close();
-        db.close();
+        m_dbWrapper.CloseDatabase();
 
         return set;
     }
@@ -762,11 +961,52 @@ public class DBHandler extends SQLiteOpenHelper
 
     //endregion
 
+
+    //region DatabaseWrapper
+
+    class DatabaseWrapper
+    {
+        private SQLiteDatabase m_db;
+        private int m_numReferences;
+
+        public DatabaseWrapper()
+        {
+            // Do nothing
+        }
+
+        public SQLiteDatabase OpenDatabase()
+        {
+            m_numReferences += 1;
+
+            if (m_db == null || !m_db.isOpen())
+                m_db = getWritableDatabase();
+
+            return m_db;
+        }
+
+        public boolean CloseDatabase()
+        {
+            if (m_numReferences > 0) {
+                m_numReferences -= 1;
+
+                if (m_numReferences == 0)
+                    m_db.close();
+
+
+                return true;
+            }
+
+            return false;
+        }
+
+    }
+
+    //endregion
+
 }
 
 //region Class ItemInfo
 
-//would have liked a simple struct here, but this will do
 class ItemInfo
 {
     private String itemType;
@@ -797,6 +1037,36 @@ class ItemInfo
     {
         this.itemID = id;
     }
+}
+
+//endregion
+
+//region Class DailyBudgetInPlan
+
+class DailyBudgetInPlan
+{
+    private long m_ID;
+    private long m_planID;
+    private long m_periodicBudgetID;
+
+    public DailyBudgetInPlan(long planID, long periodicBudgetID)
+    {
+        m_ID = -1;
+        m_planID = planID;
+        m_periodicBudgetID = periodicBudgetID;
+    }
+
+    public DailyBudgetInPlan(long id, long planID, long periodicBudgetID)
+    {
+        m_ID = id;
+        m_planID = planID;
+        m_periodicBudgetID = periodicBudgetID;
+    }
+
+    public long getID() { return m_ID; }
+    public long getPlanID() { return m_planID; }
+    public long getPeriodicBudgetID() { return m_periodicBudgetID; }
+
 }
 
 //endregion

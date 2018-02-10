@@ -1,5 +1,8 @@
 package jericho.budgetapp;
 
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -8,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.budget_app.plans.PeriodicBudget;
@@ -54,7 +58,12 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
     private ToggleButton[] m_toggleButtons;
 
     private Plan m_plan;
+    private PeriodicBudget m_currentDailyBudget;
     private boolean m_createNew;
+
+    // Variables used to display the amount allocated vs amount remaining when the user is editing their daily budgets
+    private long m_amountAllocated;
+    private long m_amountRemaining;
 
     //endregion
 
@@ -74,11 +83,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
         initWidgetReferences();
 
-
-
         if (getIntent().getExtras() != null) {
             m_plan = (Plan) getIntent().getExtras().getSerializable("plan");
             m_createNew = getIntent().getExtras().getBoolean("createNew");
+            syncWidgetsWithPlan();
         }
         else
             m_createNew = true;
@@ -113,6 +121,32 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    public void btnConfirm_OnClick(View v)
+    {
+        try
+        {
+            if (checkAmountRemaining()) {
+                String message;
+                updatePlan();
+
+                if (m_createNew) {
+                    MainActivity.g_dbHandler.addPlan(m_plan);
+                    message = "Plan added!";
+                } else {
+                    MainActivity.g_dbHandler.updatePlan(m_plan);
+                    message = "Plan updated!";
+                }
+
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                onBackPressed();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex.toString());
+        }
+    }
+
     //endregion
 
     //region Functionality Methods
@@ -127,7 +161,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
         m_plan = new Plan(planName, annualIncome, annualExpenses, annualSavings);
 
-        syncPlanWithWidgets();
+        syncWidgetsWithPlan();
     }
 
     //endregion
@@ -213,7 +247,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         m_toggleButtons[6] = findViewById(R.id.tbtnSaturday);
     }
 
-    private void syncPlanWithWidgets()
+    private void syncWidgetsWithPlan()
     {
         String name = m_plan.getName();
         String annualIncome = MoneyFormatter.formatLongToMoney(m_plan.getAnnualIncome(), false);
@@ -222,8 +256,11 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
         PeriodicBudget weeklyBudget = m_plan.getWeeklyBudget();
         String totalWeeklyBudget = MoneyFormatter.formatLongToMoney(weeklyBudget.getTotalBudget(), false);
-        String amountAllocated = MoneyFormatter.formatLongToMoney(weeklyBudget.getAmountSpent(), false);
-        String amountRemaining = MoneyFormatter.formatLongToMoney(weeklyBudget.getRemainingAmount(), false);
+
+        m_amountAllocated = weeklyBudget.getTotalBudget();
+        m_amountRemaining = 0;
+        String amountAllocated = MoneyFormatter.formatLongToMoney(m_amountAllocated, false);
+        String amountRemaining = MoneyFormatter.formatLongToMoney(m_amountRemaining, false);
 
         etName.setText(name);
         etAnnualIncome.setText(annualIncome);
@@ -238,11 +275,13 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     private void syncDailyLimit()
     {
+        updateCurrentDailyBudget();
+
         ToggleButton dayButton = getSelectedDayOfTheWeek();
         int day = Integer.parseInt(dayButton.getTag().toString());
-        PeriodicBudget dailyBudget = m_plan.getDailyBudgetOn(day);
+        m_currentDailyBudget = m_plan.getDailyBudgetOn(day);
 
-        String dailyLimit = MoneyFormatter.formatLongToMoney(dailyBudget.getTotalBudget(), false);
+        String dailyLimit = MoneyFormatter.formatLongToMoney(m_currentDailyBudget.getTotalBudget(), false);
         etDailyLimit.setText(dailyLimit);
     }
 
@@ -251,6 +290,110 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         for (ToggleButton b : m_toggleButtons)
             b.setEnabled(enabled);
     }
+
+    private void updateCurrentDailyBudget()
+    {
+        try {
+            if (m_currentDailyBudget != null) {
+                long oldTotalBudget = m_currentDailyBudget.getTotalBudget();
+                long totalBudget = MoneyFormatter.formatMoneyToLong(etDailyLimit.getText().toString());
+                m_currentDailyBudget.setTotalBudget(totalBudget);
+
+                // update amount remaining/amount allocated
+                long difference = oldTotalBudget - totalBudget;
+                m_amountRemaining += difference;
+                m_amountAllocated -= difference;
+
+                etAmountRemaining.setText(MoneyFormatter.formatLongToMoney(m_amountRemaining, false));
+                etAmountAllocated.setText(MoneyFormatter.formatLongToMoney(m_amountAllocated, false));
+            }
+        }
+        catch (ParseException ex)
+        {
+            System.err.println(ex.toString());
+            assert false;
+        }
+    }
+
+    private void updatePlan()
+    {
+        try
+        {
+            String name = etName.getText().toString();
+            long annualIncome = MoneyFormatter.formatMoneyToLong(etAnnualIncome.getText().toString());
+            long annualExpenses = MoneyFormatter.formatMoneyToLong(etAnnualExpenses.getText().toString());
+            long annualSavings = MoneyFormatter.formatMoneyToLong(etAnnualSavings.getText().toString());
+            long totalWeeklyBudget = MoneyFormatter.formatMoneyToLong(etTotalWeeklyBudget.getText().toString());
+            long amountAllocated = MoneyFormatter.formatMoneyToLong(etAmountAllocated.getText().toString());  // TODO: inform user that they have extra money to spend
+            long amountRemaining = MoneyFormatter.formatMoneyToLong(etAmountRemaining.getText().toString());  // TODO: maybe ask them to add to savings?
+
+            m_plan.setName(name);
+            m_plan.setAnnualIncome(annualIncome);
+            m_plan.setAnnualExpenses(annualExpenses);
+            m_plan.setAnnualSavings(annualSavings);
+            m_plan.getWeeklyBudget().setTotalBudget(totalWeeklyBudget);
+
+            updateCurrentDailyBudget();
+        }
+        catch (ParseException ex)
+        {
+            System.err.println(ex.toString());
+            assert false;
+        }
+
+    }
+
+    //TODO: Actually implement alert dialog properly... (use CustomAlertDialog class)
+    //TODO: Figure out why dialog doesn't wait for user input to continue
+    private boolean checkAmountRemaining()
+    {
+        updateCurrentDailyBudget();
+
+        if (m_amountRemaining > 0)
+        {
+            //DialogFragment dialog = new CustomAlertDialog().newInstance("Amount Remaining", "You still have some money left over! Add the rest to savings?");
+            //dialog.show(getFragmentManager(), "dialog");
+            AlertDialog.Builder builder = new AlertDialog.Builder(EditBudgetPlanActivity.this);
+            builder.setTitle("Hey there ;)")
+                   .setMessage("You still have some money left over! Add the rest to savings?")
+                   .setPositiveButton("Yes", dialogClickListener)
+                   .setNegativeButton("No", dialogClickListener)
+                   .show();
+        }
+        else if (m_amountRemaining < 0)
+        {
+            //DialogFragment dialog = new CustomAlertDialog().newInstance("Amount Remaining", "You are spending too much! Try lowering some of your daily limits.");
+            //dialog.show(getFragmentManager(), "dialog");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Get out of my face you peasant")
+                   .setMessage("You are spending too much! Try lowering some of your daily limits.")
+                   .setNeutralButton("Ok", dialogClickListener)
+                   .show();
+            return false;
+        }
+
+        return true;    // TODO: returning true causes rest of code in btnConfirm_Click to execute, hence calling onBackPressed(). Move the actual DB writing code to a method and confirm ONLY calls this one
+                        // Call the update/create method within the dialogOnClickListener!
+    }
+
+    //endregion
+
+    //region Alert Dialog
+
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    Toast.makeText(EditBudgetPlanActivity.this, "YAY", Toast.LENGTH_SHORT).show();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    Toast.makeText(EditBudgetPlanActivity.this, "NOO", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     //endregion
 
