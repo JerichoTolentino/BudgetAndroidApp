@@ -30,7 +30,7 @@ public class ManageBudgetPlansActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
-        toolbar.setTitle(R.string.expense_groups);
+        toolbar.setTitle(R.string.plans);
         setSupportActionBar(toolbar);
     }
 

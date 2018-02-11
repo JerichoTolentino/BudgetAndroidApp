@@ -150,15 +150,37 @@ public class Plan implements Serializable
 
 	//endregion
 
+	//region Public Methods
+
+	public void recalculateBudgets()
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		int numDaysThisYear = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+
+		long monthlyBudget = m_annualBudget / 12;
+		long weeklyBudget = m_annualBudget / 52;
+		long dailyBudget = m_annualBudget / numDaysThisYear;
+
+		//PeriodicBudget monthly = new PeriodicBudget()
+		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget, "weekly");
+		m_dailyBudgets = new PeriodicBudget[7];
+
+		for (int i = 0; i < m_dailyBudgets .length; i++)
+			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget, indexToDayOfWeek(i));
+	}
+
 	@Override
 	public String toString()
 	{
 		return ("Plan Name:\t" + this.m_name + "\nAnnual Budget:\t" + Double.toString(this.m_annualBudget) + "\n-------");
 	}
 
+	//endregion
+
 	//region Helper Methods
 
-	public void initializeDefaultPlan()
+	private void initializeDefaultPlan()
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());

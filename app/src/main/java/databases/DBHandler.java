@@ -948,7 +948,7 @@ public class DBHandler extends SQLiteOpenHelper
             price = c.getString(c.getColumnIndex(EXPENSE_COL_PRICE));
             category = c.getString(c.getColumnIndex(EXPENSE_COL_CATEGORY));
             description = c.getString(c.getColumnIndex(EXPENSE_COL_DESCRIPTION));
-            quantity = c.getString(c.getColumnIndex(EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_QUANTITY));
+            quantity = c.getString(c.getColumnIndex(EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_QUANTITY));   //TODO: Exception thrown here from hacky code in SQLite with '.' in column name
 
             list.add(new ExpenseInGroup(Long.parseLong(id), name, Long.parseLong(price), category, description, Integer.parseInt(quantity)));
             c.moveToNext();

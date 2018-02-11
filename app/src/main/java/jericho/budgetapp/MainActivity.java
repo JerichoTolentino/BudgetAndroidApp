@@ -1,7 +1,11 @@
 package jericho.budgetapp;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -17,6 +21,7 @@ import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
+import com.budget_app.plans.Plan;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ArrayList<Purchase> m_allPurchases;
     private ListView lvPurchases;
+
+    private Plan m_activePlan;
 
     //endregion
 
@@ -88,6 +95,26 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     //region Event Handlers
+
+    @Override
+    protected void onResume() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(getString(R.string.active_plan_prefs), Context.MODE_PRIVATE);
+        long activePlanID = sharedPreferences.getLong(getString(R.string.active_plan_id), -1);
+
+        if (activePlanID > 0) {
+            setActivePlan(activePlanID);
+            System.out.println(m_activePlan.toString());
+        }
+        else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Create A Plan")
+                    .setMessage("Welcome to BudgetBuddy!\nLet's create your first plan.")
+                    .setNeutralButton("Ok", dialogClickListener)
+                    .setCancelable(false)
+                    .show();
+        }
+        super.onResume();
+    }
 
     public void btnPurchase_onClick(View v)
     {
@@ -171,6 +198,20 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void setActivePlan(long ID)
+    {
+        try
+        {
+            ArrayList<Plan> plans = g_dbHandler.queryPlans(DBHandler.PLANS_COL_ID + "=" + ID);
+            m_activePlan = plans.get(0);
+        }
+        catch (Exception ex)
+        {
+            System.err.println(ex.toString());
+            assert false;
+        }
+    }
+
     public void addToPurchases(Purchase purchase)
     {
         if(m_allPurchases.contains(purchase))
@@ -206,6 +247,26 @@ public class MainActivity extends AppCompatActivity {
         final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
         return Long.parseLong(tvCurrentTotal.getText().toString().replace("$","").replace(",","").replace(".",""));
     }
+
+    //endregion
+
+    //region Alert Dialog
+
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_NEUTRAL:
+                    Intent intent = new Intent(MainActivity.this, EditBudgetPlanActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
 
     //endregion
 

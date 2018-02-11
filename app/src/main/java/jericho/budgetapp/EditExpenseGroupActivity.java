@@ -51,6 +51,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         lvExpenses = findViewById(R.id.lvExpenses);
 
         toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setTitle(R.string.edit_expense_group);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);

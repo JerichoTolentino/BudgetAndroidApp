@@ -19,7 +19,9 @@ public class Utils
 
     private static final int[] ALL_MENU_ITEM_IDS = new int[] {R.id.view_history,
                                                               R.id.add_new,
-                                                              R.id.remove};
+                                                              R.id.remove,
+                                                              R.id.empty_star,
+                                                              R.id.filled_star};
 
     public static void showMenuItems(Menu menu, int[] visible_item_ids)
     {

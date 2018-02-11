@@ -1,11 +1,16 @@
 package jericho.budgetapp;
 
-import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +24,9 @@ import com.budget_app.plans.Plan;
 import com.budget_app.utilities.MoneyFormatter;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+
+import utils.Utils;
 
 public class EditBudgetPlanActivity extends AppCompatActivity {
 
@@ -77,6 +85,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         layoutParent = findViewById(R.id.RootParent);
 
         toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setTitle(R.string.edit_plan);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -92,6 +101,79 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
             m_createNew = true;
 
         toggleInputMode(m_createNew);
+    }
+
+    //endregion
+
+    //region Toolbar Events
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_items, toolbar.getMenu());
+
+        if (checkIsActivePlan())
+            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
+        else
+            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        try {
+            long ID;
+
+            switch (item.getItemId()) {
+                case android.R.id.home:
+                    onBackPressed();
+                    break;
+
+                case R.id.remove:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("Are you sure you want to delete this plan?")
+                            .setPositiveButton("Yes", deletePlanClickListener)
+                            .setNegativeButton("No", deletePlanClickListener).show();
+                    break;
+
+                case R.id.empty_star:
+                    ID = m_plan != null ? m_plan.getId() : -1;
+                    setActivePlan(ID);
+                    break;
+
+                //TODO: Handle this a lot better... (must have an active plan)
+                case R.id.filled_star:
+                    ArrayList<Plan> plans = MainActivity.g_dbHandler.queryPlans(null);
+                    if (plans.size() > 0) {
+                        if (plans.get(0).getId() != m_plan.getId())
+                            ID = plans.get(0).getId();
+                        else {
+                            if (plans.size() > 1)
+                                ID = plans.get(1).getId();
+                            else {
+                                ID = m_plan.getId();
+                                AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                                builder1.setMessage("You must have an active plan!\nCreate another plan if you don't want to use this one anymore.")
+                                        .setNeutralButton("Ok", neutralClickListener)
+                                        .show();
+                            }
+                        }
+                    } else
+                        ID = -1;
+                    setActivePlan(ID);
+                    break;
+
+                default:
+                    break;
+            }
+        } catch (Exception ex) {
+            System.err.println(ex.toString());
+            assert false;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     //endregion
@@ -125,21 +207,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
     {
         try
         {
-            if (checkAmountRemaining()) {
-                String message;
-                updatePlan();
-
-                if (m_createNew) {
-                    MainActivity.g_dbHandler.addPlan(m_plan);
-                    message = "Plan added!";
-                } else {
-                    MainActivity.g_dbHandler.updatePlan(m_plan);
-                    message = "Plan updated!";
-                }
-
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                onBackPressed();
-            }
+           checkAmountRemaining();
         }
         catch (Exception ex)
         {
@@ -162,6 +230,40 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         m_plan = new Plan(planName, annualIncome, annualExpenses, annualSavings);
 
         syncWidgetsWithPlan();
+    }
+
+    public void confirmChanges()
+    {
+        String message;
+        updatePlan();
+
+        if (m_createNew) {
+            MainActivity.g_dbHandler.addPlan(m_plan);
+            message = "Plan added!";
+        } else {
+            MainActivity.g_dbHandler.updatePlan(m_plan);
+            message = "Plan updated!";
+        }
+
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.active_plan_prefs), Context.MODE_PRIVATE);
+        long activePlanID = sharedPreferences.getLong(getString(R.string.active_plan_id), -1);
+        if (activePlanID < 0)
+        {
+            long planID = 0;
+            try {
+                planID = MainActivity.g_dbHandler.queryPlans(null).get(0).getId();
+            } catch (Exception ex) {
+                System.err.println(ex.toString());
+                assert false;
+            }
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(getString(R.string.active_plan_id), planID);
+            editor.apply();
+        }
+
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        onBackPressed();
     }
 
     //endregion
@@ -324,8 +426,8 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
             long annualExpenses = MoneyFormatter.formatMoneyToLong(etAnnualExpenses.getText().toString());
             long annualSavings = MoneyFormatter.formatMoneyToLong(etAnnualSavings.getText().toString());
             long totalWeeklyBudget = MoneyFormatter.formatMoneyToLong(etTotalWeeklyBudget.getText().toString());
-            long amountAllocated = MoneyFormatter.formatMoneyToLong(etAmountAllocated.getText().toString());  // TODO: inform user that they have extra money to spend
-            long amountRemaining = MoneyFormatter.formatMoneyToLong(etAmountRemaining.getText().toString());  // TODO: maybe ask them to add to savings?
+            long amountAllocated = MoneyFormatter.formatMoneyToLong(etAmountAllocated.getText().toString());
+            long amountRemaining = MoneyFormatter.formatMoneyToLong(etAmountRemaining.getText().toString());
 
             m_plan.setName(name);
             m_plan.setAnnualIncome(annualIncome);
@@ -344,53 +446,173 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
     }
 
     //TODO: Actually implement alert dialog properly... (use CustomAlertDialog class)
-    //TODO: Figure out why dialog doesn't wait for user input to continue
-    private boolean checkAmountRemaining()
+    private void checkAmountRemaining()
     {
         updateCurrentDailyBudget();
 
         if (m_amountRemaining > 0)
         {
-            //DialogFragment dialog = new CustomAlertDialog().newInstance("Amount Remaining", "You still have some money left over! Add the rest to savings?");
-            //dialog.show(getFragmentManager(), "dialog");
             AlertDialog.Builder builder = new AlertDialog.Builder(EditBudgetPlanActivity.this);
             builder.setTitle("Hey there ;)")
                    .setMessage("You still have some money left over! Add the rest to savings?")
-                   .setPositiveButton("Yes", dialogClickListener)
-                   .setNegativeButton("No", dialogClickListener)
+                   .setPositiveButton("Yes", underBudgetClickListener)
+                   .setNegativeButton("No", underBudgetClickListener)
                    .show();
         }
         else if (m_amountRemaining < 0)
         {
-            //DialogFragment dialog = new CustomAlertDialog().newInstance("Amount Remaining", "You are spending too much! Try lowering some of your daily limits.");
-            //dialog.show(getFragmentManager(), "dialog");
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Get out of my face you peasant")
-                   .setMessage("You are spending too much! Try lowering some of your daily limits.")
-                   .setNeutralButton("Ok", dialogClickListener)
+                   .setMessage("You are spending too much! Would you like to lower your annual savings goal by the difference?")
+                   .setPositiveButton("Yes", overBudgetClickListener)
+                   .setNegativeButton("No", overBudgetClickListener)
                    .show();
-            return false;
         }
+        else
+        {
+            confirmChanges();
+        }
+    }
 
-        return true;    // TODO: returning true causes rest of code in btnConfirm_Click to execute, hence calling onBackPressed(). Move the actual DB writing code to a method and confirm ONLY calls this one
-                        // Call the update/create method within the dialogOnClickListener!
+    private void addAmountRemainingToSavings()
+    {
+        try
+        {
+            long annualSavings = MoneyFormatter.formatMoneyToLong(etAnnualSavings.getText().toString());
+            long totalWeeklyBudget = MoneyFormatter.formatMoneyToLong(etTotalWeeklyBudget.getText().toString());
+
+            //TODO: If the savings drops below 0, increase the Annual Expenses instead
+            annualSavings += m_amountRemaining * 52;
+            totalWeeklyBudget -= m_amountRemaining;
+            m_amountRemaining = 0;
+
+            etAnnualSavings.setText(MoneyFormatter.formatLongToMoney(annualSavings, false));
+            etTotalWeeklyBudget.setText(MoneyFormatter.formatLongToMoney(totalWeeklyBudget, false));
+        }
+        catch (ParseException ex)
+        {
+            System.err.println(ex.toString());
+            assert false;
+        }
+    }
+
+    private boolean checkIsActivePlan()
+    {
+        if (m_plan == null)
+            return false;
+
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.active_plan_prefs), Context.MODE_PRIVATE);
+        long activePlanID = sharedPreferences.getLong(getString(R.string.active_plan_id), -1);
+
+        return activePlanID == m_plan.getId();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (this.isTaskRoot()) {
+            Intent intent = new Intent(EditBudgetPlanActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        } else
+            super.onBackPressed();
+    }
+
+    private void setActivePlan(long ID)
+    {
+        SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.active_plan_prefs), Context.MODE_PRIVATE).edit();
+
+        editor.putLong(getString(R.string.active_plan_id), ID);
+        editor.apply();
+
+        if (checkIsActivePlan())
+            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
+        else
+            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
+
+        this.invalidateOptionsMenu();
     }
 
     //endregion
 
     //region Alert Dialog
 
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+    DialogInterface.OnClickListener underBudgetClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             switch (which){
                 case DialogInterface.BUTTON_POSITIVE:
-                    Toast.makeText(EditBudgetPlanActivity.this, "YAY", Toast.LENGTH_SHORT).show();
+                    addAmountRemainingToSavings();
+                    confirmChanges();
                     break;
 
                 case DialogInterface.BUTTON_NEGATIVE:
-                    Toast.makeText(EditBudgetPlanActivity.this, "NOO", Toast.LENGTH_SHORT).show();
+                    // Do nothing
                     break;
+            }
+        }
+    };
+
+    DialogInterface.OnClickListener overBudgetClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(EditBudgetPlanActivity.this);
+                    builder.setTitle("Are you sure?")
+                           .setMessage("This will lower your annual savings amount.")
+                           .setPositiveButton("Yes", underBudgetClickListener)
+                           .setNegativeButton("No", underBudgetClickListener)
+                           .show();
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    // Do nothing
+                    break;
+            }
+        }
+    };
+
+    DialogInterface.OnClickListener neutralClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialogInterface, int i) {
+            switch (i)
+            {
+                default:
+                    break;
+            }
+        }
+    };
+
+    DialogInterface.OnClickListener deletePlanClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which)
+        {
+            try {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+
+                        MainActivity.g_dbHandler.removePlan(m_plan.getId());
+
+                        if (checkIsActivePlan())
+                        {
+                            ArrayList<Plan> plans = MainActivity.g_dbHandler.queryPlans(null);
+                            long ID = plans.size() > 0 ? plans.get(0).getId() : -1;
+                            setActivePlan(ID);
+                        }
+
+                        Toast.makeText(EditBudgetPlanActivity.this, "Plan deleted!", Toast.LENGTH_SHORT).show();
+                        onBackPressed();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // Do nothing
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.err.println(ex.toString());
+                assert false;
             }
         }
     };

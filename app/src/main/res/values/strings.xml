@@ -36,4 +36,9 @@
     <string name="sat">Sat</string>
     <string name="daily_limit">Daily Limit</string>
     <string name="plan_name">Plan Name</string>
+    <string name="plans">Plans</string>
+    <string name="edit_plan">Edit Plan</string>
+    <string name="edit_expense_group">Edit Expense Group</string>
+    <string name="active_plan_prefs">com.jericho.budgetapp.ACTIVE_PLAN_PREFS_FILE_KEY</string>
+    <string name="active_plan_id">activePlanID</string>
 </resources>

@@ -48,6 +48,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         etDescription = findViewById(R.id.etDescription);
 
         toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setTitle(R.string.edit_expense);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);

@@ -11,7 +11,7 @@
         app:showAsAction="ifRoom"/>
     <!-- END [Main Page Items] -->
 
-    <!-- START [Manage Expenses Items] -->
+    <!-- START [Manage Items] -->
     <item
         android:id="@+id/add_new"
         android:icon="@drawable/ic_add_new"
@@ -20,16 +20,32 @@
         app:showAsAction="ifRoom"
         />
 
-    <!-- END [Manage Expenses Items] -->
+    <!-- END [Manage Items] -->
 
-    <!-- START [Edit Expense Items] -->
+    <!-- START [Edit Items] -->
     <item
         android:id="@+id/remove"
         android:icon="@drawable/ic_delete"
         android:title="Remove"
-        android:orderInCategory="100"
+        android:orderInCategory="300"
         app:showAsAction="ifRoom"
         />
-    <!-- END [Edit Expense Items] -->
+    <!-- END [Edit Items] -->
+
+    <!-- START [Edit Budget Plan Items] -->
+    <item
+        android:id="@+id/empty_star"
+        android:icon="@drawable/ic_empty_star"
+        android:title="Star"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/filled_star"
+        android:icon="@drawable/ic_filled_star"
+        android:title="Unstar"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"/>
+    <!-- END [Edit Budget Plan Items] -->
 
 </menu>

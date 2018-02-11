@@ -61,14 +61,27 @@ public class PeriodicBudget implements Serializable
 
     public long getId() { return this.m_id; }
     public void setId(long id) { this.m_id = id; }
+
     public int getTotalDays() { return m_totalDays; }
+
     public long getTotalBudget() { return m_totalBudget; }
-    public void setTotalBudget(long totalBudget) { m_totalBudget = totalBudget; }
+    public void setTotalBudget(long totalBudget)
+    {
+        long difference = totalBudget - m_totalBudget;
+        m_totalBudget = totalBudget;
+        m_currentBudget += difference;
+    }
+
     public long getCurrentBudget() { return m_currentBudget; }
+
     public int getDaysPassed() { return m_daysPassed; }
+
     public long getAmountSpent() { return m_spent; }
+
     public long getRemainingAmount() { return m_totalBudget - m_spent; }
+
     public Date getDateLastChecked() { return m_dateLastChecked; }
+
     public String getName() { return m_name; }
 
     //endregion
