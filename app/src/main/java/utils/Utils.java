@@ -1,18 +1,15 @@
 package utils;
 
-import android.content.ClipData;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.budget_app.jt_interfaces.Priceable;
 
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 
 import jericho.budgetapp.R;
-
-/**
- * Created by tolenti4-INS on 2018-01-24.
- */
 
 public class Utils
 {
@@ -40,6 +37,14 @@ public class Utils
                 item.setVisible(true);
             }
         }
+    }
+
+    // Get the zero-indexed day of the week (0 = sunday, 6 = saturday)
+    public static int getDayOfTheWeek()
+    {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        return c.get(Calendar.DAY_OF_WEEK) - 1;
     }
 
     public static Comparator<Priceable> getPrioeableNameComparator()

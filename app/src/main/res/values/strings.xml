@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BudgetApp</string>
+    <string name="app_name">Budget Buddy</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="name">Name</string>
@@ -41,4 +41,5 @@
     <string name="edit_expense_group">Edit Expense Group</string>
     <string name="active_plan_prefs">com.jericho.budgetapp.ACTIVE_PLAN_PREFS_FILE_KEY</string>
     <string name="active_plan_id">activePlanID</string>
+    <string name="remaining_budget">Remaining Budget:</string>
 </resources>

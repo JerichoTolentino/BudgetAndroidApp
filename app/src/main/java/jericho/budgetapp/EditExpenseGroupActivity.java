@@ -121,7 +121,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
             String message = "Failed to save changes.";
 
             m_expenseGroup.setName(etName.getText().toString());
-            m_expenseGroup.setPrice(Long.parseLong(etPrice.getText().toString().replace(",", "").replace(".","")));
+            m_expenseGroup.setPrice(MoneyFormatter.formatMoneyToLong(etPrice.getText().toString()));
             m_expenseGroup.setCategory(etCategory.getText().toString());
 
             if (m_createNew) {
@@ -142,7 +142,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 
@@ -154,7 +154,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 
@@ -205,6 +205,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
         intent.putExtra("expenseGroup", m_expenseGroup);
         intent.putExtra("createNew", m_createNew);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 

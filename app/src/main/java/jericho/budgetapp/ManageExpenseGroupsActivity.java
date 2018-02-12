@@ -90,6 +90,7 @@ public class ManageExpenseGroupsActivity extends AppCompatActivity {
         Intent intent = new Intent(ManageExpenseGroupsActivity.this, EditExpenseGroupActivity.class);
         intent.putExtra("expenseGroup", new ExpenseGroup());
         intent.putExtra("createNew", true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 

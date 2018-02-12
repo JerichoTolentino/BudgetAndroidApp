@@ -112,7 +112,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         try {
             String message = "Failed to save changes.";
             m_expense.setName(etName.getText().toString());
-            m_expense.setPrice(Long.parseLong(etPrice.getText().toString().replace(",", "").replace(".","")));
+            m_expense.setPrice(MoneyFormatter.formatMoneyToLong(etPrice.getText().toString()));
             m_expense.setCategory(etCategory.getText().toString());
             m_expense.setDescription(etDescription.getText().toString());
 
@@ -131,7 +131,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 

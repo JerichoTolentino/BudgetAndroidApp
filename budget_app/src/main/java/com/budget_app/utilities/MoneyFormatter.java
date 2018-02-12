@@ -2,10 +2,6 @@ package com.budget_app.utilities;
 
 import java.text.ParseException;
 
-/**
- * Created by Jericho on 11/5/2017.
- */
-
 public class MoneyFormatter
 {
 
@@ -15,13 +11,13 @@ public class MoneyFormatter
     {
         String money = "";
 
-        if (addDollarSign)
-            money += "$";
-
         if (amount < 0) {
             money += "-";
             amount = Math.abs(amount);
         }
+
+        if (addDollarSign)
+            money += "$";
 
         if(amount < 10)
             money += "0." + twoDigitToString(amount);

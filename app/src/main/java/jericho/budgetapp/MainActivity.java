@@ -21,14 +21,19 @@ import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
 import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
+import com.budget_app.plans.PeriodicBudget;
 import com.budget_app.plans.Plan;
+import com.budget_app.utilities.MoneyFormatter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 import databases.DBHandler;
 import utils.Utils;
+
+import static utils.Utils.getDayOfTheWeek;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (activePlanID > 0) {
             setActivePlan(activePlanID);
-            System.out.println(m_activePlan.toString());
+            syncWidgetsWithActivePlan();
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -113,6 +118,10 @@ public class MainActivity extends AppCompatActivity {
                     .setCancelable(false)
                     .show();
         }
+
+        if (m_activePlan != null)
+            m_activePlan.updateBudgets(new Date());
+
         super.onResume();
     }
 
@@ -131,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void makePurchases()
     {
-
         for (int i = 0; i < lvPurchases.getCount(); i++)
         {
             Purchase purchase = (Purchase) lvPurchases.getItemAtPosition(i);
@@ -140,15 +148,21 @@ public class MainActivity extends AppCompatActivity {
                 m_allPurchases.add(purchase);
         }
 
-        String message = "";
+        long amount = 0;
         for (Purchase p : m_allPurchases) {
-            message += p.toString() + "\n";
+            amount += p.getItem().getPrice();
             g_dbHandler.addPurchase(p);
         }
 
-        if (message.length() > 0)
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+        dailyBudget.spend(amount);
+        syncWidgetsWithActivePlan();
+        g_dbHandler.updatePeriodicBudget(dailyBudget);
 
+        if (amount > 0)
+            Toast.makeText(this, "Purchase successful!", Toast.LENGTH_SHORT).show();
+
+        updateTotalPrice(MoneyFormatter.formatLongToMoney(0, true));
         initPurchases();
         m_allPurchases.clear();
     }
@@ -156,6 +170,17 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     //region Helper Methods
+
+    private void syncWidgetsWithActivePlan()
+    {
+        if (m_activePlan != null)
+        {
+            TextView etRemainingBudget = findViewById(R.id.tvRemainingBudget);
+            PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+
+            etRemainingBudget.setText(MoneyFormatter.formatLongToMoney(dailyBudget.getCurrentBudget(), true));
+        }
+    }
 
     private void initPurchases()
     {
@@ -212,40 +237,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void addToPurchases(Purchase purchase)
+    public void addToCurrentTotal(Priceable item)
     {
-        if(m_allPurchases.contains(purchase))
-        {
-            Purchase realPurchase = m_allPurchases.get(m_allPurchases.indexOf(purchase));
-            realPurchase.setQuantity(purchase.getQuantity());
+        try {
+            TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
+            long currTotal = MoneyFormatter.formatMoneyToLong(tvCurrentTotal.getText().toString());
+            currTotal += item.getPrice();
+
+            tvCurrentTotal.setText(MoneyFormatter.formatLongToMoney(currTotal, true));
+        } catch (Exception ex) {
+            System.err.println(ex.toString());
+            assert false;
         }
-        else
-            m_allPurchases.add(purchase);
     }
 
-    public void removeFromPurchases(Purchase purchase)
+    public void removeFromCurrentTotal(Priceable item)
     {
-        if(purchase.getQuantity() < 1)
-            m_allPurchases.remove(purchase);
+        try {
+            TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
+            long currTotal = MoneyFormatter.formatMoneyToLong(tvCurrentTotal.getText().toString());
+            currTotal -= item.getPrice();
 
-        if(m_allPurchases.contains(purchase))
-        {
-            Purchase realPurchase = m_allPurchases.get(m_allPurchases.indexOf(purchase));
-            realPurchase.setQuantity(purchase.getQuantity() - 1);
+            tvCurrentTotal.setText(MoneyFormatter.formatLongToMoney(currTotal, true));
+        } catch (Exception ex) {
+            System.err.println(ex.toString());
+            assert false;
         }
     }
 
     public void updateTotalPrice(String newPrice)
     {
         final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
-
         tvCurrentTotal.setText(newPrice);
-    }
-
-    public long getTotalPrice()
-    {
-        final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
-        return Long.parseLong(tvCurrentTotal.getText().toString().replace("$","").replace(",","").replace(".",""));
     }
 
     //endregion

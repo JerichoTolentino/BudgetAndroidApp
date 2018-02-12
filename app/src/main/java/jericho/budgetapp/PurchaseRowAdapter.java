@@ -16,10 +16,6 @@ import com.budget_app.expenses.Purchase;
 import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.utilities.MoneyFormatter;
 
-/**
- * Created by Jericho on 11/4/2017.
- */
-
 class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 {
     private static final int NOT_SELECTED_COLOR = Color.WHITE;
@@ -66,6 +62,9 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
                         purchase.setQuantity(purchase.getQuantity() + 1);
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
                         checkQuantity(purchase.getQuantity(), customView);
+
+                        if (getContext() instanceof MainActivity)
+                            ((MainActivity)getContext()).addToCurrentTotal(purchase.getItem());
                     }
                 }
         );
@@ -76,9 +75,12 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
                 {
                     public void onClick(View v)
                     {
-                        if(purchase.getQuantity() > 0)
+                        if(purchase.getQuantity() > 0) {
                             purchase.setQuantity(purchase.getQuantity() - 1);
 
+                            if (getContext() instanceof MainActivity)
+                                ((MainActivity)getContext()).removeFromCurrentTotal(purchase.getItem());
+                        }
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
                         checkQuantity(purchase.getQuantity(), customView);
                     }

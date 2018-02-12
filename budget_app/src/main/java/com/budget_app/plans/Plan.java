@@ -152,22 +152,17 @@ public class Plan implements Serializable
 
 	//region Public Methods
 
-	public void recalculateBudgets()
+	public boolean updateBudgets(Date curr)
 	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(new Date());
-		int numDaysThisYear = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+		if (m_weeklyBudget.update(curr))
+		{
+			for (PeriodicBudget dailyBudget : m_dailyBudgets)
+				dailyBudget.reset();
 
-		long monthlyBudget = m_annualBudget / 12;
-		long weeklyBudget = m_annualBudget / 52;
-		long dailyBudget = m_annualBudget / numDaysThisYear;
+			return true;
+		}
 
-		//PeriodicBudget monthly = new PeriodicBudget()
-		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget, "weekly");
-		m_dailyBudgets = new PeriodicBudget[7];
-
-		for (int i = 0; i < m_dailyBudgets .length; i++)
-			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget, indexToDayOfWeek(i));
+		return false;
 	}
 
 	@Override

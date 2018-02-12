@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by tolenti4-INS on 2018-02-03.
- */
-
 public class PeriodicBudget implements Serializable
 {
 
@@ -88,16 +84,11 @@ public class PeriodicBudget implements Serializable
 
     //region Public Methods
 
-    public boolean spend(long amount) {
+    public void spend(long amount) {
+
         long difference = m_currentBudget - amount;
-
-        if (difference >= 0) {
-            m_currentBudget = difference;
-            m_spent += amount;
-            return true;
-        }
-
-        return false;
+        m_currentBudget = difference;
+        m_spent += amount;
     }
 
     public void increaseBudget(long amount) {
