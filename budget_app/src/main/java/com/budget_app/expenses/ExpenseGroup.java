@@ -1,32 +1,36 @@
 package com.budget_app.expenses;
 
-import com.budget_app.error_handler.ErrorHandler;
-import com.budget_app.jt_interfaces.Compareable;
 import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.NodeItem;
-import com.budget_app.jt_linked_list.SortedList;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
 
-public class ExpenseGroup extends NodeItem implements Priceable, Serializable
+public class ExpenseGroup implements Priceable, Serializable
 {
+
+	//region Constants
+
 	private static final long DEFAULT_ID = 0;
 	private static final long DEFAULT_PRICE = 0;
 	private static final String DEFAULT_NAME = "";
 	private static final String DEFAULT_CATEGORY = "Uncategorized";
 	private static final String DEFAULT_DESCRIPTION = "";
 
+	//endregion
+
+	//region Members
+
 	private long id;
 	private long price;
 	private String name;
 	private String category;
 	private String description;
-	private SortedList expenses;
+	private ArrayList<ExpenseInGroup> expenses;
 
-	//--------------------//
-	//--- Constructors ---//
-	//--------------------//
+	//endregion
+
+	//region Constructors
 
 	public ExpenseGroup()
 	{
@@ -35,7 +39,7 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		this.name = DEFAULT_NAME;
 		this.category = DEFAULT_CATEGORY;
 		this.description = DEFAULT_DESCRIPTION;
-		this.expenses = new SortedList();
+		this.expenses = new ArrayList<>();
 	}
 
 	public ExpenseGroup(ExpenseGroup other)
@@ -45,11 +49,11 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		this.name = other.name;
 		this.category = other.category;
 		this.description = other.description;
-		this.expenses = new SortedList(other.expenses);
+		this.expenses = new ArrayList<>(other.getExpenses());
 		updatePrice();
 	}
 
-	public ExpenseGroup(String name, String category, String description, SortedList expenses)
+	public ExpenseGroup(String name, String category, String description, ArrayList<ExpenseInGroup> expenses)
 	{
 		this.id = DEFAULT_ID;
 		this.name = name;
@@ -67,11 +71,11 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		this.price = 0;
 		this.category = category;
 		this.description = description;
-		this.expenses = new SortedList();
+		this.expenses = new ArrayList<>();
 		updatePrice();
 	}
 
-	public ExpenseGroup(long id, String name, long price, String category, String description, SortedList expenses)
+	public ExpenseGroup(long id, String name, long price, String category, String description, ArrayList<ExpenseInGroup> expenses)
 	{
 		this.id = id;
 		this.price = price;
@@ -82,7 +86,7 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		updatePrice();
 	}
 
-	public ExpenseGroup(String name, long price, String category, String description, SortedList expenses)
+	public ExpenseGroup(String name, long price, String category, String description, ArrayList<ExpenseInGroup> expenses)
 	{
 		this.id = DEFAULT_ID;
 		this.price = price;
@@ -93,20 +97,20 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		updatePrice();
 	}
 
-	//dummy constructor for lookup
-	public ExpenseGroup(String name)
+	// Dummy constructor for purchase history
+	public ExpenseGroup(String name, long price, String category, String description)
 	{
 		this.id = DEFAULT_ID;
+		this.price = price;
 		this.name = name;
-		this.price = DEFAULT_PRICE;
-		this.category = DEFAULT_CATEGORY;
-		this.description = DEFAULT_DESCRIPTION;
-		this.expenses = null;
+		this.category = category;
+		this.description = description;
+		this.expenses = new ArrayList<>();
 	}
 
-	//-------------------------//
-	//--- Getters & Setters ---//
-	//-------------------------//
+	//endregion
+
+	//region Getters & Setters
 
 	public long getId() { return this.id; }
 
@@ -142,69 +146,20 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		this.description = description;
 	}
 
-	public SortedList getExpenses()
+	public ArrayList<ExpenseInGroup> getExpenses()
 	{
 		return expenses;
 	}
 
-	public void setExpenses(SortedList expenses)
+	public void setExpenses(ArrayList<ExpenseInGroup> expenses)
 	{
 		this.expenses = expenses;
 		updatePrice();
 	}
 
-	//---------------------------//
-	//--- Implemented Methods ---//
-	//---------------------------//
+	//endregion
 
-	//modified to only use name for lookup via name functionality
-	@Override
-	public boolean equals(Compareable other)
-	{
-		ExpenseGroup temp;
-		boolean result = false;
-
-		if (other instanceof ExpenseGroup)
-		{
-			temp = (ExpenseGroup)other;
-			result = this.name.equals(temp.name) &&
-					this.id == temp.id &&
-					this.price == temp.price &&
-					this.category.equals(temp.category) &&
-					this.description.equals(temp.description) &&
-					this.expenses.equals(temp.expenses);
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "equals()");
-
-		return result;
-	}
-
-	@Override
-	public int compare(Compareable other)
-	{
-		ExpenseGroup temp;
-		int result = -1;
-
-		if (other instanceof ExpenseGroup)
-		{
-			temp = (ExpenseGroup)other;
-			result = this.name.compareTo(temp.name);
-
-			if(result == 0)
-				result = (int)(this.price - temp.price);	//Note: this is probably bad
-			if(result == 0)
-				result = this.category.compareTo(temp.category);
-			if(result == 0)
-				result = this.description.compareTo(temp.description);
-			if(result == 0)
-				result = (int)(this.id - temp.id);			//Note: this is probably bad
-		}
-		else
-			ErrorHandler.printFailedDowncastErr("Compareable", this, "compare()");
-
-		return result;
-	}
+	//region Implemented Methods
 
 	@Override
 	public long getPrice()
@@ -225,42 +180,21 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 				+ "\nCategory:\t" + category + "\nDescription:\t" + description + "\nExpenses:\n" + expenses.toString();
 	}
 
-	@Override
-	public String toString_CSV()
-	{
-		String output;
-		Node curr = this.expenses.getHead();
+	//endregion
 
-		output = Long.toString(this.id) + ",\"" + this.name + "\",\"" + this.category + "\",\"" + this.description + "\"";
-
-		while(curr != null)
-		{
-			if(curr.getItem() instanceof Expense)
-				output += ",\"" + ((Expense)curr.getItem()).getName() + "\"";
-			else
-				ErrorHandler.printFailedDowncastErr("NodeItem", this, "toString_CSV()");
-
-			curr = curr.getNext();
-		}
-
-		return output;
-	}
-
-	//-----------------------------//
-	//--- Functionality Methods ---//
-	//-----------------------------//
+	//region Functionality Methods
 
 	//adds an expense to the group
-	public void addExpense(Expense expense)
+	public void addExpense(ExpenseInGroup expense)
 	{
-		expenses.insertSorted(expense);
+		expenses.add(expense);
 		updatePrice();
 	}
 
 	//remove an expense from the group; returns false if failed
-	public boolean removeExpense(Expense expense)
+	public boolean removeExpense(ExpenseInGroup expense)
 	{
-		boolean result = (expenses.removeNode(expense) != null);
+		boolean result = (expenses.remove(expense));
 
 		if(result)
 			updatePrice();
@@ -268,30 +202,37 @@ public class ExpenseGroup extends NodeItem implements Priceable, Serializable
 		return result;
 	}
 
-	//----------------------//
-	//--- Helper Methods ---//
-	//----------------------//
+	//endregion
+
+	//region Helper Methods
 
 	//updates the price to be the sum of all prices in 'expenses'
 	public void updatePrice()
 	{
-		Node curr = expenses.getHead();
-		NodeItem item;
-		long totalPrice = 0;
+		long price = 0;
 
-		while(curr != null)
+		for (ExpenseInGroup expense : expenses)
 		{
-			item = curr.getItem();
-
-			if(item instanceof Expense)
-				totalPrice += ((Expense)item).getPrice();
-			else
-				ErrorHandler.printFailedDowncastErr("NodeItem", this, "calculatePrice()");
-
-			curr = curr.getNext();
+			price += expense.getPrice() * expense.getQuantity();
 		}
 
-		this.price = totalPrice;
+		this.price = price;
 	}
+
+	//endregion
+
+	//region Custom Comparators
+
+	public static Comparator<ExpenseGroup> getNameComparator()
+	{
+		return new Comparator<ExpenseGroup>() {
+			@Override
+			public int compare(ExpenseGroup expenseGroup, ExpenseGroup t1) {
+				return expenseGroup.getName().compareTo(t1.getName());
+			}
+		};
+	}
+
+	//endregion
 
 }

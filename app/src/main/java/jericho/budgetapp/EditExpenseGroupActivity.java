@@ -15,12 +15,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseWithQuantity;
-import com.budget_app.jt_linked_list.LinkedList;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.SortedList;
+import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.utilities.MoneyFormatter;
 
 import java.util.ArrayList;
@@ -30,14 +26,19 @@ import utils.Utils;
 
 public class EditExpenseGroupActivity extends AppCompatActivity {
 
+    //region Members
+
     private Toolbar toolbar;
     private EditText etName;
     private EditText etPrice;
     private EditText etCategory;
-    private ExpenseGroup m_expenseGroup;
     private ListView lvExpenses;
-
+    private ExpenseGroup m_expenseGroup;
     private boolean m_createNew;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,50 +51,24 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         lvExpenses = findViewById(R.id.lvExpenses);
 
         toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setTitle(R.string.edit_expense_group);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        m_expenseGroup = (ExpenseGroup) getIntent().getSerializableExtra("expenseGroup");
-        m_createNew = getIntent().getExtras().getBoolean("createNew");
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            m_expenseGroup = (ExpenseGroup) getIntent().getSerializableExtra("expenseGroup");
+            m_createNew = getIntent().getExtras().getBoolean("createNew");
 
-        if (!m_createNew)
-        {
             etName.setText(m_expenseGroup.getName());
-            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice()).replace("$", ""));
+            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));
             etCategory.setText(m_expenseGroup.getCategory());
+
+            updateExpensesListView();
         }
-
-        LinkedList expensesToAdd;
-        if ((expensesToAdd = (LinkedList) getIntent().getSerializableExtra("expensesToAdd")) != null)
-        {
-            LinkedList currExpenses = m_expenseGroup.getExpenses();
-            Node curr = currExpenses.getHead();
-            Node add = expensesToAdd.getHead();
-
-            while (add != null)
-            {
-                Expense expenseToAdd = (Expense) add.getItem();
-                boolean okayToAdd = true;
-
-                while (curr != null)
-                {
-                    Expense existingExpense = (Expense) curr.getItem();
-                    if (expenseToAdd.equals(existingExpense))
-                        okayToAdd = false;
-
-                    curr = curr.getNext();
-                }
-
-                if (okayToAdd)
-                    m_expenseGroup.addExpense(expenseToAdd);
-
-                add = add.getNext();
-            }
-        }
-
-        updateExpensesListView();
     }
+
+    //endregion
 
     //region Toolbar Events
 
@@ -112,6 +87,10 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
         switch (item.getItemId())
         {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
             case R.id.remove:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Are you sure you want to delete this expense group?")
@@ -142,27 +121,28 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
             String message = "Failed to save changes.";
 
             m_expenseGroup.setName(etName.getText().toString());
-            m_expenseGroup.setPrice(Long.parseLong(etPrice.getText().toString().replace(",", "").replace(".","")));
+            m_expenseGroup.setPrice(MoneyFormatter.formatMoneyToLong(etPrice.getText().toString()));
             m_expenseGroup.setCategory(etCategory.getText().toString());
 
             if (m_createNew) {
                 MainActivity.g_dbHandler.addExpenseGroup(m_expenseGroup);
                 message = "Expense group added!";
             } else {
-                if (MainActivity.g_dbHandler.queryExpenseGroups(DBHandler.EXPENSEGROUP_COL_ID + "=" + m_expenseGroup.getId()).getSize() == 1) {
+                if (MainActivity.g_dbHandler.queryExpenseGroups(DBHandler.EXPENSEGROUP_COL_ID + "=" + m_expenseGroup.getId()).size() == 1) {
                     MainActivity.g_dbHandler.updateExpenseGroup(m_expenseGroup);
                     message = "Expense group updated!";
                 }
             }
 
             Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(EditExpenseGroupActivity.this, ManageExpenseGroupsActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            onBackPressed();
+            //Intent intent = new Intent(EditExpenseGroupActivity.this, ManageExpenseGroupsActivity.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //startActivity(intent);
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 
@@ -170,14 +150,11 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
     {
         try
         {
-            Intent intent = new Intent(EditExpenseGroupActivity.this, SelectExpensesActivity.class);
-            intent.putExtra("expenseGroup", m_expenseGroup);
-            intent.putExtra("createNew", m_createNew);
-            startActivity(intent);
+            goToSelectExpensesActivity();
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 
@@ -206,44 +183,40 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region Helper Methods
 
-    private SortedList getExpensesFromListView()
+    private ArrayList<ExpenseInGroup> getExpensesFromListView()
     {
-        SortedList expenses = new SortedList();
+        ArrayList<ExpenseInGroup> expenses = new ArrayList<>();
+
         for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++)
         {
-            ExpenseWithQuantity e = (ExpenseWithQuantity) lvExpenses.getAdapter().getItem(i);
-            for (int j = 0; j < e.getQuantity(); j++)
-                expenses.insertSorted(e.getExpense());
+            ExpenseInGroup e = (ExpenseInGroup) lvExpenses.getAdapter().getItem(i);
+            expenses.add(e);
         }
+
         return expenses;
+    }
+
+    private void goToSelectExpensesActivity()
+    {
+        Intent intent = new Intent(EditExpenseGroupActivity.this, SelectExpensesActivity.class);
+        m_expenseGroup.setName(etName.getText().toString());
+        m_expenseGroup.updatePrice();
+        m_expenseGroup.setCategory(etCategory.getText().toString());
+
+        intent.putExtra("expenseGroup", m_expenseGroup);
+        intent.putExtra("createNew", m_createNew);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
     }
 
     public void updateExpensesListView()
     {
-        LinkedList expenseList = m_expenseGroup.getExpenses();
-        ArrayList<ExpenseWithQuantity> expenseWithQuantities = new ArrayList<>();
-        Node curr = expenseList.getHead();
+        ArrayList<ExpenseInGroup> expenseList = m_expenseGroup.getExpenses();
 
-        while (curr != null)
-        {
-            Expense expense = (Expense) curr.getItem();
-
-            if (ArrayListContainsExpense(expenseWithQuantities, expense))
-            {
-                ExpenseWithQuantity expenseWithQuantity = expenseWithQuantities.get(IndexOfExpenseInArrayList(expenseWithQuantities, expense));
-                expenseWithQuantity.setQuantity(expenseWithQuantity.getQuantity() + 1);
-            }
-            else
-                expenseWithQuantities.add(new ExpenseWithQuantity(expense, 1));
-
-            curr = curr.getNext();
-        }
-
-
-        // build array of ExpenseWithQuantity objects
-        ExpenseWithQuantity[] expenses = new ExpenseWithQuantity[expenseWithQuantities.size()];
+        // build array of ExpenseInGroup objects
+        ExpenseInGroup[] expenses = new ExpenseInGroup[expenseList.size()];
         int i = 0;
-        for (ExpenseWithQuantity e : expenseWithQuantities)
+        for (ExpenseInGroup e : expenseList)
         {
             expenses[i] = e;
             i++;
@@ -254,38 +227,19 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         lvExpenses.setAdapter(listAdapter);
 
         etPrice.setEnabled(true);
-        etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice()).replace("$", ""));
+        etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));
         etPrice.setEnabled(false);
-    }
-
-    private boolean ArrayListContainsExpense(ArrayList<ExpenseWithQuantity> list, Expense expense)
-    {
-        for (Expense e : list)
-        {
-            if (e.equals(expense)) return true;
-        }
-        return false;
-    }
-
-    private int IndexOfExpenseInArrayList(ArrayList<ExpenseWithQuantity> list, Expense expense)
-    {
-        int index = 0;
-
-        for (Expense e : list)
-        {
-            if (e.equals(expense)) return index;
-            index++;
-        }
-
-        return -1;
     }
 
     //endregion
 
-    public void removeExpenseFromGroup(Expense expense)
+    //region Public Methods
+
+    public void removeExpenseFromGroup(ExpenseInGroup expense)
     {
         m_expenseGroup.removeExpense(expense);
     }
 
+    //endregion
 
 }

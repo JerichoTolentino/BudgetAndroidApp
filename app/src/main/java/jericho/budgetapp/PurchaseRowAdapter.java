@@ -13,11 +13,8 @@ import android.widget.TextView;
 
 import com.budget_app.expenses.Expense;
 import com.budget_app.expenses.Purchase;
+import com.budget_app.jt_interfaces.Priceable;
 import com.budget_app.utilities.MoneyFormatter;
-
-/**
- * Created by Jericho on 11/4/2017.
- */
 
 class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 {
@@ -39,7 +36,7 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 
         //Get references to row data object
         final Purchase purchase = getItem(position);
-        final Expense expense = (Expense)purchase.getItem();
+        final Priceable item = purchase.getItem();
 
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
@@ -48,11 +45,11 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
         final Button btnIncrease = customView.findViewById(R.id.btnIncrease);
         final Button btnDecrease = customView.findViewById(R.id.btnDecrease);
 
-        assert expense != null;
+        assert item != null;
 
         //Set row elements based on purchase fields
-        tvName.setText(expense.getName());
-        tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice()));
+        tvName.setText(item.getName());
+        tvPrice.setText(MoneyFormatter.formatLongToMoney(item.getPrice(), true));
         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
         checkQuantity(purchase.getQuantity(), customView);
 
@@ -65,6 +62,9 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
                         purchase.setQuantity(purchase.getQuantity() + 1);
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
                         checkQuantity(purchase.getQuantity(), customView);
+
+                        if (getContext() instanceof MainActivity)
+                            ((MainActivity)getContext()).addToCurrentTotal(purchase.getItem());
                     }
                 }
         );
@@ -75,12 +75,13 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
                 {
                     public void onClick(View v)
                     {
-                        if(purchase.getQuantity() > 0)
-                        {
+                        if(purchase.getQuantity() > 0) {
                             purchase.setQuantity(purchase.getQuantity() - 1);
+
+                            if (getContext() instanceof MainActivity)
+                                ((MainActivity)getContext()).removeFromCurrentTotal(purchase.getItem());
                         }
                         tvQuantity.setText(String.valueOf(purchase.getQuantity()));
-
                         checkQuantity(purchase.getQuantity(), customView);
                     }
                 }

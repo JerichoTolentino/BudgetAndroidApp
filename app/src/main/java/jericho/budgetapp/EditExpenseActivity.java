@@ -23,14 +23,19 @@ import utils.Utils;
 
 public class EditExpenseActivity extends AppCompatActivity {
 
+    //region Members
+
     private Toolbar toolbar;
     private EditText etName;
     private EditText etPrice;
     private EditText etCategory;
     private EditText etDescription;
     private Expense m_expense;
-
     private boolean m_createNew;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +48,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         etDescription = findViewById(R.id.etDescription);
 
         toolbar = findViewById(R.id.custom_toolbar);
+        toolbar.setTitle(R.string.edit_expense);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -54,11 +60,13 @@ public class EditExpenseActivity extends AppCompatActivity {
         if (!m_createNew)
         {
             etName.setText(m_expense.getName());
-            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expense.getPrice()).replace("$", ""));
+            etPrice.setText(MoneyFormatter.formatLongToMoney(m_expense.getPrice(), false));
             etCategory.setText(m_expense.getCategory());
             etDescription.setText(m_expense.getDescription());
         }
     }
+
+    //endregion
 
     //region Toolbar Events
 
@@ -77,6 +85,10 @@ public class EditExpenseActivity extends AppCompatActivity {
 
         switch (item.getItemId())
         {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+
             case R.id.remove:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Are you sure you want to delete this expense?")
@@ -91,12 +103,6 @@ public class EditExpenseActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
     //endregion
 
     //region Event Handlers
@@ -106,7 +112,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         try {
             String message = "Failed to save changes.";
             m_expense.setName(etName.getText().toString());
-            m_expense.setPrice(Long.parseLong(etPrice.getText().toString().replace(",", "").replace(".","")));
+            m_expense.setPrice(MoneyFormatter.formatMoneyToLong(etPrice.getText().toString()));
             m_expense.setCategory(etCategory.getText().toString());
             m_expense.setDescription(etDescription.getText().toString());
 
@@ -114,7 +120,7 @@ public class EditExpenseActivity extends AppCompatActivity {
                 MainActivity.g_dbHandler.addExpense(m_expense);
                 message = "Expense added!";
             } else {
-                if (MainActivity.g_dbHandler.queryExpenses(DBHandler.EXPENSE_COL_ID + "=" + m_expense.getId()).getSize() == 1) {
+                if (MainActivity.g_dbHandler.queryExpenses(DBHandler.EXPENSE_COL_ID + "=" + m_expense.getId()).size() == 1) {
                     MainActivity.g_dbHandler.updateExpense(m_expense);
                     message = "Expense updated!";
                 }
@@ -125,7 +131,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         }
         catch (Exception ex)
         {
-            System.err.println(ex.getMessage() + ex.getStackTrace());
+            System.err.println(ex.toString());
         }
     }
 

@@ -10,15 +10,20 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.budget_app.expenses.Expense;
+
+import java.util.HashSet;
+
 public class MenuActivity extends AppCompatActivity {
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-
-        String[] menuItems = new String[] {"Main Page", "Manage Expenses", "Manage Budget/Savings", "TBA", "View Statistics", "Settings"};
+        String[] menuItems = new String[] {"Main Page", "Manage Expenses", "Manage Expense Groups", "Manage Plans", "View Statistics", "Settings"};
         ListAdapter listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menuItems);
         ListView lvMenuItems = findViewById(R.id.lvMenuItems);
         lvMenuItems.setAdapter(listAdapter);
@@ -28,28 +33,66 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+
                 String value = String.valueOf(parent.getItemAtPosition(position));
-                Intent intent = null;
-
-
                 switch (value)
                 {
                     case "Main Page":
-                        intent = new Intent(MenuActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        goToMainActivity();
                         break;
+
                     case "Manage Expenses":
-                        intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        goToManageExpensesActivity();
                         break;
+
+                    case "Manage Expense Groups":
+                        goToManageExpenseGroupsActivity();
+                        break;
+
+                    case "Manage Plans":
+                        goToManagePlansActivity();
+                        break;
+
                     default:
                         Toast.makeText(MenuActivity.this, value, Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
         });
-
     }
+
+    //endregion
+
+    //region Helper Methods
+
+    private void goToMainActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManageExpensesActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManageExpenseGroupsActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, ManageExpenseGroupsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToManagePlansActivity()
+    {
+        Intent intent = new Intent(MenuActivity.this, ManageBudgetPlansActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    //endregion
+
 }

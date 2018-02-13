@@ -9,16 +9,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.budget_app.expenses.Expense;
-import com.budget_app.jt_linked_list.Node;
-import com.budget_app.jt_linked_list.SortedList;
+
+import java.util.ArrayList;
 
 import utils.Utils;
 
 public class ManageExpensesActivity extends AppCompatActivity {
 
+    //region Members
+
     private Toolbar toolbar;
+
+    //endregion
+
+    //region onCreate()
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +34,7 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.custom_toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_view_menu);
+        toolbar.setTitle(R.string.expenses);
         setSupportActionBar(toolbar);
     }
 
@@ -38,23 +46,21 @@ public class ManageExpensesActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    //endregion
+
+    //region Event Handlers
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
 
         switch (item.getItemId())
         {
             case android.R.id.home:
-                intent = new Intent(ManageExpensesActivity.this, MenuActivity.class);
-                startActivity(intent);
+                goToMenuActivity();
                 break;
 
             case R.id.add_new:
-                intent = new Intent(ManageExpensesActivity.this, EditExpenseActivity.class);
-                intent.putExtra("expense", new Expense());
-                intent.putExtra("createNew", true);
-                startActivity(intent);
-
+                goToEditExpenseActivity();
                 break;
 
             default:
@@ -69,31 +75,47 @@ public class ManageExpensesActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    //region Event Handlers
-
     public void btnSwitchView_OnClick(View v)
     {
-        Intent intent = new Intent(ManageExpensesActivity.this, ManageExpenseGroupsActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        Toast.makeText(this, "Do something else.", Toast.LENGTH_SHORT).show();
+        //goToManageExpenseGroupsActivity();
     }
 
     //endregion
 
     // region Helper Methods
 
+    private void goToManageExpenseGroupsActivity()
+    {
+        Intent intent = new Intent(ManageExpensesActivity.this, ManageExpenseGroupsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void goToEditExpenseActivity()
+    {
+        Intent intent = new Intent(ManageExpensesActivity.this, EditExpenseActivity.class);
+        intent.putExtra("expense", new Expense());
+        intent.putExtra("createNew", true);
+        startActivity(intent);
+    }
+
+    private void goToMenuActivity()
+    {
+        Intent intent = new Intent(ManageExpensesActivity.this, MenuActivity.class);
+        startActivity(intent);
+    }
+
     public void updateExpenseListView()
     {
-        SortedList expenses = new SortedList(MainActivity.g_dbHandler.queryExpenses(null));
-        Expense[] expenseArray = new Expense[expenses.getSize()];
+        ArrayList<Expense> expenses = MainActivity.g_dbHandler.queryExpenses(null);
+        Expense[] expenseArray = new Expense[expenses.size()];
 
-        Node curr = expenses.getHead();
         int index = 0;
-        while(curr != null)
+        for (Expense e : expenses)
         {
-            expenseArray[index] = (Expense) curr.getItem();
+            expenseArray[index] = e;
             index++;
-            curr = curr.getNext();
         }
 
         ExpenseRowAdapter adapter = new ExpenseRowAdapter(ManageExpensesActivity.this, expenseArray);

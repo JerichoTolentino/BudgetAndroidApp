@@ -41,15 +41,15 @@ class ExpenseGroupRowAdapter extends ArrayAdapter<ExpenseGroup>
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
         final TextView tvPrice = customView.findViewById(R.id.tvPrice);
-        final ImageButton btnEdit = customView.findViewById(R.id.btnClear);
+        final ImageButton btnEdit = customView.findViewById(R.id.btnEdit);
         final TextView tvNumItems = customView.findViewById(R.id.tvQuantity);
 
         if (expenseGroup != null)
         {
             //Set row elements based on expense fields
             tvName.setText(expenseGroup.getName());
-            tvPrice.setText(MoneyFormatter.formatLongToMoney(expenseGroup.getPrice()));
-            tvNumItems.setText(String.valueOf(expenseGroup.getExpenses().getSize()));
+            tvPrice.setText(MoneyFormatter.formatLongToMoney(expenseGroup.getPrice(), true));
+            tvNumItems.setText(String.valueOf(expenseGroup.getExpenses().size()));
 
             btnEdit.setOnClickListener(
                     new View.OnClickListener()

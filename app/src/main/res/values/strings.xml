@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BudgetApp</string>
+    <string name="app_name">Budget Buddy</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="name">Name</string>
@@ -13,8 +13,35 @@
     <string name="add_to_expense_group">Add To Expense Group</string>
     <string name="budget_buddy">Budget Buddy</string>
     <string name="edit_expense">Edit Expense</string>
+    <string name="manage_expenses">Manage Expenses</string>
     <string name="manage_expense_groups">Manage Expense Groups</string>
+    <string name="expense_groups">Expense Groups</string>
     <string name="add_expenses">Add Expenses</string>
     <string name="expenses">Expenses</string>
-    <string name="manage_expenses">Manage Expenses</string>
+    <string name="purchase_history">Purchase History</string>
+    <string name="annual_income">Annual Income</string>
+    <string name="annual_expenses">Annual Expenses</string>
+    <string name="annual_savings">Annual Savings</string>
+    <string name="generate_plan">Generate Plan</string>
+    <string name="zero_decimal">0.00</string>
+    <string name="total_weekly_budget">Total Weekly Budget</string>
+    <string name="amount_allocated">Amount Allocated</string>
+    <string name="amount_remaining">Amount Remaining</string>
+    <string name="sun">Sun</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="daily_limit">Daily Limit</string>
+    <string name="plan_name">Plan Name</string>
+    <string name="plans">Plans</string>
+    <string name="edit_plan">Edit Plan</string>
+    <string name="edit_expense_group">Edit Expense Group</string>
+    <string name="active_plan_prefs">com.jericho.budgetapp.ACTIVE_PLAN_PREFS_FILE_KEY</string>
+    <string name="active_plan_id">activePlanID</string>
+    <string name="remaining_budget">Remaining Budget:</string>
+    <string name="quantity">Quantity</string>
+    <string name="quick_add_expense">Quick Add Expense</string>
 </resources>

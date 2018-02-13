@@ -1,197 +1,100 @@
 package com.budget_app.expenses;
 
-import com.budget_app.jt_linked_list.*;
-
+import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+
 import com.budget_app.jt_interfaces.*;
 
-import com.budget_app.error_handler.ErrorHandler;
-
-public class PurchaseHistory implements Stringable, CSVExportable, Serializable
+public class PurchaseHistory implements Stringable, Serializable
 {
-	
-	SortedList purchases;
-	
-	//--------------------//
-	//--- Constructors ---//
-	//--------------------//
+
+	//region Members
+
+	ArrayList<Purchase> m_purchases;
+
+	//endregion
+
+	//region Constructor
 
 	public PurchaseHistory()
 	{
-		this.purchases = new SortedList();
+		this.m_purchases = new ArrayList<>();
 	}
 	
 	public PurchaseHistory(PurchaseHistory other)
 	{
-		this.purchases = other.purchases;
+		this.m_purchases = other.m_purchases;
 	}
 
-	//-------------------------//
-	//--- Getters & Setters ---//
-	//-------------------------//
+	//endregion
 
-	public SortedList getPurchases()
+	//region Getters & Setters
+
+	public ArrayList<Purchase> getPurchases()
 	{
-		return this.purchases;
+		return this.m_purchases;
 	}
-	
-	//returns a wrapped list of the purchases on the specified date
-	public SortedList getPurchasesOn(Date date)
+
+	public void setPurchases(ArrayList<Purchase> purchases)
 	{
-		SortedList purchasesOn = null;
-		Purchase currPurchase;
-		Node curr = purchases.getHead();
-		Node prev = null;
-		int purchasesOnSize = 0;
-		
-		while(curr != null)
+		this.m_purchases = purchases;
+	}
+
+	//endregion
+
+	//region Functionality Methods
+
+	//returns a list of the m_purchases on the specified date
+	public ArrayList<Purchase> getPurchasesOn(Date date)
+	{
+		ArrayList<Purchase> purchasesOnDate = new ArrayList<>();
+
+		for (Purchase p : m_purchases)
 		{
-			prev = curr.getPrev();
-			if(curr.getItem() instanceof Purchase)
+			if (p.getDate().equals(date))
 			{
-				currPurchase = (Purchase)curr.getItem();
-				
-				//if the date of curr is the desired date (list should be ordered!)
-				if(date.toString().equals(currPurchase.getDate().toString()))
-				{
-					//should only happen once.. create SortedList and set it's head
-					if(purchasesOnSize == 0)
-					{	
-						purchasesOn = new SortedList();
-						purchasesOn.setHead(curr);
-					}
-					
-					purchasesOnSize += 1;
-				}
-				else if(purchasesOnSize != 0) 	//happens right after going out of range of desired date (prev holds tail)
-					break;						//break out of while loop (at this point, prev == most recent entry of desired date)
+				purchasesOnDate.add(p);
 			}
-			else
-				ErrorHandler.printFailedDowncastErr("NodeItem", this, "getPurchasesOn()");
-			curr = curr.getNext();
 		}
-		
-		//set the tail and size, if the list exists
-		if(purchasesOn != null)
-		{
-			purchasesOn.setTail(prev);
-			purchasesOn.setSize(purchasesOnSize);
-		}
-		
-		return purchasesOn;
+
+		Collections.sort(purchasesOnDate, Purchase.getAscendingDateComparator());
+
+		return purchasesOnDate;
 	}
 
-	//returns a wrapped list of the purchases between the specified dates
-	public SortedList getPurchasesBetween(Date min, Date max)
+	//returns a wrapped list of the m_purchases between the specified dates
+	public ArrayList<Purchase> getPurchasesBetween(Date min, Date max)
 	{
-		SortedList purchasesOn = null;
-		Purchase currPurchase;
-		Node curr = purchases.getHead();
-		Node prev = null;
-		int purchasesOnSize = 0;
-		
-		while(curr != null)
+		ArrayList<Purchase> purchasesBetween = new ArrayList<>();
+
+		for (Purchase p : m_purchases)
 		{
-			prev = curr.getPrev();
-			if(curr.getItem() instanceof Purchase)
+			if (p.getDate().compareTo(min) >= 0 && p.getDate().compareTo(max) <= 0)
 			{
-				currPurchase = (Purchase)curr.getItem();
-				
-				//if the date of curr is within the desired range (list should be ordered!)
-				if(min.compareTo(currPurchase.getDate()) <= 0 && max.compareTo(currPurchase.getDate()) >= 0)
-				{
-					//should only happen once.. create SortedList and set it's head
-					if(purchasesOnSize == 0)
-					{	
-						purchasesOn = new SortedList();
-						purchasesOn.setHead(curr);
-					}
-					
-					purchasesOnSize += 1;
-				}
-				else if(purchasesOnSize != 0) 	//happens right after going out of range of desired date (prev holds tail)
-					break;						//break out of while loop (at this point, prev == most recent entry of desired date)
+				purchasesBetween.add(p);
 			}
-			else
-				ErrorHandler.printFailedDowncastErr("NodeItem", this, "getPurchasesOn()");
-			curr = curr.getNext();
 		}
-		
-		//set the tail and size, if the list exists
-		if(purchasesOn != null)
-		{
-			purchasesOn.setTail(prev);
-			purchasesOn.setSize(purchasesOnSize);
-		}
-		
-		return purchasesOn;
-	}
-	
-	public void setPurchases(SortedList purchases)
-	{
-		this.purchases = purchases;
+
+		Collections.sort(purchasesBetween, Purchase.getAscendingDateComparator());
+
+		return purchasesBetween;
 	}
 
-	//---------------------------//
-	//--- Implemented Methods ---//
-	//---------------------------//
+	//endregion
 
-
-
-	//-----------------------------//
-	//--- Functionality Methods ---//
-	//-----------------------------//
-
-	//adds a purchase to the history
-	public void addPurchase(Purchase purchase)
-	{
-		purchases.insertSorted(purchase);
-	}
-	
-	//removes a purchase from the history; returns false if not found
-	public boolean removePurchase(Purchase purchase)
-	{
-		boolean result = (purchases.removeNode(purchase) != null);
-		
-		return result;
-	}
-	
 	@Override
 	public String toString()
 	{
 		String output = "";
-		Node curr = purchases.getHead();
 		
-		while(curr != null)
+		for (Purchase p : m_purchases)
 		{
-			output += curr.getItem().toString() + "\n";
-			curr = curr.getNext();
+			output += p.toString() + "\n";
 		}
 		
 		return output;
 	}
-
-	@Override
-	public String toString_CSV() 
-	{
-		String output = "";
-		Node curr = purchases.getHead();
-		
-		while(curr != null)
-		{
-			output += curr.getItem().toString_CSV() + "\n";
-			curr = curr.getNext();
-		}
-		
-		
-		return output;
-	}
-
-	//----------------------//
-	//--- Helper Methods ---//
-	//----------------------//
-
-		
 	
 }

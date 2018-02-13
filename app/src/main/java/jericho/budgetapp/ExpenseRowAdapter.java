@@ -24,7 +24,7 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
 
     public ExpenseRowAdapter(@NonNull Context context, Expense expenses[])
     {
-        super(context, R.layout.expense_row, expenses);
+        super(context, R.layout.budget_plan_row, expenses);
         this.m_context = context;
     }
 
@@ -33,7 +33,7 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
     {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        final View customView = layoutInflater.inflate(R.layout.expense_row, parent, false);
+        final View customView = layoutInflater.inflate(R.layout.budget_plan_row, parent, false);
 
         //Get references to row data object
         final Expense expense = getItem(position);
@@ -41,13 +41,13 @@ class ExpenseRowAdapter extends ArrayAdapter<Expense>
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
         final TextView tvPrice = customView.findViewById(R.id.tvPrice);
-        final ImageButton btnEdit = customView.findViewById(R.id.btnClear);
+        final ImageButton btnEdit = customView.findViewById(R.id.btnEdit);
 
         if (expense != null)
         {
             //Set row elements based on expense fields
             tvName.setText(expense.getName());
-            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice()));
+            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice(), true));
 
             btnEdit.setOnClickListener(
                     new View.OnClickListener()

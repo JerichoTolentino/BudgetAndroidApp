@@ -1,24 +1,32 @@
 package com.budget_app.utilities;
 
-/**
- * Created by Jericho on 11/5/2017.
- */
+import java.text.ParseException;
 
 public class MoneyFormatter
 {
 
-    public static String formatLongToMoney(long amount)
+    //region Long To Money
+
+    public static String formatLongToMoney(long amount, boolean addDollarSign)
     {
-        String money;
+        String money = "";
+
+        if (amount < 0) {
+            money += "-";
+            amount = Math.abs(amount);
+        }
+
+        if (addDollarSign)
+            money += "$";
 
         if(amount < 10)
-            money = "$0." + twoDigitToString(amount);
+            money += "0." + twoDigitToString(amount);
         else
         {
             long dollarPart = amount / 100;
             int centsPart = (int)(amount % 100);
 
-            money = "$" + formatDollarPart(dollarPart) + "." + twoDigitToString(centsPart);
+            money += formatDollarPart(dollarPart) + "." + twoDigitToString(centsPart);
         }
 
         return money;
@@ -73,5 +81,42 @@ public class MoneyFormatter
 
         return result;
     }
+
+    //endregion
+
+    //region Money To Long
+
+    public static long formatMoneyToLong(String money) throws ParseException
+    {
+        if (StringHelper.countOccurrences(money, "$") > 1 || StringHelper.countOccurrences(money, ".") > 1)
+            throw new ParseException("Money parsing error", 0);
+
+        money = money.replace("$", "").replace(",", "");
+
+        int length = money.length();
+        int decimalIndex = money.indexOf(".");
+
+
+        if (length == 0)
+        {
+            return 0;
+        }
+        else if (decimalIndex == -1)
+        {
+            return Long.parseLong(money) * 100;
+        }
+        else if (decimalIndex == (length - 1) - 2)
+        {
+            money = money.replace(".", "");
+            return Long.parseLong(money);
+        }
+        else
+        {
+            throw new ParseException("Money decimal parsing error", decimalIndex);
+        }
+
+    }
+
+    //endregion
 
 }
