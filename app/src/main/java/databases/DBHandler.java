@@ -93,7 +93,9 @@ public class DBHandler extends SQLiteOpenHelper
     public static final String PURCHASES_TABLE = "tblPurchases";
     public static final String PURCHASES_COL_ID = "ID";
     public static final String PURCHASES_COL_ITEMTYPE = "ItemType"; //expense OR expense group
-    public static final String PURCHASES_COL_ITEMID = "ItemID";
+    //public static final String PURCHASES_COL_ITEMID = "ItemID";
+    public static final String PURCHASES_COL_ITEMNAME = "ItemName";
+    public static final String PURCHASES_COL_ITEMPRICE = "ItemPrice";
     public static final String PURCHASES_COL_DATE = "Date";
     public static final String PURCHASES_COL_QUANTITY = "Quantity";
 
@@ -152,7 +154,9 @@ public class DBHandler extends SQLiteOpenHelper
         //Create Purchases Table
         sql = "CREATE TABLE '" + PURCHASES_TABLE + "'('"
                 + PURCHASES_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
-                + PURCHASES_COL_ITEMID + "' INTEGER NOT NULL, '"
+                //+ PURCHASES_COL_ITEMID + "' INTEGER NOT NULL, '"
+                + PURCHASES_COL_ITEMNAME + "' TEXT NO NULL, '"
+                + PURCHASES_COL_ITEMPRICE + "' INTEGER NOT NULL, '"
                 + PURCHASES_COL_ITEMTYPE + "' TEXT NOT NULL, '"
                 + PURCHASES_COL_DATE + "' TEXT NOT NULL, '"
                 + PURCHASES_COL_QUANTITY + "' INTEGER NOT NULL"
@@ -298,6 +302,8 @@ public class DBHandler extends SQLiteOpenHelper
         ArrayList<Purchase> list = new ArrayList<>();
         String id;
         String itemType;
+        String itemName;
+        String itemPrice;
         String date;
         String quantity;
 
@@ -315,19 +321,26 @@ public class DBHandler extends SQLiteOpenHelper
         {
             id = c.getString(c.getColumnIndex(PURCHASES_COL_ID));
             itemType = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMTYPE));
+            itemName = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMNAME));
+            itemPrice = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMPRICE));
             date = c.getString(c.getColumnIndex(PURCHASES_COL_DATE));
             quantity = c.getString(c.getColumnIndex(PURCHASES_COL_QUANTITY));
 
-            itemID = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMID));
+            if (itemType.equals(Expense.class.getName()))
+                item = new Expense(itemName, Long.parseLong(itemPrice), "Dummy", "Dummy expense for purchase history");
+            else if (itemType.equals(ExpenseGroup.class.getName()))
+                item = new ExpenseGroup(itemName, Long.parseLong(itemPrice), "Dummy", "Dummy expense group for purchase history");
 
-            if (itemType.equals(Expense.class.getName().toString())) {
-                ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
-                item = (expenses.get(0));
-            } else if (itemType.equals(ExpenseGroup.class.getName().toString())) {
-                    ArrayList<ExpenseGroup> expenseGroups = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
-                    item = expenseGroups.get(0);
-            } else
-                return null;
+            //itemID = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMID));
+
+            //if (itemType.equals(Expense.class.getName().toString())) {
+            //    ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
+            //    item = (expenses.get(0));
+            //} else if (itemType.equals(ExpenseGroup.class.getName().toString())) {
+            //        ArrayList<ExpenseGroup> expenseGroups = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
+            //        item = expenseGroups.get(0);
+            //} else
+            //    return null;
 
             Date parsedDate = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).parse(date);
 
@@ -639,7 +652,9 @@ public class DBHandler extends SQLiteOpenHelper
         ItemInfo itemInfo = findItemInfo(db, purchase.getItem());
 
         values.put(PURCHASES_COL_ITEMTYPE, itemInfo.getItemType());
-        values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
+        //values.put(PURCHASES_COL_ITEMID, itemInfo.getItemID());
+        values.put(PURCHASES_COL_ITEMNAME, purchase.getItem().getName());
+        values.put(PURCHASES_COL_ITEMPRICE, purchase.getItem().getPrice());
         values.put(PURCHASES_COL_QUANTITY, purchase.getQuantity());
         values.put(PURCHASES_COL_DATE, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(purchase.getDate()));
 

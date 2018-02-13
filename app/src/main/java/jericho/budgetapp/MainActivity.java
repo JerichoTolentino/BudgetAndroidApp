@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
-        Utils.showMenuItems(toolbar.getMenu(), new int[]{R.id.view_history});
+        Utils.showMenuItems(toolbar.getMenu(), new int[]{R.id.view_history, R.id.quick_add_expense});
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -91,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
                 goToViewPurchaseHistoryActivity();
                 break;
 
+            case R.id.quick_add_expense:
+                goToQuickAddExpenseActivity();
+                break;
+
             default:
                 break;
         }
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         if (activePlanID > 0) {
             setActivePlan(activePlanID);
             syncWidgetsWithActivePlan();
+            checkForQuickAddExpense();
         }
         else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -137,6 +142,17 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     //region Functionality Methods
+
+    public void makeQuickPurchase(Purchase purchase)
+    {
+        g_dbHandler.addPurchase(purchase);
+        PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+        dailyBudget.spend(purchase.getItem().getPrice() * purchase.getQuantity());
+        syncWidgetsWithActivePlan();
+        g_dbHandler.updatePeriodicBudget(dailyBudget);
+
+        Toast.makeText(this, "Purchase successful!", Toast.LENGTH_SHORT).show();
+    }
 
     public void makePurchases()
     {
@@ -221,6 +237,23 @@ public class MainActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(MainActivity.this, ViewPurchaseHistory.class);
         startActivity(intent);
+    }
+
+    private void goToQuickAddExpenseActivity()
+    {
+        Intent intent = new Intent(MainActivity.this, QuickAddExpenseActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
+    }
+
+    private void checkForQuickAddExpense()
+    {
+        if (getIntent().getExtras() != null)
+        {
+            Serializable quickAddPurchase = getIntent().getExtras().getSerializable("quickAddExpense");
+            if (quickAddPurchase != null && quickAddPurchase instanceof Purchase)
+                makeQuickPurchase((Purchase)quickAddPurchase);
+        }
     }
 
     private void setActivePlan(long ID)

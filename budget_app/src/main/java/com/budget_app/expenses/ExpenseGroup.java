@@ -97,6 +97,17 @@ public class ExpenseGroup implements Priceable, Serializable
 		updatePrice();
 	}
 
+	// Dummy constructor for purchase history
+	public ExpenseGroup(String name, long price, String category, String description)
+	{
+		this.id = DEFAULT_ID;
+		this.price = price;
+		this.name = name;
+		this.category = category;
+		this.description = description;
+		this.expenses = new ArrayList<>();
+	}
+
 	//endregion
 
 	//region Getters & Setters

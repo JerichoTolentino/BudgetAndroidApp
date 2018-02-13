@@ -18,7 +18,8 @@ public class Utils
                                                               R.id.add_new,
                                                               R.id.remove,
                                                               R.id.empty_star,
-                                                              R.id.filled_star};
+                                                              R.id.filled_star,
+                                                              R.id.quick_add_expense};
 
     public static void showMenuItems(Menu menu, int[] visible_item_ids)
     {

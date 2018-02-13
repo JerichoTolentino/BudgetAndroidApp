@@ -42,4 +42,6 @@
     <string name="active_plan_prefs">com.jericho.budgetapp.ACTIVE_PLAN_PREFS_FILE_KEY</string>
     <string name="active_plan_id">activePlanID</string>
     <string name="remaining_budget">Remaining Budget:</string>
+    <string name="quantity">Quantity</string>
+    <string name="quick_add_expense">Quick Add Expense</string>
 </resources>
