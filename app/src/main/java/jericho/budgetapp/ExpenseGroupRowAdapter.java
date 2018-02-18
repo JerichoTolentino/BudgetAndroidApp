@@ -59,6 +59,7 @@ class ExpenseGroupRowAdapter extends ArrayAdapter<ExpenseGroup>
                             Intent intent = new Intent(getContext(), EditExpenseGroupActivity.class);
                             intent.putExtra("expenseGroup", expenseGroup);
                             intent.putExtra("createNew", false);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                             getContext().startActivity(intent);
                         }
                     }

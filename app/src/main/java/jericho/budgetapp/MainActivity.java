@@ -25,15 +25,13 @@ import com.budget_app.plans.PeriodicBudget;
 import com.budget_app.plans.Plan;
 import com.budget_app.utilities.MoneyFormatter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 import databases.DBHandler;
 import utils.Utils;
-
-import static utils.Utils.getDayOfTheWeek;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -248,9 +246,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkForQuickAddExpense()
     {
-        if (getIntent().getExtras() != null)
+        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+
+        if (extras.values().size() > 0)
         {
-            Serializable quickAddPurchase = getIntent().getExtras().getSerializable("quickAddExpense");
+            Object quickAddPurchase = extras.get("quickAddExpense");
             if (quickAddPurchase != null && quickAddPurchase instanceof Purchase)
                 makeQuickPurchase((Purchase)quickAddPurchase);
         }

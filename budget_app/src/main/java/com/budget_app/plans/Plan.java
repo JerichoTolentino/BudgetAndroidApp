@@ -179,11 +179,15 @@ public class Plan implements Serializable
 	{
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
-		int numDaysThisYear = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
+		//int numDaysThisYear = calendar.getActualMaximum(Calendar.DAY_OF_YEAR);
 
-		long monthlyBudget = m_annualBudget / 12;
-		long weeklyBudget = m_annualBudget / 52;
-		long dailyBudget = m_annualBudget / numDaysThisYear;
+		long monthlyBudget = Math.round(m_annualBudget / 12.00);
+		long actualWeeklyBudget = Math.round(m_annualBudget / 52.00);
+		//long dailyBudget = m_annualBudget / numDaysThisYear;
+		long dailyBudget = Math.round(actualWeeklyBudget / 7.00);
+		long weeklyBudget = dailyBudget * 7;					//TODO: This just makes it look like the math is correct.. (still some rounding error wrt annual amounts)
+		m_annualSavings += actualWeeklyBudget - weeklyBudget;	//TODO: This makes the math correct-ish (just add money lost from rounding to savings)
+																//TODO: Deal with the leftover days in a year (the days at start/end of year)
 
 		//PeriodicBudget monthly = new PeriodicBudget()
 		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget, "weekly");

@@ -12,11 +12,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.budget_app.expenses.Expense;
+import com.budget_app.jt_interfaces.ExpenseListener;
+import com.budget_app.jt_interfaces.ExpenseView;
 import com.budget_app.utilities.MoneyFormatter;
-
-/**
- * Created by Jericho on 11/4/2017.
- */
 
 class ExpenseRowAdapter extends ArrayAdapter<Expense>
 {

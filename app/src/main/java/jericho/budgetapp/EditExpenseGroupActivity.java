@@ -20,6 +20,7 @@ import com.budget_app.expenses.ExpenseInGroup;
 import com.budget_app.utilities.MoneyFormatter;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import databases.DBHandler;
 import utils.Utils;
@@ -56,9 +57,12 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            m_expenseGroup = (ExpenseGroup) getIntent().getSerializableExtra("expenseGroup");
-            m_createNew = getIntent().getExtras().getBoolean("createNew");
+        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+
+        if (extras.values().size() > 0)
+        {
+            m_expenseGroup = (ExpenseGroup) extras.get("expenseGroup");
+            m_createNew = (boolean) extras.get("createNew");
 
             etName.setText(m_expenseGroup.getName());
             etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));

@@ -136,6 +136,7 @@ public class SelectExpensesActivity extends AppCompatActivity {
         Intent intent = new Intent(SelectExpensesActivity.this, EditExpenseGroupActivity.class);
         intent.putExtra("expenseGroup", m_expenseGroup);
         intent.putExtra("createNew", getIntent().getExtras().getBoolean("createNew"));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 

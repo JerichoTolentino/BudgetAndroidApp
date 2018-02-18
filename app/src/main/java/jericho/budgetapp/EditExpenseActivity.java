@@ -18,6 +18,8 @@ import android.widget.Toast;
 import com.budget_app.expenses.Expense;
 import com.budget_app.utilities.MoneyFormatter;
 
+import java.util.Map;
+
 import databases.DBHandler;
 import utils.Utils;
 
@@ -53,8 +55,14 @@ public class EditExpenseActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        m_expense = (Expense) getIntent().getSerializableExtra("expense");
-        m_createNew = getIntent().getExtras().getBoolean("createNew");
+        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+
+        if (extras.values().size() > 0)
+        {
+            m_expense = (Expense) extras.get("expense");
+            m_createNew = (boolean) extras.get("createNew");
+        }
+
         InputMultilineEditText.setContext(this);
 
         if (!m_createNew)

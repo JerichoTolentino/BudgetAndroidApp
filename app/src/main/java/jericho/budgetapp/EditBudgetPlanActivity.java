@@ -25,6 +25,7 @@ import com.budget_app.utilities.MoneyFormatter;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import utils.Utils;
 
@@ -92,9 +93,12 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
         initWidgetReferences();
 
-        if (getIntent().getExtras() != null) {
-            m_plan = (Plan) getIntent().getExtras().getSerializable("plan");
-            m_createNew = getIntent().getExtras().getBoolean("createNew");
+        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+
+        if (extras.values().size() > 0)
+        {
+            m_plan = (Plan) extras.get("plan");
+            m_createNew = (boolean) extras.get("createNew");
             syncWidgetsWithPlan();
         }
         else

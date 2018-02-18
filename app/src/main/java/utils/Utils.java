@@ -1,13 +1,20 @@
 package utils;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.budget_app.jt_interfaces.Priceable;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import jericho.budgetapp.R;
 
@@ -56,6 +63,26 @@ public class Utils
                 return priceable.getName().compareTo(t1.getName());
             }
         };
+    }
+
+    public static Map<String, Object> getExtrasFromIntent(Intent intent)
+    {
+        Map<String, Object> entries = new HashMap<>();
+
+        if (intent != null && intent.getExtras() != null)
+        {
+            for (String key : intent.getExtras().keySet())
+            {
+                Object value = intent.getExtras().get(key);
+                entries.put(key, value);
+            }
+
+            for (String key : entries.keySet())
+                intent.removeExtra(key);
+
+        }
+
+        return entries;
     }
 
 }
