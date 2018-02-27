@@ -1,6 +1,7 @@
 package com.budget_app.plans;
 
 import java.io.Serializable;
+import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -141,16 +142,26 @@ public class Plan implements Serializable
 	public PeriodicBudget[] getDailyBudgets() { return this.m_dailyBudgets; }
 
 	public PeriodicBudget getDailyBudgetOn(int day) {
-		if (day > 6)
+		if (day > 7)
 			return null;
-		else {
-			return m_dailyBudgets[day];
+		else
+		{
+			return m_dailyBudgets[day - 1];
 		}
 	}
 
 	//endregion
 
 	//region Public Methods
+
+	public void spend(long amount, int dayOfWeek)
+	{
+		PeriodicBudget dailyBudget = m_dailyBudgets[dayOfWeek - 1];
+
+		dailyBudget.spend(amount);
+		m_weeklyBudget.spend(amount);
+		//m_monthlyBudget.spend(amount);
+	}
 
 	public boolean updateBudgets(Date curr)
 	{
@@ -193,27 +204,27 @@ public class Plan implements Serializable
 		m_weeklyBudget = new PeriodicBudget(7, weeklyBudget, "weekly");
 		m_dailyBudgets = new PeriodicBudget[7];
 
-		for (int i = 0; i < m_dailyBudgets .length; i++)
-			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget, indexToDayOfWeek(i));
+		for (int i = 0; i < m_dailyBudgets.length; i++)
+			m_dailyBudgets [i] = new PeriodicBudget(1, dailyBudget, indexToDayOfWeek(i + 1));
 	}
 
 	private String indexToDayOfWeek(int index)
 	{
 		switch (index)
 		{
-			case 0:
-				return DAYOFWEEK_SUNDAY;
 			case 1:
-				return DAYOFWEEK_MONDAY;
+				return DAYOFWEEK_SUNDAY;
 			case 2:
-				return DAYOFWEEK_TUESDAY;
+				return DAYOFWEEK_MONDAY;
 			case 3:
-				return DAYOFWEEK_WEDNESDAY;
+				return DAYOFWEEK_TUESDAY;
 			case 4:
-				return DAYOFWEEK_THURSDAY;
+				return DAYOFWEEK_WEDNESDAY;
 			case 5:
-				return DAYOFWEEK_FRIDAY;
+				return DAYOFWEEK_THURSDAY;
 			case 6:
+				return DAYOFWEEK_FRIDAY;
+			case 7:
 				return DAYOFWEEK_SATURDAY;
 			default:
 				return "";

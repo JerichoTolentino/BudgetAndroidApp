@@ -47,12 +47,12 @@ public class Utils
         }
     }
 
-    // Get the zero-indexed day of the week (0 = sunday, 6 = saturday)
+    // Get the one-indexed day of the week (1 = sunday, 7 = saturday)
     public static int getDayOfTheWeek()
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        return c.get(Calendar.DAY_OF_WEEK) - 1;
+        return c.get(Calendar.DAY_OF_WEEK);
     }
 
     public static Comparator<Priceable> getPrioeableNameComparator()

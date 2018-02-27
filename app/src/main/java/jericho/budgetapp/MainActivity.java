@@ -12,8 +12,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,8 @@ import java.util.Map;
 import databases.DBHandler;
 import utils.Utils;
 
+//TODO: REFACTOR EVERYTHING
+
 public class MainActivity extends AppCompatActivity {
 
     public static DBHandler g_dbHandler;
@@ -42,8 +46,10 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ArrayList<Purchase> m_allPurchases;
     private ListView lvPurchases;
+    private Spinner spPeriodicBudget;
 
     private Plan m_activePlan;
+    private String m_periodicBudgetSelected = "Daily Budget";
 
     //endregion
 
@@ -62,6 +68,30 @@ public class MainActivity extends AppCompatActivity {
 
         m_allPurchases = new ArrayList<>();
         initPurchases();
+
+        spPeriodicBudget = findViewById(R.id.spPeriodicBudget);
+
+        spPeriodicBudget.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
+            {
+                try
+                {
+                    m_periodicBudgetSelected = spPeriodicBudget.getSelectedItem().toString();
+                    updateRemainingBudget();
+                }
+                catch (Exception ex)
+                {
+                    System.err.println(ex.toString());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+
+        });
     }
 
     @Override
@@ -168,10 +198,11 @@ public class MainActivity extends AppCompatActivity {
             g_dbHandler.addPurchase(p);
         }
 
-        PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
-        dailyBudget.spend(amount);
+        //PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+        //dailyBudget.spend(amount);
+        m_activePlan.spend(amount, Utils.getDayOfTheWeek());
         syncWidgetsWithActivePlan();
-        g_dbHandler.updatePeriodicBudget(dailyBudget);
+        g_dbHandler.updatePlan(m_activePlan);
 
         if (amount > 0)
             Toast.makeText(this, "Purchase successful!", Toast.LENGTH_SHORT).show();
@@ -185,14 +216,32 @@ public class MainActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    private void updateRemainingBudget()
+    {
+        TextView etRemainingBudget = findViewById(R.id.tvRemainingBudget);
+        PeriodicBudget periodicBudget = null;
+
+        switch (m_periodicBudgetSelected)
+        {
+            case "Daily Budget":
+                periodicBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+                break;
+
+            case "Weekly Budget":
+                periodicBudget = m_activePlan.getWeeklyBudget();
+                break;
+        }
+
+        if (periodicBudget != null)
+            etRemainingBudget.setText(MoneyFormatter.formatLongToMoney(periodicBudget.getCurrentBudget(), true));
+
+    }
+
     private void syncWidgetsWithActivePlan()
     {
         if (m_activePlan != null)
         {
-            TextView etRemainingBudget = findViewById(R.id.tvRemainingBudget);
-            PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
-
-            etRemainingBudget.setText(MoneyFormatter.formatLongToMoney(dailyBudget.getCurrentBudget(), true));
+            updateRemainingBudget();
         }
     }
 

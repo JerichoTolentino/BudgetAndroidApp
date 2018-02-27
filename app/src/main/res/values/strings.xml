@@ -44,4 +44,10 @@
     <string name="remaining_budget">Remaining Budget:</string>
     <string name="quantity">Quantity</string>
     <string name="quick_add_expense">Quick Add Expense</string>
+    
+    <string-array name="periodic_budget_array">
+        <item>Daily Budget</item>
+        <item>Weekly Budget</item>
+    </string-array>
+
 </resources>

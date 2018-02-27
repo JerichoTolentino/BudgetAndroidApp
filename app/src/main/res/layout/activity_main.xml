@@ -17,6 +17,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/custom_toolbar">
 
+        <Spinner
+            android:id="@+id/spPeriodicBudget"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/periodic_budget_array"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toTopOf="@+id/tvLabelRemainingBudget"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tvLabelRemainingBudget"
             android:layout_width="0dp"
@@ -29,7 +42,7 @@
             app:layout_constraintBottom_toTopOf="@+id/tvRemainingBudget"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/TopBar" />
+            app:layout_constraintTop_toBottomOf="@+id/spPeriodicBudget" />
 
         <TextView
             android:id="@+id/tvRemainingBudget"
