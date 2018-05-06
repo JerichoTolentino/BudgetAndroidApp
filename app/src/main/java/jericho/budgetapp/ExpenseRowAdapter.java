@@ -11,21 +11,36 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.jt_interfaces.ExpenseListener;
-import com.budget_app.jt_interfaces.ExpenseView;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Expense;
+import utilities.MoneyFormatter;
 
+/**
+ * A custom ListView row adapter to display the contents of Expenses.
+ */
 class ExpenseRowAdapter extends ArrayAdapter<Expense>
 {
     private Context m_context;
 
+    /**
+     * Initializes a new instance of an ExpenseRowAdapter with the specified Expenses.
+     * @param context
+     * @param expenses The Expenses to display in the ListView.
+     * @see ArrayAdapter#ArrayAdapter(Context, int, Object[])
+     */
     public ExpenseRowAdapter(@NonNull Context context, Expense expenses[])
     {
         super(context, R.layout.budget_plan_row, expenses);
         this.m_context = context;
     }
 
+    /**
+     * Returns a custom view that displays the contents of an Expense in a ListView row.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return A custom view that displays the contents of an Expense in a ListView row.
+     * @see ArrayAdapter#getView(int, View, ViewGroup)
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)

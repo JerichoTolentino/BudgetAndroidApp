@@ -11,24 +11,46 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.plans.Plan;
-import com.budget_app.utilities.MoneyFormatter;
+import plans.Plan;
+import utilities.MoneyFormatter;
 
 /**
- * Created by Jericho on 11/4/2017.
+ * A custom ListView row adapter to display the contents of Plans.
  */
-
 class BudgetPlanRowAdapter extends ArrayAdapter<Plan>
 {
+    // region Members
+
     private Context m_context;
 
+    //endregion
+
+    //region Constructor
+
+    /**
+     * Initializes a new instance of a BudgetPlanRowAdapter.
+     * @param context The context.
+     * @param plans The array of plans to be displayed in ListView rows.
+     * @see ArrayAdapter#ArrayAdapter(Context, int, Object[])
+     */
     public BudgetPlanRowAdapter(@NonNull Context context, Plan plans[])
     {
         super(context, R.layout.budget_plan_row, plans);
         this.m_context = context;
     }
 
+    //endregion
+
+    //region Public Methods
+
+    /**
+     * Returns a custom view that displays the contents of a Plan in a ListView row.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return A custom view that displays the contents of a Plan in a ListView row.
+     * @see ArrayAdapter#getView(int, View, ViewGroup)
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
@@ -66,5 +88,7 @@ class BudgetPlanRowAdapter extends ArrayAdapter<Plan>
 
         return customView;
     }
+
+    //endregion
 
 }

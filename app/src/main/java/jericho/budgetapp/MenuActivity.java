@@ -10,14 +10,17 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
-
-import java.util.HashSet;
-
+/**
+ * An activity that acts as a navigation menu.
+ */
 public class MenuActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes widget references and links buttons up to their associated activities.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +68,9 @@ public class MenuActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    /**
+     * Navigates to the MainActivity.
+     */
     private void goToMainActivity()
     {
         Intent intent = new Intent(MenuActivity.this, MainActivity.class);
@@ -72,6 +78,9 @@ public class MenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the ManageExpensesActivity.
+     */
     private void goToManageExpensesActivity()
     {
         Intent intent = new Intent(MenuActivity.this, ManageExpensesActivity.class);
@@ -79,6 +88,9 @@ public class MenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the ManageExpenseGroupsActivity.
+     */
     private void goToManageExpenseGroupsActivity()
     {
         Intent intent = new Intent(MenuActivity.this, ManageExpenseGroupsActivity.class);
@@ -86,6 +98,9 @@ public class MenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Navigate to the ManagePlansActivity.
+     */
     private void goToManagePlansActivity()
     {
         Intent intent = new Intent(MenuActivity.this, ManageBudgetPlansActivity.class);

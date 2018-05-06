@@ -1,12 +1,21 @@
-package com.budget_app.utilities;
+package utilities;
 
 import java.text.ParseException;
 
+/**
+ * A class that provides method to handle string formatting of currency values.
+ */
 public class MoneyFormatter
 {
 
     //region Long To Money
 
+    /**
+     * Converts a long to a string currency.
+     * @param amount The amount to convert.
+     * @param addDollarSign Value that indicates whether to add a dollar sign to the resulting currency.
+     * @return A string representation of the currency.
+     */
     public static String formatLongToMoney(long amount, boolean addDollarSign)
     {
         String money = "";
@@ -32,6 +41,11 @@ public class MoneyFormatter
         return money;
     }
 
+    /**
+     * Formats the dollar amount of a currency with comma separators for every group of three digits.
+     * @param dollarPart The dollar amount of a currency.
+     * @return A comma-separated dollar portion of a currency.
+     */
     private static String formatDollarPart(long dollarPart)
     {
         String formattedDollarPart = "";
@@ -56,6 +70,11 @@ public class MoneyFormatter
         return formattedDollarPart;
     }
 
+    /**
+     * Prefixes a leading zero to a number if it is only 1 digit.
+     * @param twoDigit The number to format.
+     * @return A numeric string with at least 2 digits.
+     */
     private static String twoDigitToString(long twoDigit)
     {
         String result;
@@ -68,6 +87,11 @@ public class MoneyFormatter
         return result;
     }
 
+    /**
+     * Prefixes leading zeroes to ensure a number contains at least 3 digits
+     * @param threeDigit The number to format.
+     * @return A numeric string with at least 3 digits.
+     */
     private static String threeDigitToString(long threeDigit)
     {
         String result;
@@ -86,9 +110,15 @@ public class MoneyFormatter
 
     //region Money To Long
 
+    /**
+     * Parses a string representation of currency to a long value.
+     * @param money The string representation of currency.
+     * @return The value of the currency as a long.
+     * @throws ParseException Thrown when the string input is not a valid currency.
+     */
     public static long formatMoneyToLong(String money) throws ParseException
     {
-        if (StringHelper.countOccurrences(money, "$") > 1 || StringHelper.countOccurrences(money, ".") > 1)
+        if (Utility.countOccurrences(money, "$") > 1 || Utility.countOccurrences(money, ".") > 1)
             throw new ParseException("Money parsing error", 0);
 
         money = money.replace("$", "").replace(",", "");

@@ -1,9 +1,10 @@
-package com.budget_app.expenses;
+package expenses;
+
+//TODO: Get rid of this entire class
 
 /**
- * Created by tolenti4-INS on 2018-01-28.
+ * A class that models an Expense that is stored in an ExpenseGroup.
  */
-
 public class ExpenseInGroup extends Expense {
 
     //region Members

@@ -11,15 +11,17 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseInGroup;
-import com.budget_app.expenses.Purchase;
+import expenses.Expense;
+import expenses.ExpenseGroup;
+import expenses.ExpenseInGroup;
+import expenses.Purchase;
+import utilities.Utility;
 
 import java.util.ArrayList;
 
-import utils.Utils;
-
+/**
+ * An activity where multiple Expenses can be selected.
+ */
 public class SelectExpensesActivity extends AppCompatActivity {
 
     //region Members
@@ -32,6 +34,11 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes the activity with all Expenses.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,14 +70,26 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     // region Toolbar Events
 
+    /**
+     * Displays the menu.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
-        Utils.showMenuItems(toolbar.getMenu(), null);
+        Utility.showMenuItems(toolbar.getMenu(), null);
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Handles menu button presses
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -91,6 +110,10 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Confirms the selection and returns to the EditExpenseGroupActivity.
+     * @param v
+     */
     public void btnConfirm_OnClick(View v)
     {
         try
@@ -131,6 +154,9 @@ public class SelectExpensesActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    /**
+     * Navigates to the EditExpenseGroupActivity with the Expense(s) selected passed in the Intent.
+     */
     private void returnToEditExpenseGroupActivity()
     {
         Intent intent = new Intent(SelectExpensesActivity.this, EditExpenseGroupActivity.class);

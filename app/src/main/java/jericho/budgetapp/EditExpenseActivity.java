@@ -1,12 +1,10 @@
 package jericho.budgetapp;
 
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.os.PersistableBundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,14 +13,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Expense;
+import utilities.MoneyFormatter;
 
 import java.util.Map;
 
+import utilities.Utility;
 import databases.DBHandler;
-import utils.Utils;
 
+/**
+ * An activity where Expenses can be created/edited.
+ */
 public class EditExpenseActivity extends AppCompatActivity {
 
     //region Members
@@ -39,6 +40,11 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes the activity with the Expense passed in the Intent.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +61,7 @@ public class EditExpenseActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+        Map<String, Object> extras = Utility.getExtrasFromIntent(getIntent());
 
         if (extras.values().size() > 0)
         {
@@ -78,16 +84,28 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     //region Toolbar Events
 
+    /**
+     * Displays the remove icon on the action bar.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
 
-        Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove});
+        Utility.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove});
 
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Handles the action bar buttons being pressed.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -115,6 +133,10 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Saves the changes made to the Expense.
+     * @param v
+     */
     public void btnConfirm_OnClick(View v)
     {
         try {
@@ -147,6 +169,9 @@ public class EditExpenseActivity extends AppCompatActivity {
 
     //region Alert Dialog
 
+    /**
+     * Deletes the Expense from the database if the user confirms.
+     */
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {

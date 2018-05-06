@@ -2,13 +2,8 @@ package jericho.budgetapp;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-
-/**
- * Created by tolenti4-INS on 2018-02-10.
- */
 
 public class CustomAlertDialog extends DialogFragment
 {

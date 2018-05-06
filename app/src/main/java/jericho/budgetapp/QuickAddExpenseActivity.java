@@ -1,8 +1,6 @@
 package jericho.budgetapp;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -11,17 +9,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.Purchase;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Expense;
+import expenses.Purchase;
+import utilities.MoneyFormatter;
 
-import java.util.Date;
-
-import databases.DBHandler;
-import utils.Utils;
-
+/**
+ * An activity to quickly make a temporary Expense for a quick purchase.
+ */
 public class QuickAddExpenseActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -29,6 +24,12 @@ public class QuickAddExpenseActivity extends AppCompatActivity {
     private EditText etPrice;
     private EditText etQuantity;
 
+
+    /**
+     * Initializes widget references and the action bar.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +50,12 @@ public class QuickAddExpenseActivity extends AppCompatActivity {
 
     //region Toolbar Events
 
+    /**
+     * Displays the menu bar.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -57,6 +64,12 @@ public class QuickAddExpenseActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Handles menu button presses.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -77,6 +90,10 @@ public class QuickAddExpenseActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Creates a temporary Purchase with the specified data and navigates to the MainActivity to make the quick purchase.
+     * @param v
+     */
     public void btnConfirm_OnClick(View v)
     {
         try {

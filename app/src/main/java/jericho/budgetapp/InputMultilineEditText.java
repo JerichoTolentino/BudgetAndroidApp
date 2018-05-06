@@ -3,15 +3,13 @@ package jericho.budgetapp;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import android.support.v7.widget.AppCompatEditText;
 
 /**
- * Created by tolenti4-INS on 2018-01-27.
+ * A custom EditText that hides the on-screen input keyboard whenever the 'Enter' key is pressed.
  */
-
-public class InputMultilineEditText extends android.support.v7.widget.AppCompatEditText
+public class InputMultilineEditText extends AppCompatEditText
 {
     private static Context m_context;
 
@@ -27,6 +25,13 @@ public class InputMultilineEditText extends android.support.v7.widget.AppCompatE
         super(context, attrs, defStyleAttr);
     }
 
+    /**
+     * Hides the on-screen input keyboard whenever the 'Enter' key is pressed.
+     * @param keyCode
+     * @param event
+     * @return
+     * @see AppCompatEditText#onKeyDown(int, KeyEvent)
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
@@ -39,6 +44,10 @@ public class InputMultilineEditText extends android.support.v7.widget.AppCompatE
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Sets the context for this EditText.
+     * @param context The desired context.
+     */
     public static void setContext(Context context)
     {
         if (context != null)

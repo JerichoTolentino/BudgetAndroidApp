@@ -7,16 +7,23 @@ import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.budget_app.expenses.Purchase;
+import expenses.Purchase;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 
+/**
+ * An activity that displays the history of all previous Purchases.
+ */
 public class ViewPurchaseHistory extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ListView lvPurchases;
 
+    /**
+     * Initializes the activity with the history of previous Purchases.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +44,10 @@ public class ViewPurchaseHistory extends AppCompatActivity {
 
     //region Helper Methods
 
+    /**
+     * Gets the history of all Purchases.
+     * @return
+     */
     private Purchase[] getPurchaseHistory()
     {
         Purchase[] purchases = null;
@@ -59,6 +70,12 @@ public class ViewPurchaseHistory extends AppCompatActivity {
 
     //region Toolbar Events
 
+    /**
+     * Handles menu button presses.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 

@@ -1,1 +1,1 @@
-include ':app', ':budget_app'
+include ':app'

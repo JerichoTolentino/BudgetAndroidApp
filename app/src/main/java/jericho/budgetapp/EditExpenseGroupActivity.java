@@ -2,6 +2,7 @@ package jericho.budgetapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,16 +16,19 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseInGroup;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.ExpenseGroup;
+import expenses.ExpenseInGroup;
+import utilities.MoneyFormatter;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+import utilities.Utility;
 import databases.DBHandler;
-import utils.Utils;
 
+/**
+ * An activity where ExpenseGroups can be created/edited.
+ */
 public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region Members
@@ -41,6 +45,11 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes the activity with the ExpenseGroup passed in the Intent.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +66,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+        Map<String, Object> extras = Utility.getExtrasFromIntent(getIntent());
 
         if (extras.values().size() > 0)
         {
@@ -76,16 +85,28 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region Toolbar Events
 
+    /**
+     * Displays the remove button in the action bar.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
 
-        Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove});
+        Utility.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove});
 
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Handles the menu buttons being pressed.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -109,6 +130,11 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Navigates back.
+     * @return
+     * @see AppCompatActivity#onSupportNavigateUp()
+     */
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -119,6 +145,10 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Saves the changes made to the ExpenseGroup.
+     * @param v
+     */
     public void btnConfirm_OnClick(View v)
     {
         try {
@@ -140,9 +170,6 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
             Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             onBackPressed();
-            //Intent intent = new Intent(EditExpenseGroupActivity.this, ManageExpenseGroupsActivity.class);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            //startActivity(intent);
         }
         catch (Exception ex)
         {
@@ -150,6 +177,10 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the SelectExpensesActivity to select Expenses to add to the current ExpenseGroup.
+     * @param v
+     */
     public void btnAddExpenses_OnClick(View v)
     {
         try
@@ -166,6 +197,9 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //region Alert Dialog
 
+    /**
+     * Deletes the current ExpenseGroup if the user confirms.
+     */
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -185,21 +219,24 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
 
     //endregion
 
-    //region Helper Methods
+    //region Public Methods
 
-    private ArrayList<ExpenseInGroup> getExpensesFromListView()
+    /**
+     * Removes the specified Expense from the current ExpenseGroup.
+     * @param expense The Expense to remove.
+     */
+    public void removeExpenseFromGroup(ExpenseInGroup expense)
     {
-        ArrayList<ExpenseInGroup> expenses = new ArrayList<>();
-
-        for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++)
-        {
-            ExpenseInGroup e = (ExpenseInGroup) lvExpenses.getAdapter().getItem(i);
-            expenses.add(e);
-        }
-
-        return expenses;
+        m_expenseGroup.removeExpense(expense);
     }
 
+    //endregion
+
+    //region Helper Methods
+
+    /**
+     * Navigates to the SelectExpensesActivity.
+     */
     private void goToSelectExpensesActivity()
     {
         Intent intent = new Intent(EditExpenseGroupActivity.this, SelectExpensesActivity.class);
@@ -213,12 +250,15 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Updates the expenses list view to display the Expenses in the current ExpenseGroup.
+     */
     public void updateExpensesListView()
     {
-        ArrayList<ExpenseInGroup> expenseList = m_expenseGroup.getExpenses();
+        Iterable<ExpenseInGroup> expenseList = m_expenseGroup.getExpenses();
 
         // build array of ExpenseInGroup objects
-        ExpenseInGroup[] expenses = new ExpenseInGroup[expenseList.size()];
+        ExpenseInGroup[] expenses = new ExpenseInGroup[Utility.count(expenseList)];
         int i = 0;
         for (ExpenseInGroup e : expenseList)
         {
@@ -233,15 +273,6 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
         etPrice.setEnabled(true);
         etPrice.setText(MoneyFormatter.formatLongToMoney(m_expenseGroup.getPrice(), false));
         etPrice.setEnabled(false);
-    }
-
-    //endregion
-
-    //region Public Methods
-
-    public void removeExpenseFromGroup(ExpenseInGroup expense)
-    {
-        m_expenseGroup.removeExpense(expense);
     }
 
     //endregion

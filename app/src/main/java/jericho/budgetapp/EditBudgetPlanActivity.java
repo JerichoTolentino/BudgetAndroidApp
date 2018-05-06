@@ -19,16 +19,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.budget_app.plans.PeriodicBudget;
-import com.budget_app.plans.Plan;
-import com.budget_app.utilities.MoneyFormatter;
+import plans.PeriodicBudget;
+import plans.Plan;
+import utilities.MoneyFormatter;
+import utilities.Utility;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import utils.Utils;
-
+//TODO: refactor helper methods
+/**
+ * An activity where Plans can be created/edited.
+ */
 public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Constants
@@ -40,10 +43,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Members
 
-    private Toolbar toolbar;
-    private ViewGroup layoutParent;
+    private Toolbar oToolbar;
+    private ViewGroup oLayoutParent;
 
-    //name
+    // name
     private TextView tvName;
     private EditText etName;
 
@@ -78,23 +81,30 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes the GUI with the Plan's data.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_budget_plan);
 
-        layoutParent = findViewById(R.id.RootParent);
+        oLayoutParent = findViewById(R.id.RootParent);
 
-        toolbar = findViewById(R.id.custom_toolbar);
-        toolbar.setTitle(R.string.edit_plan);
-        setSupportActionBar(toolbar);
+        // Initialize action bar
+        oToolbar = findViewById(R.id.custom_toolbar);
+        oToolbar.setTitle(R.string.edit_plan);
+        setSupportActionBar(oToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        // Initializes references to views
         initWidgetReferences();
 
-        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
-
+        // Retrieve Plan data and display on activity.
+        Map<String, Object> extras = Utility.getExtrasFromIntent(getIntent());
         if (extras.values().size() > 0)
         {
             m_plan = (Plan) extras.get("plan");
@@ -111,19 +121,31 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Toolbar Events
 
+    /**
+     * Decides which menu items to display based on whether the Plan is the active.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_items, toolbar.getMenu());
+        inflater.inflate(R.menu.menu_items, oToolbar.getMenu());
 
         if (checkIsActivePlan())
-            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
+            Utility.showMenuItems(oToolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
         else
-            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
+            Utility.showMenuItems(oToolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
 
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Stores the handlers to execute when a menu item is pressed.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -131,10 +153,13 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
             long ID;
 
             switch (item.getItemId()) {
+
+                // Go back
                 case android.R.id.home:
                     onBackPressed();
                     break;
 
+                // Delete the Plan
                 case R.id.remove:
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setMessage("Are you sure you want to delete this plan?")
@@ -142,12 +167,13 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
                             .setNegativeButton("No", deletePlanClickListener).show();
                     break;
 
+                // Set the Plan as the active Plan
                 case R.id.empty_star:
                     ID = m_plan != null ? m_plan.getId() : -1;
                     setActivePlan(ID);
                     break;
 
-                //TODO: Handle this a lot better... (must have an active plan)
+                // Make this (active) Plan not the active Plan
                 case R.id.filled_star:
                     ArrayList<Plan> plans = MainActivity.g_dbHandler.queryPlans(null);
                     if (plans.size() > 0) {
@@ -184,6 +210,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Generates a Plan and toggles the input mode.
+     */
     public void btnGeneratePlan_OnClick(View v)
     {
         try {
@@ -194,6 +223,14 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Selects the day of the week corresponding to the button clicked.
+     * <p>
+     *     Note: This event handler handles all 7 weekday button click events.
+     *     The tags of the buttons are used to discern which date was selected.
+     * </p>
+     * @param v
+     */
     public void btnWeekday_OnClick(View v)
     {
         try {
@@ -207,6 +244,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if the changes are valid and then saves the changes to the Plan.
+     * @param v
+     */
     public void btnConfirm_OnClick(View v)
     {
         try
@@ -223,6 +264,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Functionality Methods
 
+    /**
+     * Generates a new Plan with the specified required values.
+     * @throws ParseException Thrown if any of the currency values fail to parse.
+     */
     public void generatePlan() throws ParseException
     {
         String planName = etName.getText().toString();
@@ -236,6 +281,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         syncWidgetsWithPlan();
     }
 
+    /**
+     * Saves the changes made to the Plan.
+     */
     public void confirmChanges()
     {
         String message;
@@ -274,6 +322,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    /**
+     * Resets all daily budget buttons to their initial state except for the specified button.
+     * @param button The button to set as the selected button.
+     */
     private void clearOtherButtons(ToggleButton button)
     {
         for (ToggleButton b : m_toggleButtons) {
@@ -287,6 +339,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Gets the day associated with the currently checked daily budget button.
+     * @return The daily budget button that is currently checked.
+     */
     private ToggleButton getSelectedDayOfTheWeek()
     {
         for (ToggleButton b : m_toggleButtons)
@@ -296,12 +352,25 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     * Toggles the input mode to create a new Plan or edit an existing Plan.
+     * @param createNew Indicates whether a new Plan is being created or not.
+     */
     private void toggleInputMode(boolean createNew)
     {
-        toggleChildViews(layoutParent, createNew);
+        toggleChildViews(oLayoutParent, createNew);
         toggleWeekDayButtons(!createNew);
     }
 
+    /**
+     * Toggles all views within a view group based on whether a new Plan is being created or not.
+     * <p>
+     *     Views that are only available when creating a new Plan have a tag associated with them to indicate it,
+     *     and views that are only available when modifying an existing plan also have an associated tag to indicate it.
+     * </p>
+     * @param viewGroup The view group containing the views to be toggled.
+     * @param createNew A value indicating whether a new Plan is being created or not.
+     */
     private void toggleChildViews(ViewGroup viewGroup, boolean createNew)
     {
         for (int i = 0; i < viewGroup.getChildCount(); i++)
@@ -322,6 +391,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initializes the references to the activity widgets.
+     */
     private void initWidgetReferences()
     {
         tvName = findViewById(R.id.tvName);
@@ -353,6 +425,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         m_toggleButtons[6] = findViewById(R.id.tbtnSaturday);
     }
 
+    /**
+     * Updates the widgets to display the values of the Plan being edited.
+     */
     private void syncWidgetsWithPlan()
     {
         String name = m_plan.getName();
@@ -379,6 +454,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         syncDailyLimit();
     }
 
+    /**
+     * Updates the current daily budget, the sets the current daily budget according to
+     * the currently checked daily budget button.
+     */
     private void syncDailyLimit()
     {
         updateCurrentDailyBudget();
@@ -391,12 +470,19 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         etDailyLimit.setText(dailyLimit);
     }
 
+    /**
+     * Toggles the weekday buttons with the specified value.
+     * @param enabled Enables the buttons if true, disables otherwise.
+     */
     private void toggleWeekDayButtons(boolean enabled)
     {
         for (ToggleButton b : m_toggleButtons)
             b.setEnabled(enabled);
     }
 
+    /**
+     * Updates the daily budget currently being edited and the remaining & allocated amounts.
+     */
     private void updateCurrentDailyBudget()
     {
         try {
@@ -421,6 +507,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Reads the values from the input fields and assigns them to the Plan.
+     */
     private void updatePlan()
     {
         try
@@ -450,6 +539,13 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
     }
 
     //TODO: Actually implement alert dialog properly... (use CustomAlertDialog class)
+    /**
+     * Checks if the amount budgeted is sufficient and saves the changes to the Plan.
+     * <p>
+     *     If there are remaining funds, they can be added to the savings.
+     *     If there aren't enough funds, the difference can be removed from the savings.
+     * </p>
+     */
     private void checkAmountRemaining()
     {
         updateCurrentDailyBudget();
@@ -457,7 +553,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         if (m_amountRemaining > 0)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(EditBudgetPlanActivity.this);
-            builder.setTitle("Hey there ;)")
+            builder.setTitle("Funds still available")
                    .setMessage("You still have some money left over! Add the rest to savings?")
                    .setPositiveButton("Yes", underBudgetClickListener)
                    .setNegativeButton("No", underBudgetClickListener)
@@ -466,7 +562,7 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         else if (m_amountRemaining < 0)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Get out of my face you peasant")
+            builder.setTitle("Insufficient funds")
                    .setMessage("You are spending too much! Would you like to lower your annual savings goal by the difference?")
                    .setPositiveButton("Yes", overBudgetClickListener)
                    .setNegativeButton("No", overBudgetClickListener)
@@ -478,6 +574,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adds the remaining funds to the annual savings goal.
+     */
     private void addAmountRemainingToSavings()
     {
         try
@@ -500,6 +599,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if the Plan being edited is the currently active Plan.
+     * @return
+     */
     private boolean checkIsActivePlan()
     {
         if (m_plan == null)
@@ -511,6 +614,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         return activePlanID == m_plan.getId();
     }
 
+    /**
+     * Navigates to the previous activity.
+     */
     @Override
     public void onBackPressed() {
         if (this.isTaskRoot()) {
@@ -521,6 +627,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
             super.onBackPressed();
     }
 
+    /**
+     * Sets the currently active Plan to the Plan with the specified ID.
+     * @param ID The ID of the desired Plan.
+     */
     private void setActivePlan(long ID)
     {
         SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.active_plan_prefs), Context.MODE_PRIVATE).edit();
@@ -529,9 +639,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         editor.apply();
 
         if (checkIsActivePlan())
-            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
+            Utility.showMenuItems(oToolbar.getMenu(), new int[] {R.id.remove, R.id.filled_star});
         else
-            Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
+            Utility.showMenuItems(oToolbar.getMenu(), new int[] {R.id.remove, R.id.empty_star});
 
         this.invalidateOptionsMenu();
     }
@@ -540,6 +650,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
 
     //region Alert Dialog
 
+    /**
+     * Adds the remaining amount to the annual savings if the user confirms.
+     */
     DialogInterface.OnClickListener underBudgetClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -556,6 +669,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Lowers the annual savings by the difference if the user confirms.
+     */
     DialogInterface.OnClickListener overBudgetClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -576,6 +692,10 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     };
 
+    //TODO: Remove?
+    /**
+     * Does nothing.
+     */
     DialogInterface.OnClickListener neutralClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int i) {
@@ -587,6 +707,9 @@ public class EditBudgetPlanActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Deletes the Plan being edited.
+     */
     DialogInterface.OnClickListener deletePlanClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which)

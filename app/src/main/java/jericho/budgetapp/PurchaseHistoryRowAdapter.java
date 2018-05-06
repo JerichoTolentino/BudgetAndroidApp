@@ -1,37 +1,47 @@
 package jericho.budgetapp;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Purchase;
+import interfaces.Priceable;
+import utilities.MoneyFormatter;
 
 import java.text.DateFormat;
-import java.util.Date;
 
 /**
- * Created by Jericho on 11/4/2017.
+ * A custom adapter that displays a history of Purchases in a ListView.
  */
-
 class PurchaseHistoryRowAdapter extends ArrayAdapter<Purchase>
 {
     private Context m_context;
 
+    /**
+     * Initializes a new instance of a PurchaseHistoryRowAdapter.
+     * @param context
+     * @param purchases The Purchases to display.
+     * @see ArrayAdapter#ArrayAdapter(Context, int, Object[])
+     */
     public PurchaseHistoryRowAdapter(@NonNull Context context, Purchase purchases[])
     {
         super(context, R.layout.purchase_history_row, purchases);
         this.m_context = context;
     }
 
+    /**
+     * Returns a custom view that displays the history of a Purchase as a ListView row.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return A custom view that displays the history of a Purchase as a ListView row.
+     * @see ArrayAdapter#getView(int, View, ViewGroup)
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)

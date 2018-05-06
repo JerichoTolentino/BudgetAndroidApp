@@ -10,17 +10,24 @@ import android.view.MenuItem;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import com.budget_app.plans.Plan;
+import plans.Plan;
+import utilities.Utility;
 
 import java.util.ArrayList;
 
-import utils.Utils;
-
+/**
+ * An activity where all budget Plans can be managed.
+ */
 public class ManageBudgetPlansActivity extends AppCompatActivity {
 
     private ListView lvPlans;
     private Toolbar toolbar;
 
+    /**
+     * Initializes widget references and the action bar.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,16 +41,28 @@ public class ManageBudgetPlansActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    /**
+     * Displays the add new button on the menu.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
-        Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.add_new});
+        Utility.showMenuItems(toolbar.getMenu(), new int[] {R.id.add_new});
         return super.onCreateOptionsMenu(menu);
     }
 
     //region Event Handlers
 
+    /**
+     * Handles button presses on the menu bar.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -63,6 +82,9 @@ public class ManageBudgetPlansActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Updates the ListView of Plans.
+     */
     @Override
     protected void onResume() {
         updatePlanListView();
@@ -73,12 +95,18 @@ public class ManageBudgetPlansActivity extends AppCompatActivity {
 
     //region Helper Methods
 
+    /**
+     * Navigates to the MenuActivity.
+     */
     private void goToMenuActivity()
     {
         Intent intent = new Intent(ManageBudgetPlansActivity.this, MenuActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the EditBudgetPlanActivity to create a new Plan.
+     */
     private void goToEditBudgetPlanActivity()
     {
         Intent intent = new Intent(ManageBudgetPlansActivity.this, EditBudgetPlanActivity.class);
@@ -87,6 +115,9 @@ public class ManageBudgetPlansActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Updates the ListView to display all Plans.
+     */
     private void updatePlanListView()
     {
         try

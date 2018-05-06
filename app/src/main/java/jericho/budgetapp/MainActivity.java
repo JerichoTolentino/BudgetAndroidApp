@@ -19,21 +19,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.plans.PeriodicBudget;
-import com.budget_app.plans.Plan;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Expense;
+import expenses.ExpenseGroup;
+import expenses.Purchase;
+import interfaces.Priceable;
+import plans.PeriodicBudget;
+import plans.Plan;
+import utilities.MoneyFormatter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import utilities.Utility;
 import databases.DBHandler;
-import utils.Utils;
 
 //TODO: REFACTOR EVERYTHING
 
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
-        Utils.showMenuItems(toolbar.getMenu(), new int[]{R.id.view_history, R.id.quick_add_expense});
+        Utility.showMenuItems(toolbar.getMenu(), new int[]{R.id.view_history, R.id.quick_add_expense});
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     public void makeQuickPurchase(Purchase purchase)
     {
         g_dbHandler.addPurchase(purchase);
-        PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+        PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utility.getDayOfTheWeek());
         dailyBudget.spend(purchase.getItem().getPrice() * purchase.getQuantity());
         syncWidgetsWithActivePlan();
         g_dbHandler.updatePeriodicBudget(dailyBudget);
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 
         //PeriodicBudget dailyBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
         //dailyBudget.spend(amount);
-        m_activePlan.spend(amount, Utils.getDayOfTheWeek());
+        m_activePlan.spend(amount, Utility.getDayOfTheWeek());
         syncWidgetsWithActivePlan();
         g_dbHandler.updatePlan(m_activePlan);
 
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         switch (m_periodicBudgetSelected)
         {
             case "Daily Budget":
-                periodicBudget = m_activePlan.getDailyBudgetOn(Utils.getDayOfTheWeek());
+                periodicBudget = m_activePlan.getDailyBudgetOn(Utility.getDayOfTheWeek());
                 break;
 
             case "Weekly Budget":
@@ -245,6 +245,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Initializes the ListView with Purchases generated from all existing Expenses and ExpenseGroups.
+     */
     private void initPurchases()
     {
         ArrayList<Expense> expenses = g_dbHandler.queryExpenses(null);
@@ -256,6 +259,12 @@ public class MainActivity extends AppCompatActivity {
         lvPurchases.setAdapter(listAdapter);
     }
 
+    /**
+     * Generates an array of Purchases from a collection of Expenses and ExpenseGroups.
+     * @param expenses The Expenses to generate Purchases from.
+     * @param expenseGroups The ExpenseGroups to generate Purchases from.
+     * @return An array of Purchases generated from the specified Expenses and ExpenseGroups.
+     */
     private Purchase[] GeneratePurchasesArray(ArrayList<Expense> expenses, ArrayList<ExpenseGroup> expenseGroups)
     {
         ArrayList<Priceable> priceables = new ArrayList<>(expenses.size() + expenseGroups.size());
@@ -265,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
         for (ExpenseGroup e : expenseGroups)
             priceables.add(e);
 
-        Collections.sort(priceables, Utils.getPrioeableNameComparator());
+        Collections.sort(priceables, Utility.getPrioeableNameComparator());
         Purchase[] purchases = new Purchase[priceables.size()];
 
         for (int i = 0; i < priceables.size(); i++)
@@ -274,18 +283,27 @@ public class MainActivity extends AppCompatActivity {
         return purchases;
     }
 
+    /**
+     * Navigates to the MenuActivity.
+     */
     private void goToMenuActivity()
     {
         Intent intent = new Intent(MainActivity.this, MenuActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the ViewPurchaseHistory activity.
+     */
     private void goToViewPurchaseHistoryActivity()
     {
         Intent intent = new Intent(MainActivity.this, ViewPurchaseHistory.class);
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the QuickAddExpenseActivity.
+     */
     private void goToQuickAddExpenseActivity()
     {
         Intent intent = new Intent(MainActivity.this, QuickAddExpenseActivity.class);
@@ -293,9 +311,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Checks for a QuickAddExpense in the Intent and makes a purchase if it exists.
+     */
     private void checkForQuickAddExpense()
     {
-        Map<String, Object> extras = Utils.getExtrasFromIntent(getIntent());
+        Map<String, Object> extras = Utility.getExtrasFromIntent(getIntent());
 
         if (extras.values().size() > 0)
         {
@@ -305,6 +326,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the active Plan to the Plan with the specified ID.
+     * @param ID The ID of the desired Plan.
+     */
     private void setActivePlan(long ID)
     {
         try
@@ -319,6 +344,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adds the price of the item to the current total amount to be purchased.
+     * @param item The item to add to the purchase.
+     */
     public void addToCurrentTotal(Priceable item)
     {
         try {
@@ -333,6 +362,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Removes the price of the item from the current total amount to be purchased.
+     * @param item The item to remove from the purchase.
+     */
     public void removeFromCurrentTotal(Priceable item)
     {
         try {
@@ -347,6 +380,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Updates the total price of the current purchase.
+     * @param newPrice The new price to be displayed.
+     */
     public void updateTotalPrice(String newPrice)
     {
         final TextView tvCurrentTotal = findViewById(R.id.tvCurrentTotal);
@@ -357,6 +394,9 @@ public class MainActivity extends AppCompatActivity {
 
     //region Alert Dialog
 
+    /**
+     * Navigate to the EditBudgetPlanActivity to create a Plan. (Only occurs when no Plans exist)
+     */
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {

@@ -11,22 +11,38 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.utilities.MoneyFormatter;
+import expenses.Purchase;
+import interfaces.Priceable;
+import utilities.MoneyFormatter;
 
+/**
+ * A custom ListView row adapter that displays Purchases.
+ */
 class PurchaseRowAdapter extends ArrayAdapter<Purchase>
 {
     private static final int NOT_SELECTED_COLOR = Color.WHITE;
     private Context m_context;
 
+    /**
+     * Initializes a new instance of a PurchaseRowAdapter with the specified Purchases.
+     * @param context
+     * @param purchases The Purchases to display.
+     * @see ArrayAdapter#ArrayAdapter(Context, int, Object[])
+     */
     public PurchaseRowAdapter(@NonNull Context context, Purchase purchases[])
     {
         super(context, R.layout.purchase_row, purchases);
         this.m_context = context;
     }
 
+    /**
+     * Returns a custom view that displays the contents of a Purchase in a ListView row.
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return A custom view that displays the contents of a Purchase in a ListView row.
+     * @see ArrayAdapter#getView(int, View, ViewGroup)
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
@@ -90,7 +106,11 @@ class PurchaseRowAdapter extends ArrayAdapter<Purchase>
         return customView;
     }
 
-    //Change color of row based on quantity value
+    /**
+     * Changes color of row based on quantity value.
+     * @param quantity The quantity of the item being purchased.
+     * @param customView The view hosting the purchase.
+     */
     private void checkQuantity(int quantity, View customView)
     {
         if(quantity > 0)

@@ -6,24 +6,19 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.budget_app.expenses.Expense;
-import com.budget_app.expenses.ExpenseGroup;
-import com.budget_app.expenses.ExpenseInGroup;
-import com.budget_app.expenses.Purchase;
-import com.budget_app.jt_interfaces.Priceable;
-import com.budget_app.plans.PeriodicBudget;
-import com.budget_app.plans.Plan;
+import expenses.Expense;
+import expenses.ExpenseGroup;
+import expenses.ExpenseInGroup;
+import expenses.Purchase;
+import interfaces.Priceable;
+import plans.PeriodicBudget;
+import plans.Plan;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-
-import org.joda.time.*;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import jericho.budgetapp.BuildConfig;
 
@@ -107,6 +102,13 @@ public class DBHandler extends SQLiteOpenHelper
 
     //endregion
 
+    /**
+     * Initializes a new instance of a DBHandler with the specified fields.
+     * @param context The context.
+     * @param name The name of the database. (Unused in constructor)
+     * @param factory The CursorFactory.
+     * @param version The version of the database. (Unused in constructor)
+     */
     public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version)
     {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -116,6 +118,10 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Event Handlers
 
+    /**
+     * Creates and executes the SQL to create all the tables in the database.
+     * @param sqLiteDatabase The database object to execute.
+     */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
     {
@@ -155,7 +161,7 @@ public class DBHandler extends SQLiteOpenHelper
         sql = "CREATE TABLE '" + PURCHASES_TABLE + "'('"
                 + PURCHASES_COL_ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '"
                 //+ PURCHASES_COL_ITEMID + "' INTEGER NOT NULL, '"
-                + PURCHASES_COL_ITEMNAME + "' TEXT NO NULL, '"
+                + PURCHASES_COL_ITEMNAME + "' TEXT NOT NULL, '"
                 + PURCHASES_COL_ITEMPRICE + "' INTEGER NOT NULL, '"
                 + PURCHASES_COL_ITEMTYPE + "' TEXT NOT NULL, '"
                 + PURCHASES_COL_DATE + "' TEXT NOT NULL, '"
@@ -205,6 +211,12 @@ public class DBHandler extends SQLiteOpenHelper
 
     }
 
+    /**
+     * Recreates all tables in the database.
+     * @param sqLiteDatabase The database object
+     * @param i The original version.
+     * @param i1 The new version.
+     */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS '" + EXPENSE_TABLE + "';");
@@ -220,6 +232,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Query Methods
 
+    /**
+     * Executes a query on the Expense table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of Expenses that match the where predicate.
+     */
     public ArrayList<Expense> queryExpenses(String where)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -255,6 +272,11 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
+    /**
+     * Executes a query on the ExpenseGroup table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of ExpenseGroups that match the where predicate.
+     */
     public ArrayList<ExpenseGroup> queryExpenseGroups(String where)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -296,6 +318,12 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
+    /**
+     * Executes a query on the Purchase table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of Purchases that match the where predicate.
+     * @throws ParseException Thrown if data from the database fails to be parsed to its corresponding data type.
+     */
     public ArrayList<Purchase> queryPurchases(String where) throws ParseException
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -331,17 +359,6 @@ public class DBHandler extends SQLiteOpenHelper
             else if (itemType.equals(ExpenseGroup.class.getName()))
                 item = new ExpenseGroup(itemName, Long.parseLong(itemPrice), "Dummy", "Dummy expense group for purchase history");
 
-            //itemID = c.getString(c.getColumnIndex(PURCHASES_COL_ITEMID));
-
-            //if (itemType.equals(Expense.class.getName().toString())) {
-            //    ArrayList<Expense> expenses = queryExpenses(EXPENSE_COL_ID + " = " + Long.parseLong(itemID));
-            //    item = (expenses.get(0));
-            //} else if (itemType.equals(ExpenseGroup.class.getName().toString())) {
-            //        ArrayList<ExpenseGroup> expenseGroups = queryExpenseGroups(EXPENSEGROUP_COL_ID + " = " + Long.parseLong(itemID));
-            //        item = expenseGroups.get(0);
-            //} else
-            //    return null;
-
             Date parsedDate = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).parse(date);
 
             list.add(new Purchase(Long.parseLong(id), item, Integer.parseInt(quantity), parsedDate));
@@ -354,6 +371,12 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
+    /**
+     * Executes a query on the Plans table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of Plans that match the where predicate.
+     * @throws ParseException Thrown if data from the database fails to be parsed to its corresponding data type.
+     */
     public ArrayList<Plan> queryPlans(String where) throws ParseException
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -421,6 +444,11 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
+    /**
+     * Executes a query on the DailyBudgetsInPlan table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of DailyBudgetInPlan objects that match the where predicate.
+     */
     public ArrayList<DailyBudgetInPlan> queryDailyBudgetsInPlanTable(String where)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -455,6 +483,12 @@ public class DBHandler extends SQLiteOpenHelper
         return list;
     }
 
+    /**
+     * Executes a query on the PeriodicBudgets table with the specified where clause.
+     * @param where The where clause. If null, returns all items in the table.
+     * @return The list of PeriodicBudgets that match the predicate.
+     * @throws ParseException Thrown if data from the database fails to be parsed to its corresponding data type.
+     */
     public ArrayList<PeriodicBudget> queryPeriodicBudgets(String where) throws ParseException
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -512,6 +546,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Expense Table Methods
 
+    /**
+     * Adds an Expense to the Expense table
+     * @param expense The Expense to add.
+     * @return True if addition was successful, false otherwise.
+     */
     public boolean addExpense(Expense expense)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -528,6 +567,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (insert != -1);
     }
 
+    /**
+     * Updates an existing record of an Expense in the Expense table.
+     * @param expense The Expense to update.
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean updateExpense(Expense expense)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -545,6 +589,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (update == 1);
     }
 
+    /**
+     * Removes a record from the Expense table with the specified ID.
+     * @param ID The ID of the record to remove.
+     * @return True if the record was removed, false otherwise.
+     */
     public boolean removeExpense(long ID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -559,6 +608,13 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region ExpenseGroup Table Methods
 
+    /**
+     * Adds an existing Expense to an existing ExpenseGroup by creating a record in the Expense-ExpenseGroup bridge table with their IDs.
+     * @param expenseID The ID of the Expense to add.
+     * @param expenseGroupID The ID of the ExpenseGroup to add to.
+     * @param quantity The number of Expenses to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public boolean addExpenseToGroup(long expenseID, long expenseGroupID, int quantity)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -575,6 +631,12 @@ public class DBHandler extends SQLiteOpenHelper
         return (insert != -1);
     }
 
+    /**
+     * Removes an existing Expense from an existing ExpenseGroup by removing the associating record in the Expense-ExpenseGroup bridge table.
+     * @param expenseID The ID of the Expense to remove.
+     * @param expenseGroupID The ID of the ExpenseGroup to remove from.
+     * @return True if the removal was successful, false otherwise.
+     */
     public boolean removeExpenseFromGroup(long expenseID, long expenseGroupID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -586,6 +648,11 @@ public class DBHandler extends SQLiteOpenHelper
         return delete == 1;
     }
 
+    /**
+     * Adds an ExpenseGroup to the ExpenseGroup table.
+     * @param expenseGroup The ExpenseGroup to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public boolean addExpenseGroup(ExpenseGroup expenseGroup)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -608,6 +675,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (expenseGroupID != -1 && addedExpenses);
     }
 
+    /**
+     * Removes the record with the specified ID from the ExpenseGroup table.
+     * @param ID The ID of the record to remove.
+     * @return True if the removal was successful, false otherwise.
+     */
     public boolean removeExpenseGroup(long ID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -620,6 +692,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (deleteLinks + deleteSrc > 0);
     }
 
+    /**
+     * Updates an existing ExpenseGroup in the ExpenseGroup table.
+     * @param expenseGroup The ExpenseGroup to update.
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean updateExpenseGroup(ExpenseGroup expenseGroup)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -644,6 +721,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Purchase Table Methods
 
+    /**
+     * Adds a Purchase to the Purchase table.
+     * @param purchase The Purchase to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public boolean addPurchase(Purchase purchase)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -664,6 +746,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (insert != -1);
     }
 
+    /**
+     * Removes a record with the specified ID from the Purchase table.
+     * @param ID The ID of the record to remove.
+     * @return True if the removal was successful, false otherwise.
+     */
     public boolean removePurchase(long ID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -679,6 +766,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Plan Table Methods
 
+    /**
+     * Adds a Plan to the Plans table.
+     * @param plan The Plan to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public boolean addPlan(Plan plan)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -711,6 +803,12 @@ public class DBHandler extends SQLiteOpenHelper
         return (planID != -1);
     }
 
+    /**
+     * Removes a record with the specified ID from the Plans table.
+     * @param ID The ID of the record to remove.
+     * @return True if the removal was successful, false otherwise.
+     * @throws ParseException
+     */
     public boolean removePlan(long ID) throws ParseException
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -733,6 +831,11 @@ public class DBHandler extends SQLiteOpenHelper
         return delete == 1;
     }
 
+    /**
+     * Updates an existing Plan in the Plans table.
+     * @param plan The Plan to update.
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean updatePlan(Plan plan)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -761,6 +864,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Periodic Budget Table Methods
 
+    /**
+     * Adds a PeriodicBudget to the PeriodicBudgets table.
+     * @param periodicBudget The PeriodicBudget to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public long addPeriodicBudget(PeriodicBudget periodicBudget)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -780,6 +888,11 @@ public class DBHandler extends SQLiteOpenHelper
         return insert;
     }
 
+    /**
+     * Removes a record with the specified ID from the PeriodicBudgets table.
+     * @param ID The ID of the record to remove.
+     * @return True if the removal was successful, false otherwise.
+     */
     public boolean removePeriodicBudget(long ID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -791,6 +904,11 @@ public class DBHandler extends SQLiteOpenHelper
         return delete == 1;
     }
 
+    /**
+     * Updates an existing PeriodicBudget in the PeriodicBudgets table.
+     * @param periodicBudget The PeriodicBudget to update.
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean updatePeriodicBudget(PeriodicBudget periodicBudget)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -814,6 +932,11 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Daily Budget In Plan Table Methods
 
+    /**
+     * Adds a DailyBudgetInPlan to the DailyBudgetsInPlan table.
+     * @param dailyBudgetInPlan The DailyBudgetInPlan to add.
+     * @return True if the addition was successful, false otherwise.
+     */
     public boolean addDailyBudgetInPlan(DailyBudgetInPlan dailyBudgetInPlan)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -828,6 +951,11 @@ public class DBHandler extends SQLiteOpenHelper
         return (insert != -1);
     }
 
+    /**
+     * Removes a record with the specified ID from the DailyBudgetsInPlan table.
+     * @param planID The ID of the record to remove.
+     * @return True if the removal was successful, false otherwise.
+     */
     public boolean removeDailyBudgetsInPlan(long planID)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -839,6 +967,11 @@ public class DBHandler extends SQLiteOpenHelper
         return delete == 1;
     }
 
+    /**
+     * Updates an existing DailyBudgetInPlan in the DailyBudgetsInPlan table.
+     * @param dailyBudgetInPlan The DailyBudgetInPlan to update.
+     * @return True if the update was successful, false otherwise.
+     */
     public boolean updateDailyBudgetInPlan(DailyBudgetInPlan dailyBudgetInPlan)
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -858,6 +991,10 @@ public class DBHandler extends SQLiteOpenHelper
     //region Category Methods
     //Note: I know this is bad...
 
+    /**
+     * Builds the set of categories of Expenses in the Expense table.
+     * @return The set of all categories found in the Expense table.
+     */
     public HashSet<String> buildCategoryList()
     {
         SQLiteDatabase db = m_dbWrapper.OpenDatabase();
@@ -888,8 +1025,14 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region Helper Methods
 
-    //helper method to addExpenseGroup
-    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, ArrayList<ExpenseInGroup> expenses)
+    /**
+     * Adds a record in the Expense-ExpenseGroup bridge table for the specified ExpenseGroup ID and for each ExpenseInGroup
+     * @param db The database object to execute.
+     * @param expenseGroupID The ID of the ExpenseGroup to add to.
+     * @param expenses The collection of Expenses to add.
+     * @return True if all the additions were successful, false otherwise false.
+     */
+    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, Iterable<ExpenseInGroup> expenses)
     {
         ContentValues values = new ContentValues();
         boolean success = true;
@@ -910,7 +1053,13 @@ public class DBHandler extends SQLiteOpenHelper
         return success;
     }
 
-    //helper method to addPurchase
+
+    /**
+     * Generates a new ItemInfo from the specified Priceable.
+     * @param db The database object to execute.
+     * @param item The Priceable item to look for.
+     * @return The ItemInfo for the specified Priceable item.
+     */
     private ItemInfo findItemInfo(SQLiteDatabase db, Priceable item)
     {
         String itemType = "";
@@ -932,13 +1081,23 @@ public class DBHandler extends SQLiteOpenHelper
         return new ItemInfo(itemType, itemID);
     }
 
-    //helper method to removeExpenseGroup
+    /**
+     * Removes all records in the Expense-ExpenseGroup bridge table with the specified ExpenseGroup ID.
+     * @param db The database object to execute.
+     * @param expenseGroupID The ID of the ExpenseGroup to remove from the bridge table.
+     * @return The number of records deleted.
+     */
     private int removeExpensesInGroupLinks(SQLiteDatabase db, long expenseGroupID)
     {
         return db.delete(EXPENSESINGROUP_TABLE, EXPENSESINGROUP_COL_EXPENSEGROUPID + " = " + Long.toString(expenseGroupID) + ";", null);
     }
 
-    //helper method for queryExpenseGroups
+    /**
+     * Retrieves the list of Expenses in the ExpenseGroup with the specified ID.
+     * @param db The database object to execute.
+     * @param expenseGroupID The ID of the ExpenseGroup to retrieve Expenses from.
+     * @return The list of Expenses in the ExpenseGroup with the specified ID.
+     */
     private ArrayList<ExpenseInGroup> getExpensesInGroup(SQLiteDatabase db, long expenseGroupID)
     {
         ArrayList<ExpenseInGroup> list = new ArrayList<>();
@@ -979,16 +1138,32 @@ public class DBHandler extends SQLiteOpenHelper
 
     //region DatabaseWrapper
 
+    /**
+     * A SQLiteDatabase wrapper that handles the opening and closing of the database object to simplify
+     * the shared use of the database object between multiple methods.
+     * <p>
+     *     This wrapper has a count of the number of times it has been opened, which is decreased whenever
+     *     it is closed. The database object will only open if the count is 0 and it will only close if
+     *     the count is 1 before closing.
+     * </p>
+     */
     class DatabaseWrapper
     {
         private SQLiteDatabase m_db;
         private int m_numReferences;
 
+        /**
+         * Initializes a new instance of a DatabaseWrapper.
+         */
         public DatabaseWrapper()
         {
             // Do nothing
         }
 
+        /**
+         * Increments the reference count and opens the database if necessary.
+         * @return The writable database object.
+         */
         public SQLiteDatabase OpenDatabase()
         {
             m_numReferences += 1;
@@ -999,6 +1174,10 @@ public class DBHandler extends SQLiteOpenHelper
             return m_db;
         }
 
+        /**
+         * Decrements the reference count and closes the database if necessary.
+         * @return True if the database was closed or if the reference count was decremented, false otherwise.
+         */
         public boolean CloseDatabase()
         {
             if (m_numReferences > 0) {
@@ -1007,10 +1186,8 @@ public class DBHandler extends SQLiteOpenHelper
                 if (m_numReferences == 0)
                     m_db.close();
 
-
                 return true;
             }
-
             return false;
         }
 
@@ -1022,32 +1199,56 @@ public class DBHandler extends SQLiteOpenHelper
 
 //region Class ItemInfo
 
+/**
+ * A class that stores an item's type name and its ID in the database.
+ */
 class ItemInfo
 {
     private String itemType;
     private long itemID;
 
+    /**
+     * Initializes a new instance of an ItemInfo with the specified fields.
+     * @param type The name of the item's type.
+     * @param id The database ID of the item.
+     */
     public ItemInfo(String type, long id)
     {
         this.itemType = type;
         this.itemID = id;
     }
 
+    /**
+     * Gets the name of the item's type.
+     * @return The name of the item's type.
+     */
     public String getItemType()
     {
         return this.itemType;
     }
 
+    /**
+     * Gets the database ID of the item.
+     * @return The database ID of the item.
+     */
     public long getItemID()
     {
         return this.itemID;
     }
 
+    /**
+     * Sets the name of the item's type.
+     * @param type The desired name.
+     */
     public void setItemType(String type)
     {
         this.itemType = type;
     }
 
+    /**
+     * Sets the database ID of the item.
+     * @param id The desired ID.
+     */
     public void setItemID(long id)
     {
         this.itemID = id;
@@ -1058,12 +1259,20 @@ class ItemInfo
 
 //region Class DailyBudgetInPlan
 
+/**
+ * A class that representing a PeriodicBudget that is one of the daily budgets in a Plan.
+ */
 class DailyBudgetInPlan
 {
     private long m_ID;
     private long m_planID;
     private long m_periodicBudgetID;
 
+    /**
+     * Initializes a new instance of a DailyBudgetInPlan with the specified fields.
+     * @param planID The database ID of the Plan.
+     * @param periodicBudgetID The database ID of the PeriodicBudget.
+     */
     public DailyBudgetInPlan(long planID, long periodicBudgetID)
     {
         m_ID = -1;
@@ -1071,6 +1280,12 @@ class DailyBudgetInPlan
         m_periodicBudgetID = periodicBudgetID;
     }
 
+    /**
+     * Initializes a new instance of a DailyBudgetInPlan with the specified fields.
+     * @param id The database ID of the DailyBudgetInPlan.
+     * @param planID The database ID of the Plan.
+     * @param periodicBudgetID The database ID of the PeriodicBudget.
+     */
     public DailyBudgetInPlan(long id, long planID, long periodicBudgetID)
     {
         m_ID = id;
@@ -1078,8 +1293,22 @@ class DailyBudgetInPlan
         m_periodicBudgetID = periodicBudgetID;
     }
 
+    /**
+     * Gets the database ID of this DailyBudgetInPlan.
+     * @return The database ID of this DailyBudgetInPlan.
+     */
     public long getID() { return m_ID; }
+
+    /**
+     * Gets the database ID of the Plan.
+     * @return The databaseID of the Plan.
+     */
     public long getPlanID() { return m_planID; }
+
+    /**
+     * Gets the database ID of the PeriodicBudget.
+     * @return The database ID of the PeriodicBudget.
+     */
     public long getPeriodicBudgetID() { return m_periodicBudgetID; }
 
 }

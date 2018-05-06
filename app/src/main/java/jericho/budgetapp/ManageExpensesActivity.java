@@ -11,12 +11,14 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.budget_app.expenses.Expense;
+import expenses.Expense;
+import utilities.Utility;
 
 import java.util.ArrayList;
 
-import utils.Utils;
-
+/**
+ * An activity where all Expenses can be managed.
+ */
 public class ManageExpensesActivity extends AppCompatActivity {
 
     //region Members
@@ -27,6 +29,11 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     //region onCreate()
 
+    /**
+     * Initializes the action bar.
+     * @param savedInstanceState
+     * @see AppCompatActivity#onCreate(Bundle)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +45,17 @@ public class ManageExpensesActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    /**
+     * Displays the add new button on the menu.
+     * @param menu
+     * @return
+     * @see AppCompatActivity#onCreateOptionsMenu(Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_items, toolbar.getMenu());
-        Utils.showMenuItems(toolbar.getMenu(), new int[] {R.id.add_new});
+        Utility.showMenuItems(toolbar.getMenu(), new int[] {R.id.add_new});
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -50,6 +63,12 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     //region Event Handlers
 
+    /**
+     * Handles the menu button presses.
+     * @param item
+     * @return
+     * @see AppCompatActivity#onOptionsItemSelected(MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -69,12 +88,20 @@ public class ManageExpensesActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Updates the ListView of Expenses.
+     */
     @Override
     protected void onResume() {
         updateExpenseListView();
         super.onResume();
     }
 
+    //TODO: figure out what to do with this button.
+    /**
+     * UNUSED
+     * @param v
+     */
     public void btnSwitchView_OnClick(View v)
     {
         Toast.makeText(this, "Do something else.", Toast.LENGTH_SHORT).show();
@@ -85,6 +112,9 @@ public class ManageExpensesActivity extends AppCompatActivity {
 
     // region Helper Methods
 
+    /**
+     * Navigates to the ManageExpenseGroupsActivity.
+     */
     private void goToManageExpenseGroupsActivity()
     {
         Intent intent = new Intent(ManageExpensesActivity.this, ManageExpenseGroupsActivity.class);
@@ -92,6 +122,9 @@ public class ManageExpensesActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the EditExpenseActivity to create a new Expense.
+     */
     private void goToEditExpenseActivity()
     {
         Intent intent = new Intent(ManageExpensesActivity.this, EditExpenseActivity.class);
@@ -100,12 +133,18 @@ public class ManageExpensesActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Navigates to the MenuActivity.
+     */
     private void goToMenuActivity()
     {
         Intent intent = new Intent(ManageExpensesActivity.this, MenuActivity.class);
         startActivity(intent);
     }
 
+    /**
+     * Updates the ListView of Expenses with all Expenses.
+     */
     public void updateExpenseListView()
     {
         ArrayList<Expense> expenses = MainActivity.g_dbHandler.queryExpenses(null);
