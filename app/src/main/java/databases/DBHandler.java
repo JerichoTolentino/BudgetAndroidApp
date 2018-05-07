@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import expenses.Expense;
 import expenses.ExpenseGroup;
-import expenses.ExpenseInGroup;
 import expenses.Purchase;
 import interfaces.Priceable;
 import plans.PeriodicBudget;
@@ -21,6 +20,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 import jericho.budgetapp.BuildConfig;
+import utilities.KeyValuePair;
 
 public class DBHandler extends SQLiteOpenHelper
 {
@@ -108,6 +108,7 @@ public class DBHandler extends SQLiteOpenHelper
      * @param name The name of the database. (Unused in constructor)
      * @param factory The CursorFactory.
      * @param version The version of the database. (Unused in constructor)
+     * @see SQLiteOpenHelper#SQLiteOpenHelper(Context, String, SQLiteDatabase.CursorFactory, int)
      */
     public DBHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version)
     {
@@ -120,7 +121,8 @@ public class DBHandler extends SQLiteOpenHelper
 
     /**
      * Creates and executes the SQL to create all the tables in the database.
-     * @param sqLiteDatabase The database object to execute.
+     * @param sqLiteDatabase
+     * @see SQLiteOpenHelper#onCreate(SQLiteDatabase)
      */
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase)
@@ -216,6 +218,7 @@ public class DBHandler extends SQLiteOpenHelper
      * @param sqLiteDatabase The database object
      * @param i The original version.
      * @param i1 The new version.
+     * @see SQLiteOpenHelper#onUpgrade(SQLiteDatabase, int, int)
      */
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
@@ -288,7 +291,7 @@ public class DBHandler extends SQLiteOpenHelper
         String description;
 
         long expenseGroupID;
-        ArrayList<ExpenseInGroup> expenses;
+        ArrayList<KeyValuePair<Expense, Integer>> expenses;
 
         if (where == null || where.equals(""))
             where = "1";
@@ -1032,16 +1035,16 @@ public class DBHandler extends SQLiteOpenHelper
      * @param expenses The collection of Expenses to add.
      * @return True if all the additions were successful, false otherwise false.
      */
-    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, Iterable<ExpenseInGroup> expenses)
+    private boolean addExpensesInGroupToTable(SQLiteDatabase db, long expenseGroupID, Iterable<KeyValuePair<Expense, Integer>> expenses)
     {
         ContentValues values = new ContentValues();
         boolean success = true;
 
-        for (ExpenseInGroup e : expenses)
+        for (KeyValuePair<Expense, Integer> kvp : expenses)
         {
             values.put(EXPENSESINGROUP_COL_EXPENSEGROUPID, expenseGroupID);
-            values.put(EXPENSESINGROUP_COL_EXPENSEID, e.getId());
-            values.put(EXPENSESINGROUP_COL_QUANTITY, e.getQuantity());
+            values.put(EXPENSESINGROUP_COL_EXPENSEID, kvp.getKey().getId());
+            values.put(EXPENSESINGROUP_COL_QUANTITY, kvp.getValue());
 
             final long insert = db.insert(EXPENSESINGROUP_TABLE, null, values);
             if(insert == -1)
@@ -1098,9 +1101,9 @@ public class DBHandler extends SQLiteOpenHelper
      * @param expenseGroupID The ID of the ExpenseGroup to retrieve Expenses from.
      * @return The list of Expenses in the ExpenseGroup with the specified ID.
      */
-    private ArrayList<ExpenseInGroup> getExpensesInGroup(SQLiteDatabase db, long expenseGroupID)
+    private ArrayList<KeyValuePair<Expense, Integer>> getExpensesInGroup(SQLiteDatabase db, long expenseGroupID)
     {
-        ArrayList<ExpenseInGroup> list = new ArrayList<>();
+        ArrayList<KeyValuePair<Expense, Integer>> list = new ArrayList<>();
         String id;
         String name;
         String price;
@@ -1124,7 +1127,7 @@ public class DBHandler extends SQLiteOpenHelper
             description = c.getString(c.getColumnIndex(EXPENSE_COL_DESCRIPTION));
             quantity = c.getString(c.getColumnIndex(EXPENSESINGROUP_TABLE + "." + EXPENSESINGROUP_COL_QUANTITY));   //TODO: Exception thrown here from hacky code in SQLite with '.' in column name
 
-            list.add(new ExpenseInGroup(Long.parseLong(id), name, Long.parseLong(price), category, description, Integer.parseInt(quantity)));
+            list.add(new KeyValuePair<>(new Expense(Long.parseLong(id), name, Long.parseLong(price), category, description), Integer.parseInt(quantity)));
             c.moveToNext();
         }
 

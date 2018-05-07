@@ -13,7 +13,6 @@ import android.widget.ListView;
 
 import expenses.Expense;
 import expenses.ExpenseGroup;
-import expenses.ExpenseInGroup;
 import expenses.Purchase;
 import utilities.Utility;
 
@@ -118,28 +117,13 @@ public class SelectExpensesActivity extends AppCompatActivity {
     {
         try
         {
-            ArrayList<ExpenseInGroup> expenses = new ArrayList<>();
-
-            // build list of expenses user wants to add
-            for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++) {
+            // Add the desired Expenses to the ExpenseGroup
+            for (int i = 0; i < lvExpenses.getAdapter().getCount(); i++)
+            {
                 Purchase purchase = (Purchase) lvExpenses.getAdapter().getItem(i);
-                if (purchase.getQuantity() > 0)
-                    expenses.add(new ExpenseInGroup((Expense) purchase.getItem(), purchase.getQuantity()));
-            }
 
-            // add the expenses to the group
-            for (ExpenseInGroup addExpense : expenses) {
-                boolean found = false;
-                for (ExpenseInGroup currExpense : m_expenseGroup.getExpenses()) {
-                    if (currExpense.getId() == addExpense.getId()) {
-                        found = true;
-                        currExpense.setQuantity(currExpense.getQuantity() + addExpense.getQuantity());
-                        m_expenseGroup.updatePrice();
-                        break;
-                    }
-                }
-                if (!found)
-                    m_expenseGroup.addExpense(addExpense);
+                // We know each Purchase item will only contain an Expense, so this is a safe cast.
+                m_expenseGroup.addExpense((Expense) purchase.getItem(), purchase.getQuantity());
             }
 
             returnToEditExpenseGroupActivity();

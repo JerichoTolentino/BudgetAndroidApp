@@ -16,15 +16,20 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import expenses.Expense;
 import expenses.ExpenseGroup;
-import expenses.ExpenseInGroup;
+import utilities.KeyValuePair;
 import utilities.MoneyFormatter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import utilities.Utility;
 import databases.DBHandler;
+
+import static utilities.Utility.count;
 
 /**
  * An activity where ExpenseGroups can be created/edited.
@@ -225,7 +230,7 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
      * Removes the specified Expense from the current ExpenseGroup.
      * @param expense The Expense to remove.
      */
-    public void removeExpenseFromGroup(ExpenseInGroup expense)
+    public void removeExpenseFromGroup(Expense expense)
     {
         m_expenseGroup.removeExpense(expense);
     }
@@ -255,16 +260,12 @@ public class EditExpenseGroupActivity extends AppCompatActivity {
      */
     public void updateExpensesListView()
     {
-        Iterable<ExpenseInGroup> expenseList = m_expenseGroup.getExpenses();
+        Iterable<KeyValuePair<Expense, Integer>> expenseList = m_expenseGroup.getExpenses();
 
-        // build array of ExpenseInGroup objects
-        ExpenseInGroup[] expenses = new ExpenseInGroup[Utility.count(expenseList)];
-        int i = 0;
-        for (ExpenseInGroup e : expenseList)
-        {
-            expenses[i] = e;
-            i++;
-        }
+        // build list of Expense-quantity KeyValuePairs
+        List<KeyValuePair<Expense, Integer>> expenses = new ArrayList<>(Utility.count(expenseList));
+        for (KeyValuePair<Expense, Integer> kvp : expenseList)
+            expenses.add(kvp);
 
         ListAdapter listAdapter = new ExpenseWithQuantityRowAdapter(this, expenses);
         ListView lvExpenses = findViewById(R.id.lvExpenses);

@@ -10,13 +10,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import expenses.ExpenseInGroup;
+import java.util.List;
+import java.util.Locale;
+
+import expenses.Expense;
+import utilities.KeyValuePair;
 import utilities.MoneyFormatter;
 
 /**
  * A custom ListView row adapter to display the contents of ExpenseInGroup objects.
  */
-class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
+class ExpenseWithQuantityRowAdapter extends ArrayAdapter<KeyValuePair<Expense, Integer>>
 {
     private Context m_context;
 
@@ -26,7 +30,7 @@ class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
      * @param expenses The Expenses to display in the ListView.
      * @see ArrayAdapter#ArrayAdapter(Context, int, Object[])
      */
-    public ExpenseWithQuantityRowAdapter(@NonNull Context context, ExpenseInGroup expenses[])
+    public ExpenseWithQuantityRowAdapter(@NonNull Context context, List<KeyValuePair<Expense, Integer>> expenses)
     {
         super(context, R.layout.expense_row_for_expense_group, expenses);
         this.m_context = context;
@@ -48,7 +52,7 @@ class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
         final View customView = layoutInflater.inflate(R.layout.expense_row_for_expense_group, parent, false);
 
         //Get references to row data object
-        final ExpenseInGroup expense = getItem(position);
+        final KeyValuePair<Expense, Integer> kvp = getItem(position);
 
         //Get references to row elements
         final TextView tvName = customView.findViewById(R.id.tvName);
@@ -57,19 +61,19 @@ class ExpenseWithQuantityRowAdapter extends ArrayAdapter<ExpenseInGroup>
         final TextView tvQuantity = customView.findViewById(R.id.tvQuantity);
 
 
-        if (expense != null)
+        if (kvp != null)
         {
             //Set row elements based on expense fields
-            tvName.setText(expense.getName());
-            tvPrice.setText(MoneyFormatter.formatLongToMoney(expense.getPrice(), true));
-            tvQuantity.setText("x" + String.valueOf(expense.getQuantity()));
+            tvName.setText(kvp.getKey().getName());
+            tvPrice.setText(MoneyFormatter.formatLongToMoney(kvp.getKey().getPrice(), true));
+            tvQuantity.setText(String.format(Locale.CANADA, "x%d", kvp.getValue()));
 
             btnClear.setOnClickListener(
                     new View.OnClickListener()
                     {
                         public void onClick(View v)
                         {
-                            ((EditExpenseGroupActivity)getContext()).removeExpenseFromGroup(expense);
+                            ((EditExpenseGroupActivity)getContext()).removeExpenseFromGroup(kvp.getKey());
                             ((EditExpenseGroupActivity)getContext()).updateExpensesListView();
                         }
                     }

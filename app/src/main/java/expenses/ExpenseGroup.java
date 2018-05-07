@@ -1,10 +1,12 @@
 package expenses;
 
 import interfaces.Priceable;
+import utilities.KeyValuePair;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * A class that manages a group of Expenses such it can be treated as an Expense as well.
@@ -19,7 +21,7 @@ public class ExpenseGroup implements Priceable, Serializable
 	private String name = "";
 	private String category = "";
 	private String description = "";
-	private ArrayList<ExpenseInGroup> expenses = new ArrayList<>(); //TODO make this a Dictionary (Expense, count)
+	private HashMap<Long, KeyValuePair<Expense, Integer>> expenses = new HashMap<>();
 
 	//endregion
 
@@ -30,6 +32,7 @@ public class ExpenseGroup implements Priceable, Serializable
 	 */
 	public ExpenseGroup()
 	{
+
 	}
 
 	/**
@@ -43,8 +46,8 @@ public class ExpenseGroup implements Priceable, Serializable
 		this.name = other.name;
 		this.category = other.category;
 		this.description = other.description;
-        for (ExpenseInGroup e : other.getExpenses())
-            this.expenses.add(e);
+        for (KeyValuePair<Expense, Integer> e : other.getExpenses())
+            this.expenses.put(e.getKey().getId(), e);
 
         updatePrice();
 	}
@@ -57,14 +60,16 @@ public class ExpenseGroup implements Priceable, Serializable
 	 * @param description The description of the ExpenseGroup.
 	 * @param expenses A list of Expenses to add to the ExpenseGroup.
 	 */
-	public ExpenseGroup(long id, String name, long price, String category, String description, ArrayList<ExpenseInGroup> expenses)
+	public ExpenseGroup(long id, String name, long price, String category, String description, Collection<KeyValuePair<Expense, Integer>> expenses)
 	{
 		this.id = id;
 		this.price = price;
 		this.name = name;
 		this.category = category;
 		this.description = description;
-		this.expenses = expenses;
+		for (KeyValuePair<Expense, Integer> kvp : expenses)
+		    this.expenses.put(kvp.getKey().getId(), kvp);
+
 		updatePrice();
 	}
 
@@ -157,9 +162,9 @@ public class ExpenseGroup implements Priceable, Serializable
      * Gets the collection of Expenses in this ExpenseGroup.
      * @return The collection of Expenses in this ExpenseGroup.
      */
-	public Iterable<ExpenseInGroup> getExpenses()
+	public Iterable<KeyValuePair<Expense, Integer>> getExpenses()
 	{
-		return expenses;
+		return expenses.values();
 	}
 
 	//endregion
@@ -205,9 +210,15 @@ public class ExpenseGroup implements Priceable, Serializable
      * Adds an Expense to this ExpenseGroup and updates the price.
      * @param expense The Expense to add.
      */
-	public void addExpense(ExpenseInGroup expense)
+	public void addExpense(Expense expense, int quantity)
 	{
-		expenses.add(expense);
+	    // Add to the existing quantity if it exists, otherwise add the pair to the collection
+        KeyValuePair<Expense, Integer> existing = expenses.get(expense.getId());
+	    if (existing != null)
+            existing.setValue(existing.getValue() + quantity);
+        else
+		    expenses.put(expense.getId(), new KeyValuePair<>(expense, quantity));
+
 		updatePrice();
 	}
 
@@ -217,14 +228,14 @@ public class ExpenseGroup implements Priceable, Serializable
      * @param expense The Expense to remove.
      * @return True if the removal was a success, false otherwise.
      */
-	public boolean removeExpense(ExpenseInGroup expense)
+	public boolean removeExpense(Expense expense)
 	{
-		boolean result = (expenses.remove(expense));
+		boolean removed = expenses.remove(expense.getId()) != null;
 
-		if(result)
+		if(removed)
 			updatePrice();
 
-		return result;
+		return removed;
 	}
 
 	//endregion
@@ -238,10 +249,8 @@ public class ExpenseGroup implements Priceable, Serializable
 	{
 		long price = 0;
 
-		for (ExpenseInGroup expense : expenses)
-		{
-			price += expense.getPrice() * expense.getQuantity();
-		}
+		for (KeyValuePair<Expense, Integer> kvp : expenses.values())
+			price += kvp.getKey().getPrice() * kvp.getValue();
 
 		this.price = price;
 	}
