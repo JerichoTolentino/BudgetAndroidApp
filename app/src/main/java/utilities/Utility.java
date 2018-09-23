@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import interfaces.Priceable;
+import jericho.budgetapp.Model.Priceable;
 import jericho.budgetapp.R;
 
 /**

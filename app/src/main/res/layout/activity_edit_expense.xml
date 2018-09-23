@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jericho.budgetapp.EditExpenseActivity">
+    tools:context="jericho.budgetapp.Presentation.EditExpenseActivity">
 
     <include
         android:id="@id/custom_toolbar"
@@ -91,7 +91,7 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/etDescription"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <jericho.budgetapp.InputMultilineEditText
+    <jericho.budgetapp.Presentation.InputMultilineEditText
         android:id="@+id/etDescription"
         style="@android:style/Widget.Holo.EditText"
         android:layout_width="0dp"

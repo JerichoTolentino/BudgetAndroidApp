@@ -5,7 +5,7 @@
     android:id="@+id/RootParent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jericho.budgetapp.EditBudgetPlanActivity">
+    tools:context="jericho.budgetapp.Presentation.EditBudgetPlanActivity">
 
     <include
         android:id="@+id/custom_toolbar"

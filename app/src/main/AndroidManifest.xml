@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_budget_buddy_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Presentation.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,39 +20,39 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MenuActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Presentation.MenuActivity"
+            android:parentActivityName=".Presentation.MainActivity" />
 
         <!-- Manage Expenses -->
         <activity
-            android:name=".ManageExpensesActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Presentation.ManageExpensesActivity"
+            android:parentActivityName=".Presentation.MainActivity" />
         <activity
-            android:name=".EditExpenseActivity"
-            android:parentActivityName=".ManageExpensesActivity" />
+            android:name=".Presentation.EditExpenseActivity"
+            android:parentActivityName=".Presentation.ManageExpensesActivity" />
         <activity
-            android:name=".EditExpenseGroupActivity"
-            android:parentActivityName=".ManageExpenseGroupsActivity"
+            android:name=".Presentation.EditExpenseGroupActivity"
+            android:parentActivityName=".Presentation.ManageExpenseGroupsActivity"
             android:windowSoftInputMode="adjustPan" />
 
         <!-- Manage Expense Groups -->
         <activity
-            android:name=".ManageExpenseGroupsActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Presentation.ManageExpenseGroupsActivity"
+            android:parentActivityName=".Presentation.MainActivity" />
         <activity
-            android:name=".SelectExpensesActivity"
-            android:parentActivityName=".EditExpenseGroupActivity" />
+            android:name=".Presentation.SelectExpensesActivity"
+            android:parentActivityName=".Presentation.EditExpenseGroupActivity" />
         <activity
-            android:name=".ViewPurchaseHistory"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Presentation.ViewPurchaseHistory"
+            android:parentActivityName=".Presentation.MainActivity" />
 
         <!-- Manage Budget Plans -->
         <activity
-            android:name=".EditBudgetPlanActivity"
-            android:parentActivityName=".ManageBudgetPlansActivity"
+            android:name=".Presentation.EditBudgetPlanActivity"
+            android:parentActivityName=".Presentation.ManageBudgetPlansActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ManageBudgetPlansActivity" />
-        <activity android:name=".QuickAddExpenseActivity"></activity>
+        <activity android:name=".Presentation.ManageBudgetPlansActivity" />
+        <activity android:name=".Presentation.QuickAddExpenseActivity"></activity>
     </application>
 
 </manifest>

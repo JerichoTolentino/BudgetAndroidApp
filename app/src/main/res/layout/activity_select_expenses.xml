@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="jericho.budgetapp.SelectExpensesActivity">
+    tools:context="jericho.budgetapp.Presentation.SelectExpensesActivity">
 
     <include
         android:id="@+id/custom_toolbar"
