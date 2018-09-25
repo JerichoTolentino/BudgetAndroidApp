@@ -103,7 +103,7 @@ public class SQLitePlan extends SQLiteOpenHelper implements PlanPersistence
     }
 
     @Override
-    public boolean addPlan(Plan plan)
+    public long addPlan(Plan plan)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -118,7 +118,7 @@ public class SQLitePlan extends SQLiteOpenHelper implements PlanPersistence
         final long insert = db.insert(TABLENAME, null, values);
         db.close();
 
-        return (insert != -1);
+        return insert;
     }
 
     @Override

@@ -15,9 +15,9 @@ public interface PeriodicBudgetPersistence
     /**
      * Adds the specified {@link PeriodicBudget} to persistence.
      * @param periodicBudget The {@link PeriodicBudget} to add.
-     * @return True if the addition was successful, false otherwise.
+     * @return The new ID if addition was successful, -1 otherwise.
      */
-    boolean addPeriodicBudget(PeriodicBudget periodicBudget);
+    long addPeriodicBudget(PeriodicBudget periodicBudget);
 
     /**
      * Updates the specified {@link PeriodicBudget}.

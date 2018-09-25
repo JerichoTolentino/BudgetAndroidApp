@@ -98,7 +98,7 @@ public class SQLiteExpense extends SQLiteOpenHelper implements ExpensePersistenc
     }
 
     @Override
-    public boolean addExpense(Expense expense)
+    public long addExpense(Expense expense)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -111,7 +111,7 @@ public class SQLiteExpense extends SQLiteOpenHelper implements ExpensePersistenc
         final long insert = db.insert(TABLENAME, null, values);
         db.close();
 
-        return (insert != -1);
+        return insert;
     }
 
     @Override

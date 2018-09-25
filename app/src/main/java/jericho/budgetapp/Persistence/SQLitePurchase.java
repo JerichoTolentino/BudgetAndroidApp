@@ -88,7 +88,7 @@ public class SQLitePurchase extends SQLiteOpenHelper implements PurchasePersiste
     }
 
     @Override
-    public boolean addPurchase(Purchase purchase)
+    public long addPurchase(Purchase purchase)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -102,7 +102,7 @@ public class SQLitePurchase extends SQLiteOpenHelper implements PurchasePersiste
         final long insert = db.insert(TABLENAME, null, values);
         db.close();
 
-        return (insert != -1);
+        return insert;
     }
 
     @Override

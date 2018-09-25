@@ -22,9 +22,9 @@ public interface ExpensePersistence
     /**
      * Adds the specified {@link Expense} to persistence.
      * @param expense The {@link Expense} to add.
-     * @return True if the addition was successful, false otherwise.
+     * @return The new ID if addition was successful, -1 otherwise.
      */
-    boolean addExpense(Expense expense);
+    long addExpense(Expense expense);
 
     /**
      * Updates the specified {@link Expense}.

@@ -22,9 +22,9 @@ public interface PlanPersistence
     /**
      * Adds the {@link Plan} to persistence.
      * @param plan The {@link Plan} to add.
-     * @return True if the addition was successful, false otherwise.
+     * @return The new ID if addition was successful, -1 otherwise.
      */
-    boolean addPlan(Plan plan);
+    long addPlan(Plan plan);
 
     /**
      * Updates the specified {@link Plan}.

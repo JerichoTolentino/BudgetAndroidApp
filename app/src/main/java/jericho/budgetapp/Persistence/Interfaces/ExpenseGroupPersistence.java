@@ -22,9 +22,9 @@ public interface ExpenseGroupPersistence
     /**
      * Adds the specified {@link ExpenseGroup} to persistence.
      * @param expenseGroup The {@link ExpenseGroup} to add.
-     * @return True if the addition was successful, false otherwise.
+     * @return The new ID if addition was successful, -1 otherwise.
      */
-    boolean addExpenseGroup(ExpenseGroup expenseGroup);
+    long addExpenseGroup(ExpenseGroup expenseGroup);
 
     /**
      * Updates the specified {@link ExpenseGroup}.

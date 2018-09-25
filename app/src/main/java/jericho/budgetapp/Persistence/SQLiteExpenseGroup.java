@@ -95,7 +95,7 @@ public class SQLiteExpenseGroup extends SQLiteOpenHelper implements ExpenseGroup
     }
 
     @Override
-    public boolean addExpenseGroup(ExpenseGroup expenseGroup)
+    public long addExpenseGroup(ExpenseGroup expenseGroup)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -108,7 +108,7 @@ public class SQLiteExpenseGroup extends SQLiteOpenHelper implements ExpenseGroup
         final long insert = db.insert(TABLENAME, null, values);
         db.close();
 
-        return (insert != -1);
+        return insert;
     }
 
     @Override

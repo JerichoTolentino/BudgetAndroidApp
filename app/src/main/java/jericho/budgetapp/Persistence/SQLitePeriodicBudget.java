@@ -95,7 +95,7 @@ public class SQLitePeriodicBudget extends SQLiteOpenHelper implements PeriodicBu
     }
 
     @Override
-    public boolean addPeriodicBudget(PeriodicBudget periodicBudget)
+    public long addPeriodicBudget(PeriodicBudget periodicBudget)
     {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -112,7 +112,7 @@ public class SQLitePeriodicBudget extends SQLiteOpenHelper implements PeriodicBu
         final long insert = db.insert(TABLENAME, null, values);
         db.close();
 
-        return (insert != -1);
+        return insert;
     }
 
     @Override

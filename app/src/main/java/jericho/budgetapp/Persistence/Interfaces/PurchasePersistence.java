@@ -15,9 +15,9 @@ public interface PurchasePersistence
     /**
      * Adds the specified {@link Purchase} to persistence.
      * @param purchase The {@link Purchase} to add.
-     * @return True if the addition was successful, false otherwise.
+     * @return The new ID if addition was successful, -1 otherwise.
      */
-    boolean addPurchase(Purchase purchase);
+    long addPurchase(Purchase purchase);
 
     /**
      * Updates the specified {@link Purchase}.
