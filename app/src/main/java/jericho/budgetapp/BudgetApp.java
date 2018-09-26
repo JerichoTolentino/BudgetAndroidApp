@@ -6,6 +6,8 @@ import android.content.Context;
 public class BudgetApp extends Application
 {
 
+    public static final String DB_NAME = "BudgetApp.db";
+
     private static Context m_context;
 
     @Override
