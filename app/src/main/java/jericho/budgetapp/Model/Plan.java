@@ -35,7 +35,7 @@ public class Plan implements Serializable
 	private PeriodicBudget m_monthlyBudget;
 
 	// work together (daily budget is limited by weekly budget)
-	private PeriodicBudget m_weeklyBudget;
+	private PeriodicBudget m_weeklyBudget;	// TODO: Remove weekly budgets entirely? (or make this only have a weekly budget which is just an aggregate of DailyBudgets)
 	private PeriodicBudget[] m_dailyBudgets;
 
 	//endregion
@@ -302,6 +302,12 @@ public class Plan implements Serializable
     {
         return this.m_dailyBudgets;
     }
+
+    /**
+     * Sets the array of daily budgets in the Plan.
+     * @param budgets The array of daily budgets in the Plan.
+     */
+    public void setDailyBudgets(PeriodicBudget[] budgets) { m_dailyBudgets = budgets; }
 
     /**
      * Gets the daily budget on the specified day of week.
